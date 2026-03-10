@@ -357,7 +357,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get globalSearch => '全局搜索';
 
   @override
-  String get indexIsBeingUpdated => '更新索引...';
+  String get indexIsBeingUpdated => '更新索引 %s...';
+
+  @override
+  String get updateIndexStart => '开始...';
 
   @override
   String get assets => '资产';

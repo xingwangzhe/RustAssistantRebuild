@@ -357,7 +357,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get globalSearch => 'Global search';
 
   @override
-  String get indexIsBeingUpdated => 'Updating index...';
+  String get indexIsBeingUpdated => 'Updating index %s...';
+
+  @override
+  String get updateIndexStart => 'Start...';
 
   @override
   String get assets => 'Assets';

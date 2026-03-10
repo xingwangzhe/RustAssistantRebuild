@@ -55,14 +55,16 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
   bool _firstDid = true;
-  String _indexIsBeingUpdated = "%d %s";
+  String? _indexIsBeingUpdated;
+  String? _updateIndexStart;
   bool _cancelAnalytics = false;
   List<String> _tagList = List.empty();
   bool _autoSave = true;
   bool _showLeftWidget = true;
-
   //自动扫描项目并构建索引。
   bool _automaticIndexConstruction = !Platform.isAndroid;
+  DateTime? _lastProgressUpdateTime;
+  final Duration _throttleDuration = const Duration(milliseconds: 500);
 
   @override
   void initState() {
@@ -109,6 +111,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     if (_firstDid) {
       _firstDid = false;
       _indexIsBeingUpdated = AppLocalizations.of(context)!.indexIsBeingUpdated;
+      _updateIndexStart = AppLocalizations.of(context)!.updateIndexStart;
       if (_automaticIndexConstruction) {
         _doAnalyze(context);
       }
@@ -276,6 +279,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     }
     setState(() {
       isAnalyzingNotifier.value = false;
+      analyzingProgressNotifier.value = "";
       if (result != null) {
         _tagList = result.tagList;
       }
@@ -286,16 +290,27 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     _cancelAnalytics = false;
     setState(() {
       isAnalyzingNotifier.value = true;
+      if (_updateIndexStart != null) {
+        analyzingProgressNotifier.value = _updateIndexStart!;
+      }
     });
   }
 
   bool _progress(int index, String fileName) {
-    if (!mounted) {
+    if (!mounted || _indexIsBeingUpdated == null) {
       return true;
     }
+    final now = DateTime.now();
+    // 检查是否需要节流（未到执行时间则直接返回）
+    if (_lastProgressUpdateTime != null &&
+        now.difference(_lastProgressUpdateTime!) < _throttleDuration) {
+      return _cancelAnalytics;
+    }
+
+    //达到执行时间，执行更新逻辑并记录最新时间
+    _lastProgressUpdateTime = now; // 更新上次执行时间
     setState(() {
-      analyzingProgressNotifier.value = sprintf(_indexIsBeingUpdated, [
-        index,
+      analyzingProgressNotifier.value = sprintf(_indexIsBeingUpdated!, [
         fileName,
       ]);
     });
@@ -776,13 +791,54 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       ),
       drawer: screenWidth > 600 ? null : Drawer(child: getLeft()),
       body: screenWidth > 600
-          ? Row(
+          ? Column(
               children: [
-                if (_showLeftWidget) SizedBox(width: 300, child: getLeft()),
-                Expanded(child: getRight()),
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (_showLeftWidget)
+                        SizedBox(width: 300, child: getLeft()),
+                      Expanded(child: getRight()),
+                    ],
+                  ),
+                ),
+                ValueListenableBuilder<String>(
+                  valueListenable: analyzingProgressNotifier,
+                  child: Padding(padding: EdgeInsetsGeometry.all(8)),
+                  builder: (context, runTip, _) {
+                    return Align(
+                      alignment: AlignmentGeometry.centerRight,
+                      child: Text(
+                        runTip,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    );
+                  },
+                ),
               ],
             )
-          : Column(children: [Expanded(child: getRight())]),
+          : Column(
+              children: [
+                Expanded(child: getRight()),
+                ValueListenableBuilder<String>(
+                  valueListenable: analyzingProgressNotifier,
+                  child: Padding(padding: EdgeInsetsGeometry.all(8)),
+                  builder: (context, runTip, _) {
+                    return Align(
+                      alignment: AlignmentGeometry.centerRight,
+                      child: Text(
+                        runTip,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
     );
   }
 }

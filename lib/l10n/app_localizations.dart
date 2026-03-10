@@ -794,8 +794,14 @@ abstract class AppLocalizations {
   /// No description provided for @indexIsBeingUpdated.
   ///
   /// In en, this message translates to:
-  /// **'Updating index...'**
+  /// **'Updating index %s...'**
   String get indexIsBeingUpdated;
+
+  /// No description provided for @updateIndexStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start...'**
+  String get updateIndexStart;
 
   /// No description provided for @assets.
   ///
