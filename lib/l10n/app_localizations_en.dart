@@ -552,6 +552,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createdFromUnitTemplate => 'Created from the unit template';
 
   @override
+  String get saveAsTemplate => 'Save as template';
+
+  @override
+  String get templateSavePath => 'Template save path';
+
+  @override
   String get addTags => 'Add Tags';
 
   @override

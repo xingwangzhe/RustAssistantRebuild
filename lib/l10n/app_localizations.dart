@@ -1181,6 +1181,18 @@ abstract class AppLocalizations {
   /// **'Created from the unit template'**
   String get createdFromUnitTemplate;
 
+  /// No description provided for @saveAsTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as template'**
+  String get saveAsTemplate;
+
+  /// No description provided for @templateSavePath.
+  ///
+  /// In en, this message translates to:
+  /// **'Template save path'**
+  String get templateSavePath;
+
   /// No description provided for @addTags.
   ///
   /// In en, this message translates to:

@@ -552,6 +552,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get createdFromUnitTemplate => '从单位模板创建';
 
   @override
+  String get saveAsTemplate => '另存为模板';
+
+  @override
+  String get templateSavePath => '模板保存路径';
+
+  @override
   String get addTags => '添加标签';
 
   @override

@@ -603,7 +603,8 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           },
           closeTag: (String p1) {
             _closeTag(p1);
-          }, modUnit: _projectAnalyzer.unitRefList,
+          },
+          modUnit: _projectAnalyzer.unitRefList,
         );
       },
     );
@@ -762,6 +763,11 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 value: 'show_source_diff',
                 enabled: _openedFilePath.isNotEmpty,
                 child: Text(AppLocalizations.of(context)!.showSourceDiff),
+              ),
+              PopupMenuItem<String>(
+                value: 'saveAsTemplate',
+                enabled: _openedFilePath.isNotEmpty,
+                child: Text(AppLocalizations.of(context)!.saveAsTemplate),
               ),
             ],
             icon: const Icon(Icons.more_vert),

@@ -180,6 +180,8 @@
   "selectColor": "selectColor",
   "unitsTemplate": "Units template",
   "createdFromUnitTemplate": "Created from the unit template",
+  "saveAsTemplate":"Save as template",
+  "templateSavePath":"Template save path",
   "addTags": "Add Tags",
   "addTagsTip": "Add %d tags",
   "showOrHideSidebar": "Show or hide the sidebar",

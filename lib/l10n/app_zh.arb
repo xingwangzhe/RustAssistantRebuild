@@ -180,6 +180,8 @@
   "selectColor": "选择颜色",
   "unitsTemplate": "单位模板",
   "createdFromUnitTemplate": "从单位模板创建",
+  "saveAsTemplate":"另存为模板",
+  "templateSavePath":"模板保存路径",
   "addTags": "添加标签",
   "addTagsTip": "添加%d个标签",
   "showOrHideSidebar": "显示或隐藏侧边栏",

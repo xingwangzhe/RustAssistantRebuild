@@ -20,18 +20,20 @@ class PathConfigPage extends StatefulWidget {
 class _PathConfigPageState extends State<PathConfigPage> {
   bool _enableSteamMod = false;
   final TextEditingController _modEditingController = TextEditingController();
+  final TextEditingController _templatePathEditingController =
+      TextEditingController();
   final TextEditingController _steamModEditingController =
       TextEditingController();
   String? _steamModEditingErrorText;
   String? _modEditingErrorText;
+  String? _templatePathErrorText;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    if (!_loadHiveValue()) {
-      setDefaultPath(false);
-    }
+    _loadHiveValue();
+    setDefaultPath(false);
     //不要动 HiveHelper.put(HiveHelper.showSteamMod, _enableSteamMod); 这实际上是在写入默认值
     if (!HiveHelper.containsKey(HiveHelper.showSteamMod)) {
       HiveHelper.put(HiveHelper.showSteamMod, _enableSteamMod);
@@ -48,9 +50,10 @@ class _PathConfigPageState extends State<PathConfigPage> {
     return Platform.isWindows || Platform.isLinux;
   }
 
-  bool _loadHiveValue() {
+  void _loadHiveValue() {
     var modPath = HiveHelper.get(HiveHelper.modPath);
     var steamPath = HiveHelper.get(HiveHelper.steamModPath);
+    var templatePath = HiveHelper.get(HiveHelper.templatePath);
     var showSteamMod = HiveHelper.get(
       HiveHelper.showSteamMod,
       defaultValue: _getEnableSteamModDefaultValue(),
@@ -66,18 +69,21 @@ class _PathConfigPageState extends State<PathConfigPage> {
       _enableSteamMod = showSteamMod;
     });
 
+    if (templatePath != null) {
+      setState(() {
+        _templatePathEditingController.text = templatePath;
+      });
+      _checkTemplatePathError(templatePath);
+    }
+
     if (showSteamMod) {
       if (steamPath != null) {
         setState(() {
           _steamModEditingController.text = steamPath;
         });
         _checkSteamModEditingError(steamPath);
-        result = true;
       }
-    } else {
-      result = true;
     }
-    return result;
   }
 
   List<Widget> _getCoreWidget() {
@@ -149,7 +155,30 @@ class _PathConfigPageState extends State<PathConfigPage> {
           ),
           onChanged: (text) => {_checkSteamModEditingError(text)},
         ),
-      if (Platform.isLinux || Platform.isWindows) SizedBox(height: 8),
+      if (Platform.isLinux || Platform.isWindows) SizedBox(height: 16),
+      TextField(
+        controller: _templatePathEditingController,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          errorText: _templatePathErrorText,
+          label: Text(AppLocalizations.of(context)!.templateSavePath),
+          suffixIcon: IconButton(
+            onPressed: () async {
+              var path = await GlobalDepend.getFileSystemOperator()
+                  .pickDirectory(context);
+              if (path == null) {
+                return;
+              }
+              setState(() {
+                _templatePathEditingController.text = path;
+              });
+              _checkTemplatePathError(path);
+            },
+            icon: Icon(Icons.folder_outlined),
+          ),
+        ),
+        onChanged: (text) => {_checkTemplatePathError(text)},
+      ),
       Row(
         children: [
           Expanded(child: SizedBox()),
@@ -205,6 +234,14 @@ class _PathConfigPageState extends State<PathConfigPage> {
       widget.modPathConfigLegal!.call(false);
       return;
     }
+    if (_templatePathEditingController.text.isEmpty) {
+      widget.modPathConfigLegal!.call(false);
+      return;
+    }
+    if (_templatePathErrorText != null) {
+      widget.modPathConfigLegal!.call(false);
+      return;
+    }
     if (_enableSteamMod) {
       if (_steamModEditingController.text.isEmpty) {
         widget.modPathConfigLegal!.call(false);
@@ -242,6 +279,29 @@ class _PathConfigPageState extends State<PathConfigPage> {
     _invokeCallBack();
   }
 
+  void _checkTemplatePathError(String text) async {
+    if (text.isEmpty) {
+      setState(() {
+        _templatePathErrorText = AppLocalizations.of(context)!.invalidFolder;
+      });
+      _invokeCallBack();
+      return;
+    }
+    if (await GlobalDepend.getFileSystemOperator().checkFolderAvailable(text)) {
+      HiveHelper.put(HiveHelper.templatePath, text);
+      setState(() {
+        _templatePathErrorText = null;
+      });
+    } else {
+      setState(() {
+        _templatePathErrorText = AppLocalizations.of(
+          context,
+        )!.folderDoesNotExist;
+      });
+    }
+    _invokeCallBack();
+  }
+
   void setDefaultPath(bool overwrite) async {
     final String? userHomePath = await GlobalDepend.getUserHomeDirectory();
     if (userHomePath == null) {
@@ -252,6 +312,18 @@ class _PathConfigPageState extends State<PathConfigPage> {
         _enableSteamMod = _getEnableSteamModDefaultValue();
       });
       HiveHelper.put(HiveHelper.showSteamMod, _enableSteamMod);
+    }
+    if (overwrite || _templatePathEditingController.text.isEmpty) {
+      final String? userDataFolder = await GlobalDepend.getUserDataFolder();
+      if (userDataFolder != null) {
+        setState(() {
+          _templatePathEditingController.text = p.join(
+            userDataFolder,
+            "custom-templates",
+          );
+          _checkTemplatePathError(_templatePathEditingController.text);
+        });
+      }
     }
     if (Platform.isLinux) {
       if (overwrite || _modEditingController.text.isEmpty) {

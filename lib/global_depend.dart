@@ -92,6 +92,13 @@ class GlobalDepend {
         available = false;
       }
     }
+    if (HiveHelper.containsKey(HiveHelper.templatePath)) {
+      var templatePath = HiveHelper.get(HiveHelper.templatePath);
+      var exist = await _fileSystemOperator.exist(templatePath);
+      if (!exist) {
+        available = false;
+      }
+    }
     if (available && HiveHelper.containsKey(HiveHelper.showSteamMod)) {
       var showSteam = HiveHelper.get(HiveHelper.showSteamMod);
       if (showSteam) {
@@ -548,6 +555,7 @@ class HiveHelper {
   static late Box _box;
   static String modPath = "modPath";
   static String steamModPath = "steamModPath";
+  static String templatePath = "templatePath";
   static String showSteamMod = "showSteamMod";
   static String runedGuide = "runedGuide";
   static String dynamicColorEnabled = "dynamicColorEnabled";

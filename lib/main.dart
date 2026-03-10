@@ -9,6 +9,7 @@ import 'package:rust_assistant/theme_provider.dart';
 import 'global_depend.dart';
 import 'l10n/app_localizations.dart';
 import 'locale_manager.dart';
+import 'package:path/path.dart' as p;
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -27,6 +28,10 @@ Future initHiveHelper() async {
   var userDataDir = Directory(userData);
   if (!await userDataDir.exists()) {
     userDataDir.create();
+  }
+  var customTemplates = Directory(p.join(userData,"custom-templates"));
+  if(!await customTemplates.exists()){
+    customTemplates.create();
   }
   await HiveHelper.init(userData);
 }
