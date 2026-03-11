@@ -30,6 +30,7 @@ class _SettingsStatus extends State<SettingsPage> {
   bool _toggleLineNumber = false;
   bool _autoSave = true;
   bool _deleteOriginalFile = true;
+  bool _restoreOpenedFile = true;
   bool _readMagicNumberOfFiles = false;
   List<GameVersion>? _gameVersionList;
   late int _selectedGameVersion;
@@ -96,6 +97,9 @@ class _SettingsStatus extends State<SettingsPage> {
     }
     if (HiveHelper.containsKey(HiveHelper.toggleLineNumber)) {
       _toggleLineNumber = HiveHelper.get(HiveHelper.toggleLineNumber);
+    }
+    if (HiveHelper.containsKey(HiveHelper.restoreOpenedFile)) {
+      _restoreOpenedFile = HiveHelper.get(HiveHelper.restoreOpenedFile);
     }
     _initCachePath();
     _loadVersionInfo();
@@ -196,6 +200,18 @@ class _SettingsStatus extends State<SettingsPage> {
                 _toggleLineNumber = value;
               });
               HiveHelper.put(HiveHelper.toggleLineNumber, value);
+            },
+          ),
+          SizedBox(height: 8),
+          SwitchListTile(
+            title: Text(AppLocalizations.of(context)!.restoreOpenedFile),
+            value: _restoreOpenedFile,
+            subtitle: Text(AppLocalizations.of(context)!.restoreOpenedFileTip),
+            onChanged: (value) {
+              setState(() {
+                _restoreOpenedFile = value;
+              });
+              HiveHelper.put(HiveHelper.restoreOpenedFile, value);
             },
           ),
           SizedBox(height: 8),

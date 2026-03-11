@@ -846,6 +846,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get writeCache => 'Writing to cache...';
 
   @override
+  String get restoreOpenedFile => 'Restore the opened files';
+
+  @override
+  String get restoreOpenedFileTip => 'Restore the last opened file upon startup';
+
+  @override
   String get readMagicNumberOfFiles => 'Read the magic number of files';
 
   @override

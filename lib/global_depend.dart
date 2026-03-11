@@ -29,6 +29,7 @@ class GlobalDepend {
 
   //是否允许读取文件魔数
   static bool readMagicNumberOfFiles = false;
+
   static List<RecycleBinItem> getRecycleBinList() {
     return _recycleBinList;
   }
@@ -568,6 +569,7 @@ class HiveHelper {
   static String autoSave = "autoSave";
   static String config = "config";
   static const String includePreRelease = "include_pre_release";
+  static const String restoreOpenedFile = "restoreOpenedFile";
   static const String deleteOriginalFileAfterDecompression =
       "delete_original_file_after_decompression";
 
@@ -596,6 +598,9 @@ class HiveHelper {
     }
     if (!_box.containsKey(autoSave)) {
       _box.put(autoSave, true);
+    }
+    if (!_box.containsKey(restoreOpenedFile)) {
+      _box.put(restoreOpenedFile, true);
     }
     if (!_box.containsKey(archivedFileLoadingLimit)) {
       //默认1MB

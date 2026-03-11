@@ -24,27 +24,16 @@ class ListData {
   String? title;
   String? subTitle;
   String? path;
-  Uint8List? bytes;
 
-  // 序列化：转成 JSON 可识别的 Map
   Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'subTitle': subTitle,
-      'path': path,
-      // Uint8List 转 Base64 字符串（JSON 不支持二进制）
-      'bytes': bytes != null ? base64Encode(bytes!) : null,
-    };
+    return {'title': title, 'subTitle': subTitle, 'path': path};
   }
 
-  // 反序列化：从 Map 转成 ListData 对象
   static ListData fromJson(Map<String, dynamic> json) {
     return ListData()
       ..title = json['title']
       ..subTitle = json['subTitle']
-      ..path = json['path']
-      // Base64 字符串转回 Uint8List
-      ..bytes = json['bytes'] != null ? base64Decode(json['bytes']) : null;
+      ..path = json['path'];
   }
 }
 

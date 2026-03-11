@@ -10,7 +10,7 @@ import '../l10n/app_localizations.dart';
 class AnalyticsDialog extends StatefulWidget {
   final VisualAnalyticsResult? result;
   final ProgressInfo progressInfo;
-  final Function(String) onRequestOpenFile;
+  final Function(String, bool) onRequestOpenFile;
   final Function onCancelAnalytics;
   final Function onRescan;
 
@@ -254,17 +254,13 @@ class _AnalyticsDialogState extends State<AnalyticsDialog>
                         onTap: () {
                           final path = data.path;
                           if (path != null) {
-                            widget.onRequestOpenFile.call(path);
+                            widget.onRequestOpenFile.call(path, true);
                           }
                           Navigator.of(context).pop();
                         },
                         leading: filePath == null
                             ? null
-                            : GlobalDepend.getFileIcon(
-                                false,
-                                filePath,
-                                data.bytes,
-                              ),
+                            : GlobalDepend.getFileIcon(false, filePath, null),
                         title: HighlightText(
                           text:
                               data.title ?? AppLocalizations.of(context)!.none,

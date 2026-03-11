@@ -846,6 +846,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get writeCache => '写入缓存...';
 
   @override
+  String get restoreOpenedFile => '恢复打开的文件';
+
+  @override
+  String get restoreOpenedFileTip => '启动时恢复上次打开的文件';
+
+  @override
   String get readMagicNumberOfFiles => '读取文件魔数';
 
   @override

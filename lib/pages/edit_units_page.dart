@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -63,8 +64,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   List<String> _tagList = List.empty();
   bool _autoSave = true;
   bool _showLeftWidget = true;
-
-  //自动扫描项目并构建索引。
+  bool _restoreOpenedFile = true;
   bool _automaticIndexConstruction = !Platform.isAndroid;
   DateTime? _lastProgressUpdateTime;
   final Duration _throttleDuration = const Duration(milliseconds: 500);
@@ -95,7 +95,70 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       widget.mod.path,
       GlobalDepend.getFileSystemOperator(),
     );
+    if (HiveHelper.containsKey(HiveHelper.restoreOpenedFile)) {
+      _restoreOpenedFile = HiveHelper.get(HiveHelper.restoreOpenedFile);
+    }
     loadGlobalRes();
+    loadOpenedFile();
+  }
+
+  void loadOpenedFile() async {
+    if (!_restoreOpenedFile) {
+      return;
+    }
+    String? dataFolder = await GlobalDepend.getUserDataFolder();
+    if (dataFolder == null) {
+      return;
+    }
+    String rootName = await _fileSystemOperator.name(widget.mod.path);
+    String modCache = _fileSystemOperator.join(
+      _fileSystemOperator.join(dataFolder, "cache"),
+      rootName,
+    );
+    _fileSystemOperator.mkdir(
+      _fileSystemOperator.join(dataFolder, "cache"),
+      rootName,
+    );
+    String openedFileJson = _fileSystemOperator.join(
+      modCache,
+      "openedFile.json",
+    );
+    if (await _fileSystemOperator.exist(openedFileJson)) {
+      String? jsonContent = await _fileSystemOperator.readAsString(
+        openedFileJson,
+      );
+      if (jsonContent == null || jsonContent.isEmpty) {
+        return;
+      }
+
+      dynamic jsonData = jsonDecode(jsonContent);
+      if (jsonData is List) {
+        for (var value in jsonData.whereType<String>().toList()) {
+          _onRequestOpenFile(value, false);
+        }
+      }
+    }
+  }
+
+  void saveOpenedFile() async {
+    if (!_restoreOpenedFile) {
+      return;
+    }
+    String? dataFolder = await GlobalDepend.getUserDataFolder();
+    if (dataFolder == null) {
+      return;
+    }
+    String rootName = await _fileSystemOperator.name(widget.mod.path);
+    String modCache = _fileSystemOperator.join(
+      _fileSystemOperator.join(dataFolder, "cache"),
+      rootName,
+    );
+    String jsonContent = jsonEncode(_openedFilePath);
+    await _fileSystemOperator.writeFile(
+      modCache,
+      "openedFile.json",
+      jsonContent,
+    );
   }
 
   void _doAnalyze(BuildContext buildContext) {
@@ -239,7 +302,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     );
   }
 
-  void _onRequestOpenFile(String path) async {
+  void _onRequestOpenFile(String path, bool needUpdateFile) async {
     var index = _openedFilePath.indexOf(path);
     var fileName = await _fileSystemOperator.name(path);
     var fileHeader = await FileTypeChecker.readFileHeader(path);
@@ -255,6 +318,9 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       setState(() {
         _targetTabIndex = index;
       });
+    }
+    if (needUpdateFile) {
+      saveOpenedFile();
     }
   }
 
@@ -495,7 +561,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           currentPath: _currentPath ?? widget.mod.path,
           onRequestOpenFile: (path) {
             Scaffold.of(context).closeDrawer();
-            _onRequestOpenFile(path);
+            _onRequestOpenFile(path, true);
           },
           onCurrentPathChange: (str) {
             setState(() {
@@ -536,6 +602,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     _pathTofileType[newSubPath] = oldType;
                   }
                 });
+                saveOpenedFile();
               }
               return;
             }
@@ -560,6 +627,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 _pathTofileType[newPath] = oldType;
               }
             });
+            saveOpenedFile();
           },
           onDelete: (String path) {
             _closeTag(path);
@@ -578,6 +646,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       _pathToFileName.remove(path);
       _pathTofileType.remove(path);
     });
+    saveOpenedFile();
   }
 
   Widget getRight() {
@@ -618,7 +687,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             setState(() {
               _currentPath = Constant.currentPathRefresh;
             });
-            _onRequestOpenFile(path);
+            _onRequestOpenFile(path, true);
           },
           pathToFileName: _pathToFileName,
           pathToFileType: _pathTofileType,

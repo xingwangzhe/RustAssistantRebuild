@@ -1769,6 +1769,18 @@ abstract class AppLocalizations {
   /// **'Writing to cache...'**
   String get writeCache;
 
+  /// No description provided for @restoreOpenedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the opened files'**
+  String get restoreOpenedFile;
+
+  /// No description provided for @restoreOpenedFileTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore the last opened file upon startup'**
+  String get restoreOpenedFileTip;
+
   /// No description provided for @readMagicNumberOfFiles.
   ///
   /// In en, this message translates to:

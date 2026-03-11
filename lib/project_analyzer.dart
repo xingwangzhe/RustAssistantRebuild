@@ -197,7 +197,6 @@ class ProjectAnalyzer {
         continue;
       }
       if (fileType == FileTypeChecker.FileTypeImage) {
-        fileListData.bytes = await fileSystemOperator.readAsBytes(path);
         ListDataTask listDataTask = ListDataTask();
         listDataTask.listData = fileListData;
         listDataTask.taskType = TaskType.AddAssets;
