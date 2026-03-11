@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:rust_assistant/databeans/unit_ref.dart';
 import 'package:rust_assistant/file_type_checker.dart';
 import 'package:rust_assistant/global_depend.dart';
@@ -38,6 +40,62 @@ class ProjectAnalyzer {
     var result = VisualAnalyticsResult();
     result.startTime = DateTime.now();
     onStart?.call();
+    String folderName = await fileSystemOperator.name(rootPath);
+    String configPath = fileSystemOperator.join(
+      fileSystemOperator.join(
+        await GlobalDepend.getUserDataFolder() ?? rootPath,
+        "cache",
+      ),
+      folderName,
+    );
+    await fileSystemOperator.mkdir(
+      fileSystemOperator.join(
+        await GlobalDepend.getUserDataFolder() ?? rootPath,
+        "cache",
+      ),
+      folderName,
+    );
+    String modificationTimeJsonPath = fileSystemOperator.join(
+      configPath,
+      "timeIndex.json",
+    );
+    String listDataJsonPath = fileSystemOperator.join(
+      configPath,
+      "listData.json",
+    );
+    if (modificationTime.isEmpty || pathToListData.isEmpty) {
+      if (progress?.call(-1, 0, appLocalizations.readCache) == true) {
+        return;
+      }
+      if (await fileSystemOperator.exist(modificationTimeJsonPath)) {
+        String? modificationTimeJson = await fileSystemOperator.readAsString(
+          modificationTimeJsonPath,
+        );
+        if (modificationTimeJson != null && modificationTimeJson.isNotEmpty) {
+          Map<String, dynamic> timeMap = jsonDecode(modificationTimeJson);
+          modificationTime = timeMap.map((key, value) {
+            return MapEntry(key, DateTime.parse(value as String));
+          });
+        }
+      }
+
+      if (await fileSystemOperator.exist(listDataJsonPath)) {
+        String? listDataJson = await fileSystemOperator.readAsString(
+          listDataJsonPath,
+        );
+        if (listDataJson != null && listDataJson.isNotEmpty) {
+          Map<String, dynamic> dataMap = jsonDecode(listDataJson);
+          pathToListData = dataMap.map((key, value) {
+            List<ListDataTask> tasks = (value as List)
+                .map(
+                  (item) => ListDataTask.fromJson(item as Map<String, dynamic>),
+                )
+                .toList();
+            return MapEntry(key, tasks);
+          });
+        }
+      }
+    }
     List<UnitRef> temporary = List.empty(growable: true);
     var fileVisualAnalytics = VisualAnalyticsResultItem();
     var assetsVisualAnalytics = VisualAnalyticsResultItem();
@@ -229,6 +287,34 @@ class ProjectAnalyzer {
         unitVisualAnalytics.result.add(unitData);
       }
     }
+
+    if (progress?.call(-1, 0, appLocalizations.writeCache) == true) {
+      return;
+    }
+    Map<String, String> timeJsonMap = modificationTime.map((key, value) {
+      return MapEntry(key, value.toIso8601String());
+    });
+    String timeJsonStr = jsonEncode(timeJsonMap);
+    await fileSystemOperator.writeFile(
+      configPath,
+      "timeIndex.json",
+      timeJsonStr,
+    );
+    Map<String, List<Map<String, dynamic>>> dataJsonMap = pathToListData.map((
+      key,
+      value,
+    ) {
+      List<Map<String, dynamic>> tasksJson = value
+          .map((task) => task.toJson())
+          .toList();
+      return MapEntry(key, tasksJson);
+    });
+    String dataJsonStr = jsonEncode(dataJsonMap);
+    await fileSystemOperator.writeFile(
+      configPath,
+      "listData.json",
+      dataJsonStr,
+    );
     result.items.add(fileVisualAnalytics);
     result.items.add(assetsVisualAnalytics);
     result.items.add(memoryVisualAnalytics);

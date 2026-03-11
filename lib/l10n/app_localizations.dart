@@ -1751,6 +1751,24 @@ abstract class AppLocalizations {
   /// **'Unit'**
   String get unit;
 
+  /// No description provided for @deleteAllModCacheFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all mod cache files'**
+  String get deleteAllModCacheFiles;
+
+  /// No description provided for @readCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading cache...'**
+  String get readCache;
+
+  /// No description provided for @writeCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing to cache...'**
+  String get writeCache;
+
   /// No description provided for @readMagicNumberOfFiles.
   ///
   /// In en, this message translates to:

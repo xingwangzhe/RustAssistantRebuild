@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as fileSystemOperator;
 import 'package:rust_assistant/code_data_base.dart';
 import 'package:rust_assistant/constant.dart';
 import 'package:rust_assistant/databeans/game_version.dart';
+import 'package:rust_assistant/delete_file_dialog.dart';
 import 'package:rust_assistant/global_depend.dart';
 import 'package:rust_assistant/pages/language_and_appearance.dart';
 import 'package:rust_assistant/pages/path_config_page.dart';
@@ -34,6 +36,7 @@ class _SettingsStatus extends State<SettingsPage> {
   late int _archivedFileLoadingLimit;
   String? versionName;
   String? versionNumber;
+  String? cachePath;
   int _openWorkspaceAfterCreateMod = Constant.openWorkSpaceAsk;
 
   @override
@@ -94,7 +97,16 @@ class _SettingsStatus extends State<SettingsPage> {
     if (HiveHelper.containsKey(HiveHelper.toggleLineNumber)) {
       _toggleLineNumber = HiveHelper.get(HiveHelper.toggleLineNumber);
     }
+    _initCachePath();
     _loadVersionInfo();
+  }
+
+  void _initCachePath() async {
+    String? dataFolder = await GlobalDepend.getUserDataFolder();
+    if (dataFolder == null) {
+      return;
+    }
+    cachePath = fileSystemOperator.join(dataFolder, "cache");
   }
 
   void _loadVersionInfo() async {
@@ -381,6 +393,24 @@ class _SettingsStatus extends State<SettingsPage> {
               });
               HiveHelper.put(HiveHelper.readMagicNumberOfFiles, value);
             },
+          ),
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.deleteAllModCacheFiles),
+            trailing: TextButton(
+              onPressed: () async {
+                if (cachePath == null) {
+                  return;
+                }
+                showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) {
+                    return DeleteFileDialog(path: cachePath!, name: 'cache');
+                  },
+                );
+              },
+              child: Text(AppLocalizations.of(context)!.delete),
+            ),
           ),
           Divider(),
           ListTile(

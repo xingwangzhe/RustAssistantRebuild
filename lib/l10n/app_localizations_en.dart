@@ -837,6 +837,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unit => 'Unit';
 
   @override
+  String get deleteAllModCacheFiles => 'Delete all mod cache files';
+
+  @override
+  String get readCache => 'Reading cache...';
+
+  @override
+  String get writeCache => 'Writing to cache...';
+
+  @override
   String get readMagicNumberOfFiles => 'Read the magic number of files';
 
   @override

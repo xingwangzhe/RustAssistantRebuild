@@ -837,6 +837,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unit => '单位';
 
   @override
+  String get deleteAllModCacheFiles => '删除所有的模组缓存';
+
+  @override
+  String get readCache => '读取缓存...';
+
+  @override
+  String get writeCache => '写入缓存...';
+
+  @override
   String get readMagicNumberOfFiles => '读取文件魔数';
 
   @override
