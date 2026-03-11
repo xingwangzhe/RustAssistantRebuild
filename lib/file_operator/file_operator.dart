@@ -62,6 +62,8 @@ abstract class FileSystemOperator {
   //获取文件夹路径
   Future<String> dirname(String uri);
 
+  Future<DateTime?> getModifiedTime(String uri);
+
   Future<int> size(String uri);
 }
 
@@ -302,6 +304,29 @@ class LocalFileOperator extends FileSystemOperator {
         );
     }
   }
+
+  @override
+  Future<DateTime?> getModifiedTime(String uri) async {
+    try {
+      // 获取文件/目录的状态信息
+      final FileStat stat = await File(uri).stat();
+
+      // 检查路径是否存在
+      if (stat.type == FileSystemEntityType.notFound) {
+        debugPrint("getModifiedTime failed: $uri does not exist");
+        return null;
+      }
+
+      // 返回修改时间（stat.modified 是 DateTime 类型）
+      return stat.modified;
+    } on FileSystemException catch (e, st) {
+      debugPrint("FileSystemException getting modified time for $uri: $e\n$st");
+      return null;
+    } catch (e, st) {
+      debugPrint("Unknown error getting modified time for $uri: $e\n$st");
+      return null;
+    }
+  }
 }
 
 //适用于压缩文件的文件操作实现，直接操作压缩包。
@@ -500,4 +525,9 @@ class ZipFileOperator extends FileSystemOperator {
 
   @override
   void rename(String oldUri, String newUri) {}
+
+  @override
+  Future<DateTime?> getModifiedTime(String uri) async {
+    return null;
+  }
 }

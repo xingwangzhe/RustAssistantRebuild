@@ -25,3 +25,10 @@ class ListData {
   String? path;
   Uint8List? bytes;
 }
+
+enum TaskType { AddFile,AddAssets,AddAudio,AddTag,AddUnit,AddMemory }
+
+class ListDataTask {
+  ListData? listData;
+  TaskType? taskType;
+}

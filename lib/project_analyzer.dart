@@ -15,6 +15,8 @@ class ProjectAnalyzer {
   bool _isRunning = false;
   VisualAnalyticsResult? _lastResult;
   final List<UnitRef> unitRefList = List.empty(growable: true);
+  Map<String, DateTime> modificationTime = {};
+  Map<String, List<ListDataTask>> pathToListData = {};
 
   ProjectAnalyzer(this.rootPath, this.fileSystemOperator);
 
@@ -69,8 +71,6 @@ class ProjectAnalyzer {
     }, recursive: true);
     for (int i = 0; i < pathList.length; i++) {
       String path = pathList[i];
-      var fileHead = await FileTypeChecker.readFileHeader(path);
-      var fileType = FileTypeChecker.getFileType(path, fileHeader: fileHead);
       index++;
       var relativePath = await fileSystemOperator.relative(path, rootPath);
       if (progress?.call(
@@ -81,20 +81,77 @@ class ProjectAnalyzer {
           true) {
         break;
       }
+      var time = await fileSystemOperator.getModifiedTime(path);
+      if (modificationTime.containsKey(path)) {
+        if (modificationTime[path] == time) {
+          //The time remains the same. Data is loaded from the memory.
+          //时间没变，从内存中加载数据。
+          var listDataTasks = pathToListData[path];
+          if (listDataTasks != null) {
+            for (var value in listDataTasks) {
+              if (value.taskType == null) {
+                continue;
+              }
+              if (value.taskType == TaskType.AddFile) {
+                fileVisualAnalytics.result.add(value.listData!);
+                continue;
+              }
+              if (value.taskType == TaskType.AddAssets) {
+                assetsVisualAnalytics.result.add(value.listData!);
+                continue;
+              }
+              if (value.taskType == TaskType.AddAudio) {
+                assetsVisualAnalytics.result.add(value.listData!);
+                continue;
+              }
+              if (value.taskType == TaskType.AddTag) {
+                tagVisualAnalytics.result.add(value.listData!);
+                continue;
+              }
+              if (value.taskType == TaskType.AddUnit) {
+                unitVisualAnalytics.result.add(value.listData!);
+                continue;
+              }
+              if (value.taskType == TaskType.AddMemory) {
+                memoryVisualAnalytics.result.add(value.listData!);
+                continue;
+              }
+            }
+          }
+          continue;
+        }
+      }
+      List<ListDataTask> tasks = List.empty(growable: true);
+      pathToListData[path] = tasks;
+      modificationTime[path] = time!;
+      var fileHead = await FileTypeChecker.readFileHeader(path);
+      var fileType = FileTypeChecker.getFileType(path, fileHeader: fileHead);
       var fileListData = ListData();
       fileListData.title = await fileSystemOperator.name(path);
       fileListData.subTitle = relativePath;
       fileListData.path = path;
+      ListDataTask listDataTask = ListDataTask();
+      listDataTask.listData = fileListData;
+      listDataTask.taskType = TaskType.AddFile;
+      tasks.add(listDataTask);
       fileVisualAnalytics.result.add(fileListData);
       if (fileType == FileTypeChecker.FileTypeUnknown) {
         continue;
       }
       if (fileType == FileTypeChecker.FileTypeImage) {
         fileListData.bytes = await fileSystemOperator.readAsBytes(path);
+        ListDataTask listDataTask = ListDataTask();
+        listDataTask.listData = fileListData;
+        listDataTask.taskType = TaskType.AddAssets;
+        tasks.add(listDataTask);
         assetsVisualAnalytics.result.add(fileListData);
         continue;
       }
       if (fileType == FileTypeChecker.FileTypeAudio) {
+        ListDataTask listDataTask = ListDataTask();
+        listDataTask.listData = fileListData;
+        listDataTask.taskType = TaskType.AddAudio;
+        tasks.add(listDataTask);
         assetsVisualAnalytics.result.add(fileListData);
         continue;
       }
@@ -122,6 +179,10 @@ class ProjectAnalyzer {
           memoryListData.subTitle = relativePath;
           memoryListData.path = path;
           memoryVisualAnalytics.result.add(memoryListData);
+          ListDataTask listDataTask = ListDataTask();
+          listDataTask.listData = memoryListData;
+          listDataTask.taskType = TaskType.AddMemory;
+          tasks.add(listDataTask);
         }
         var symbol = lineLowerCase.indexOf(':');
         if (symbol > -1) {
@@ -131,6 +192,10 @@ class ProjectAnalyzer {
             tagListData.title = line;
             tagListData.subTitle = relativePath;
             tagListData.path = path;
+            ListDataTask listDataTask = ListDataTask();
+            listDataTask.listData = tagListData;
+            listDataTask.taskType = TaskType.AddTag;
+            tasks.add(listDataTask);
             tagVisualAnalytics.result.add(tagListData);
             var value = line.substring(symbol + 1).trim();
             var valueList = value.split(',');
@@ -157,6 +222,10 @@ class ProjectAnalyzer {
         unitData.title = unitRef.name;
         unitData.subTitle = relativePath;
         unitData.path = path;
+        ListDataTask listDataTask = ListDataTask();
+        listDataTask.listData = unitData;
+        listDataTask.taskType = TaskType.AddUnit;
+        tasks.add(listDataTask);
         unitVisualAnalytics.result.add(unitData);
       }
     }
