@@ -1,6 +1,7 @@
 import 'package:rust_assistant/databeans/unit_ref.dart';
 import 'package:rust_assistant/file_type_checker.dart';
 import 'package:rust_assistant/global_depend.dart';
+import 'package:sprintf/sprintf.dart';
 
 import 'databeans/visual_analytics_result.dart';
 
@@ -22,7 +23,7 @@ class ProjectAnalyzer {
   Future<void> analyze(
     AppLocalizations appLocalizations,
     Function? onStart,
-    bool Function(int, String)? progress,
+    bool Function(int, int, String)? progress,
     Function(VisualAnalyticsResult? result)? onFinish,
   ) async {
     if (_isRunning) {
@@ -50,16 +51,35 @@ class ProjectAnalyzer {
     Set<String> tagSet = {};
     var languageDisplayText =
         "displayText_${HiveHelper.get(HiveHelper.language)}".toLowerCase();
+    List<String> pathList = [];
     await fileSystemOperator.list(rootPath, (path) async {
       if (await fileSystemOperator.isDir(path)) {
         return false;
       }
+      if (progress?.call(
+            -1,
+            pathList.length,
+            sprintf(appLocalizations.countFiles, [pathList.length + 1]),
+          ) ==
+          true) {
+        return true;
+      }
+      pathList.add(path);
+      return false;
+    }, recursive: true);
+    for (int i = 0; i < pathList.length; i++) {
+      String path = pathList[i];
       var fileHead = await FileTypeChecker.readFileHeader(path);
       var fileType = FileTypeChecker.getFileType(path, fileHeader: fileHead);
       index++;
       var relativePath = await fileSystemOperator.relative(path, rootPath);
-      if (progress?.call(index, relativePath) == true) {
-        return true;
+      if (progress?.call(
+            index,
+            pathList.length,
+            sprintf(appLocalizations.indexIsBeingUpdated, [relativePath]),
+          ) ==
+          true) {
+        break;
       }
       var fileListData = ListData();
       fileListData.title = await fileSystemOperator.name(path);
@@ -67,19 +87,19 @@ class ProjectAnalyzer {
       fileListData.path = path;
       fileVisualAnalytics.result.add(fileListData);
       if (fileType == FileTypeChecker.FileTypeUnknown) {
-        return false;
+        continue;
       }
       if (fileType == FileTypeChecker.FileTypeImage) {
         fileListData.bytes = await fileSystemOperator.readAsBytes(path);
         assetsVisualAnalytics.result.add(fileListData);
-        return false;
+        continue;
       }
       if (fileType == FileTypeChecker.FileTypeAudio) {
         assetsVisualAnalytics.result.add(fileListData);
-        return false;
+        continue;
       }
       if (fileType == FileTypeChecker.FileTypeArchive) {
-        return false;
+        continue;
       }
       UnitRef unitRef = UnitRef();
       unitRef.path = path;
@@ -139,8 +159,7 @@ class ProjectAnalyzer {
         unitData.path = path;
         unitVisualAnalytics.result.add(unitData);
       }
-      return false;
-    }, recursive: true);
+    }
     result.items.add(fileVisualAnalytics);
     result.items.add(assetsVisualAnalytics);
     result.items.add(memoryVisualAnalytics);

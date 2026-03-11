@@ -803,6 +803,18 @@ abstract class AppLocalizations {
   /// **'Start...'**
   String get updateIndexStart;
 
+  /// No description provided for @countFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics for the %d file...'**
+  String get countFiles;
+
+  /// No description provided for @ready.
+  ///
+  /// In en, this message translates to:
+  /// **'ready'**
+  String get ready;
+
   /// No description provided for @assets.
   ///
   /// In en, this message translates to:

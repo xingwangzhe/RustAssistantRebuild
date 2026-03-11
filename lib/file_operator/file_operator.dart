@@ -39,6 +39,7 @@ abstract class FileSystemOperator {
   });
 
   String join(String uri, String name);
+
   void rename(String oldUri, String newUri);
 
   //判断给定的uri是否为文件夹
@@ -76,7 +77,7 @@ class LocalFileOperator extends FileSystemOperator {
     try {
       var dir = Directory(p.join(uri, name));
       if (await dir.exists()) {
-        return true; 
+        return true;
       }
       await dir.create(recursive: true);
       return true;
@@ -135,7 +136,7 @@ class LocalFileOperator extends FileSystemOperator {
     File file = File(p.join(uri, name));
     await file.create(recursive: true);
     if (content != null) {
-      file.writeAsString(content);
+      await file.writeAsString(content);
     }
   }
 

@@ -117,6 +117,8 @@
   "globalSearch": "Global search",
   "indexIsBeingUpdated": "Updating index %s...",
   "updateIndexStart": "Start...",
+  "countFiles": "Statistics for the %d file...",
+  "ready": "ready",
   "assets": "Assets",
   "lastUpdateTime": "Last update time: %s, time consumption: %s.",
   "toggleLineNumber": "Toggle Line Number",

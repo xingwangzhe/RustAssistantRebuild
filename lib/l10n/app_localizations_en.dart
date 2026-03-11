@@ -363,6 +363,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateIndexStart => 'Start...';
 
   @override
+  String get countFiles => 'Statistics for the %d file...';
+
+  @override
+  String get ready => 'ready';
+
+  @override
   String get assets => 'Assets';
 
   @override

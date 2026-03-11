@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rust_assistant/databeans/visual_analytics_result.dart';
 import 'package:rust_assistant/highlight_text.dart';
+import 'package:rust_assistant/progress_info.dart';
 import 'package:sprintf/sprintf.dart';
 
 import '../global_depend.dart';
@@ -8,7 +9,7 @@ import '../l10n/app_localizations.dart';
 
 class AnalyticsDialog extends StatefulWidget {
   final VisualAnalyticsResult? result;
-  final bool isRuning;
+  final ProgressInfo progressInfo;
   final Function(String) onRequestOpenFile;
   final Function onCancelAnalytics;
   final Function onRescan;
@@ -16,7 +17,7 @@ class AnalyticsDialog extends StatefulWidget {
   const AnalyticsDialog({
     super.key,
     required this.result,
-    required this.isRuning,
+    required this.progressInfo,
     required this.onRequestOpenFile,
     required this.onCancelAnalytics,
     required this.onRescan,
@@ -170,7 +171,7 @@ class _AnalyticsDialogState extends State<AnalyticsDialog>
                 ),
               ),
               TextButton(
-                onPressed: widget.isRuning
+                onPressed: widget.progressInfo.analysis
                     ? null
                     : () {
                         widget.onRescan.call();
@@ -182,16 +183,20 @@ class _AnalyticsDialogState extends State<AnalyticsDialog>
           const SizedBox(height: 24),
 
           // --- 分析器运行中 ---
-          if (widget.isRuning) ...[
+          if (widget.progressInfo.analysis) ...[
             Expanded(
               child: Center(
                 //自适应高度
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(),
+                    CircularProgressIndicator(
+                      value: widget.progressInfo.value == -1
+                          ? null
+                          : widget.progressInfo.value,
+                    ),
                     const SizedBox(height: 16),
-                    Text(AppLocalizations.of(context)!.indexIsBeingUpdated),
+                    Text(widget.progressInfo.message ?? ""),
                     TextButton(
                       onPressed: () {
                         widget.onCancelAnalytics.call();

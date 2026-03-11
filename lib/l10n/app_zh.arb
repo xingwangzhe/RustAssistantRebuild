@@ -117,6 +117,8 @@
   "globalSearch": "全局搜索",
   "indexIsBeingUpdated": "更新索引 %s...",
   "updateIndexStart": "开始...",
+  "countFiles": "统计第%d个文件...",
+  "ready": "就绪",
   "assets": "资产",
   "lastUpdateTime": "上次更新时间：%s，耗时：%s。",
   "toggleLineNumber": "显示行号",
@@ -181,8 +183,8 @@
   "selectColor": "选择颜色",
   "unitsTemplate": "单位模板",
   "createdFromUnitTemplate": "从单位模板创建",
-  "saveAsTemplate":"另存为模板",
-  "templateSavePath":"模板保存路径",
+  "saveAsTemplate": "另存为模板",
+  "templateSavePath": "模板保存路径",
   "addTags": "添加标签",
   "addTagsTip": "添加%d个标签",
   "showOrHideSidebar": "显示或隐藏侧边栏",
@@ -275,5 +277,5 @@
   "unit": "单位",
   "readMagicNumberOfFiles": "读取文件魔数",
   "readMagicNumberOfFilesTip": "通过读取文件前16字节的数据来推断文件类型，而不是根据文件格式来确定。（例如：将a.png命名为a，软件根据其前16字节的数据来推断文件类型，即使文件后缀不是png，也会被识别为图像）。",
-  "builtIn":"内置"
+  "builtIn": "内置"
 }

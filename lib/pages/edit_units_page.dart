@@ -21,6 +21,7 @@ import '../constant.dart';
 import '../create_file_of_folder_dialog.dart';
 import '../databeans/visual_analytics_result.dart';
 import '../l10n/app_localizations.dart';
+import '../progress_info.dart';
 import '../project_analyzer.dart';
 import 'analytics_dialog.dart';
 
@@ -45,8 +46,9 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   final Map<String, String> _pathToFileData = {};
   int _targetTabIndex = 0;
   late ProjectAnalyzer _projectAnalyzer;
-  final ValueNotifier<bool> isAnalyzingNotifier = ValueNotifier(false);
-  final ValueNotifier<String> analyzingProgressNotifier = ValueNotifier("");
+  final ValueNotifier<ProgressInfo> _progressInfoNotifier = ValueNotifier(
+    ProgressInfo(value: -1, message: null, analysis: false),
+  );
   bool _displayLineNumber = false;
   bool _displayOperationOptions = true;
   final Map<String, int> _pathToMaxLineNumber = {};
@@ -55,12 +57,13 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
   bool _firstDid = true;
-  String? _indexIsBeingUpdated;
   String? _updateIndexStart;
+  String? _ready;
   bool _cancelAnalytics = false;
   List<String> _tagList = List.empty();
   bool _autoSave = true;
   bool _showLeftWidget = true;
+
   //自动扫描项目并构建索引。
   bool _automaticIndexConstruction = !Platform.isAndroid;
   DateTime? _lastProgressUpdateTime;
@@ -110,8 +113,8 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     //在安卓平台，显示/隐藏软键盘会调用didChangeDependencies方法
     if (_firstDid) {
       _firstDid = false;
-      _indexIsBeingUpdated = AppLocalizations.of(context)!.indexIsBeingUpdated;
       _updateIndexStart = AppLocalizations.of(context)!.updateIndexStart;
+      _ready = AppLocalizations.of(context)!.ready;
       if (_automaticIndexConstruction) {
         _doAnalyze(context);
       }
@@ -278,8 +281,13 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       return;
     }
     setState(() {
-      isAnalyzingNotifier.value = false;
-      analyzingProgressNotifier.value = "";
+      if (_ready != null) {
+        _progressInfoNotifier.value = ProgressInfo(
+          value: 1,
+          message: _ready!,
+          analysis: false,
+        );
+      }
       if (result != null) {
         _tagList = result.tagList;
       }
@@ -289,15 +297,18 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   void _onStartAnalyze() {
     _cancelAnalytics = false;
     setState(() {
-      isAnalyzingNotifier.value = true;
       if (_updateIndexStart != null) {
-        analyzingProgressNotifier.value = _updateIndexStart!;
+        _progressInfoNotifier.value = ProgressInfo(
+          value: -1,
+          message: _updateIndexStart!,
+          analysis: true,
+        );
       }
     });
   }
 
-  bool _progress(int index, String fileName) {
-    if (!mounted || _indexIsBeingUpdated == null) {
+  bool _progress(int index, int total, String message) {
+    if (!mounted) {
       return true;
     }
     final now = DateTime.now();
@@ -310,9 +321,11 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     //达到执行时间，执行更新逻辑并记录最新时间
     _lastProgressUpdateTime = now; // 更新上次执行时间
     setState(() {
-      analyzingProgressNotifier.value = sprintf(_indexIsBeingUpdated!, [
-        fileName,
-      ]);
+      _progressInfoNotifier.value = ProgressInfo(
+        value: index == -1 ? -1 : index / total,
+        message: message,
+        analysis: true,
+      );
     });
     return _cancelAnalytics;
   }
@@ -632,7 +645,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
 
   @override
   void dispose() {
-    isAnalyzingNotifier.dispose();
+    _progressInfoNotifier.dispose();
     _focusNode.dispose();
     windowManager.removeListener(this);
     WidgetsBinding.instance.removeObserver(this);
@@ -672,19 +685,25 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         actions: [
           IconButton(
             tooltip: AppLocalizations.of(context)!.globalSearch,
-            icon: ValueListenableBuilder<bool>(
-              valueListenable: isAnalyzingNotifier,
-              builder: (context, isAnalyzing, _) {
+            icon: ValueListenableBuilder<ProgressInfo>(
+              valueListenable: _progressInfoNotifier,
+              builder: (context, progressInfo, _) {
                 return Stack(
                   alignment: Alignment.center,
                   children: [
-                    Icon(Icons.search_outlined, size: isAnalyzing ? 18 : 24),
-                    if (isAnalyzing)
+                    Icon(
+                      Icons.search_outlined,
+                      size: progressInfo.analysis ? 18 : 24,
+                    ),
+                    if (progressInfo.analysis)
                       SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.0,
+                          value: progressInfo.value == -1
+                              ? null
+                              : progressInfo.value,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             Theme.of(context).colorScheme.primary,
                           ),
@@ -700,26 +719,21 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 showDragHandle: true,
                 context: context,
                 builder: (context) {
-                  return ValueListenableBuilder<String>(
-                    builder: (context, runTip, _) {
-                      return ValueListenableBuilder<bool>(
-                        valueListenable: isAnalyzingNotifier,
-                        builder: (context, isRunning, _) {
-                          return AnalyticsDialog(
-                            result: _projectAnalyzer.lastResult,
-                            isRuning: isRunning,
-                            onRequestOpenFile: _onRequestOpenFile,
-                            onCancelAnalytics: () {
-                              _cancelAnalytics = true;
-                            },
-                            onRescan: () {
-                              _doAnalyze(context);
-                            },
-                          );
+                  return ValueListenableBuilder<ProgressInfo>(
+                    valueListenable: _progressInfoNotifier,
+                    builder: (context, progressInfo, _) {
+                      return AnalyticsDialog(
+                        result: _projectAnalyzer.lastResult,
+                        progressInfo: progressInfo,
+                        onRequestOpenFile: _onRequestOpenFile,
+                        onCancelAnalytics: () {
+                          _cancelAnalytics = true;
+                        },
+                        onRescan: () {
+                          _doAnalyze(context);
                         },
                       );
                     },
-                    valueListenable: analyzingProgressNotifier,
                   );
                 },
               );
@@ -802,14 +816,17 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     ],
                   ),
                 ),
-                ValueListenableBuilder<String>(
-                  valueListenable: analyzingProgressNotifier,
+                ValueListenableBuilder<ProgressInfo>(
+                  valueListenable: _progressInfoNotifier,
                   child: Padding(padding: EdgeInsetsGeometry.all(8)),
-                  builder: (context, runTip, _) {
+                  builder: (context, progressInfo, _) {
+                    if (progressInfo.message == null) {
+                      return SizedBox();
+                    }
                     return Align(
                       alignment: AlignmentGeometry.centerRight,
                       child: Text(
-                        runTip,
+                        progressInfo.message!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
@@ -822,14 +839,17 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           : Column(
               children: [
                 Expanded(child: getRight()),
-                ValueListenableBuilder<String>(
-                  valueListenable: analyzingProgressNotifier,
+                ValueListenableBuilder<ProgressInfo>(
+                  valueListenable: _progressInfoNotifier,
                   child: Padding(padding: EdgeInsetsGeometry.all(8)),
-                  builder: (context, runTip, _) {
+                  builder: (context, progressInfo, _) {
+                    if (progressInfo.message == null) {
+                      return SizedBox();
+                    }
                     return Align(
                       alignment: AlignmentGeometry.centerRight,
                       child: Text(
-                        runTip,
+                        progressInfo.message!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,

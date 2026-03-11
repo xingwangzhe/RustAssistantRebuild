@@ -363,6 +363,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateIndexStart => '开始...';
 
   @override
+  String get countFiles => '统计第%d个文件...';
+
+  @override
+  String get ready => '就绪';
+
+  @override
   String get assets => '资产';
 
   @override
