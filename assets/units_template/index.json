@@ -4,15 +4,18 @@
     "templates": [
       {
         "path": "assets/units_template/basic.ini",
-        "name": "基础模板"
+        "name": "基础模板",
+        "custom": false
       },
       {
         "path": "assets/units_template/builder.ini",
-        "name": "建造者模板"
+        "name": "建造者模板",
+        "custom": false
       },
       {
         "path": "assets/units_template/building.ini",
-        "name": "建筑模板"
+        "name": "建筑模板",
+        "custom": false
       }
     ]
   },
@@ -21,15 +24,18 @@
     "templates": [
       {
         "path": "assets/units_template/basic.ini",
-        "name": "Basic template"
+        "name": "Basic template",
+        "custom": false
       },
       {
         "path": "assets/units_template/builder.ini",
-        "name": "Builder template"
+        "name": "Builder template",
+        "custom": false
       },
       {
         "path": "assets/units_template/building.ini",
-        "name": "Building template"
+        "name": "Building template",
+        "custom": false
       }
     ]
   }

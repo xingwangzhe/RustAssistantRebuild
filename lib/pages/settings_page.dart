@@ -14,6 +14,7 @@ import 'package:rust_assistant/pages/permission_manager_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import 'management_template_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -426,6 +427,23 @@ class _SettingsStatus extends State<SettingsPage> {
                 );
               },
               child: Text(AppLocalizations.of(context)!.delete),
+            ),
+          ),
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.manageCustomTemplates),
+            trailing: TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ManagementTemplatePage();
+                    },
+                  ),
+                );
+              },
+              //Expected an identifier.
+              child: Text(AppLocalizations.of(context)!.management),
             ),
           ),
           Divider(),

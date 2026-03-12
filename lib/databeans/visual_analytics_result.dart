@@ -1,6 +1,4 @@
 //可视化分析结果
-import 'dart:convert';
-import 'dart:typed_data';
 
 class VisualAnalyticsResult {
   //分析开始时间
@@ -9,7 +7,44 @@ class VisualAnalyticsResult {
   //分析结束时间
   DateTime? endTime;
   List<VisualAnalyticsResultItem> items = List.empty(growable: true);
+  List<ProblemItem> problems = List.empty(growable: true);
   List<String> tagList = List.empty();
+}
+
+enum ProblemType { RepeatKey }
+
+/**
+ * Problem
+ * 问题
+ */
+class ProblemItem {
+  String? message;
+  String? path;
+  String? relativePath;
+
+  //类型为
+  ProblemType type = ProblemType.RepeatKey;
+
+  // 序列化
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+      'path': path,
+      'relativePath': relativePath,
+      'type': type.name,
+    };
+  }
+
+  // 反序列化
+  static ProblemItem fromJson(Map<String, dynamic> json) {
+    return ProblemItem()
+      ..message = json['message']
+      ..path = json['path']
+      ..relativePath = json['relativePath']
+      ..type = (json['type'] != null
+          ? ProblemType.values.firstWhere((e) => e.name == json['type'])
+          : null)!;
+  }
 }
 
 class VisualAnalyticsResultItem {

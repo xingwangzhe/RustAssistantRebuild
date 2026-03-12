@@ -289,5 +289,13 @@
   "closeOtherTabs": "关闭其他标签",
   "closeAllTabs": "关闭全部标签",
   "closeLeftHandTab": "关闭左侧标签",
-  "closeRightHandTab": "关闭右侧标签"
+  "closeRightHandTab": "关闭右侧标签",
+  "manageCustomTemplates": "管理自定义模板",
+  "management": "管理",
+  "noCustomTemplates": "无自定义模板",
+  "problem": "问题",
+  "redefinition": "重复定义键",
+  "repeatKey": "发现重复定义的%s在%s节。",
+  "handle": "处理",
+  "handleAll": "处理全部"
 }

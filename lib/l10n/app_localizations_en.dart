@@ -880,4 +880,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closeRightHandTab => 'Close the right-hand tab';
+
+  @override
+  String get manageCustomTemplates => 'Manage custom templates';
+
+  @override
+  String get management => 'management';
+
+  @override
+  String get noCustomTemplates => 'No custom template';
+
+  @override
+  String get redefinition => 'Re-definition of keys';
+
+  @override
+  String get problem => 'problem';
+
+  @override
+  String get repeatKey => 'A duplicate definition of %s was found in the %s section.';
+
+  @override
+  String get handle => 'handle';
+
+  @override
+  String get handleAll => 'handle all';
 }

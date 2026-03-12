@@ -27,18 +27,21 @@ class UnitTemplate {
 class Templates {
   String? path;
   String? name;
+  bool custom = false;
 
-  Templates({this.path, this.name});
+  Templates({this.path, this.name, this.custom = false});
 
   Templates.fromJson(Map<String, dynamic> json) {
     path = json['path'];
     name = json['name'];
+    custom = json['custom'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['path'] = path;
     data['name'] = name;
+    data['custom'] = custom;
     return data;
   }
 }

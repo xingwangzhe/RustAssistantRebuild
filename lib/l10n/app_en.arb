@@ -289,5 +289,13 @@
   "closeOtherTabs": "Close other tabs",
   "closeAllTabs": "Close all tabs",
   "closeLeftHandTab": "Close the left sidebar",
-  "closeRightHandTab": "Close the right-hand tab"
+  "closeRightHandTab": "Close the right-hand tab",
+  "manageCustomTemplates": "Manage custom templates",
+  "management": "management",
+  "noCustomTemplates": "No custom template",
+  "redefinition": "Re-definition of keys",
+  "problem": "problem",
+  "repeatKey": "A duplicate definition of %s was found in the %s section.",
+  "handle": "handle",
+  "handleAll": "handle all"
 }

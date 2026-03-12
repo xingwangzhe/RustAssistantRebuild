@@ -1840,6 +1840,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close the right-hand tab'**
   String get closeRightHandTab;
+
+  /// No description provided for @manageCustomTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage custom templates'**
+  String get manageCustomTemplates;
+
+  /// No description provided for @management.
+  ///
+  /// In en, this message translates to:
+  /// **'management'**
+  String get management;
+
+  /// No description provided for @noCustomTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom template'**
+  String get noCustomTemplates;
+
+  /// No description provided for @redefinition.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-definition of keys'**
+  String get redefinition;
+
+  /// No description provided for @problem.
+  ///
+  /// In en, this message translates to:
+  /// **'problem'**
+  String get problem;
+
+  /// No description provided for @repeatKey.
+  ///
+  /// In en, this message translates to:
+  /// **'A duplicate definition of %s was found in the %s section.'**
+  String get repeatKey;
+
+  /// No description provided for @handle.
+  ///
+  /// In en, this message translates to:
+  /// **'handle'**
+  String get handle;
+
+  /// No description provided for @handleAll.
+  ///
+  /// In en, this message translates to:
+  /// **'handle all'**
+  String get handleAll;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

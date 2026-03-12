@@ -13,6 +13,7 @@ import 'package:rust_assistant/mod/ini_reader.dart';
 import 'package:rust_assistant/mod/mod.dart';
 import 'package:rust_assistant/operation_dialog.dart';
 import 'package:rust_assistant/pages/built_in_file_manager_page.dart';
+import 'package:rust_assistant/pages/problem_dialog.dart';
 import 'package:rust_assistant/pages/save_as_template_dialog.dart';
 import 'package:rust_assistant/pages/work_space_page.dart';
 import 'package:rust_assistant/text_difference.dart';
@@ -26,6 +27,7 @@ import '../l10n/app_localizations.dart';
 import '../progress_info.dart';
 import '../project_analyzer.dart';
 import 'analytics_dialog.dart';
+import 'management_template_page.dart';
 
 class EditUnitsPage extends StatefulWidget {
   const EditUnitsPage({super.key, required this.mod});
@@ -533,12 +535,19 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           }
           var path = templates.path;
           if (path != null) {
-            var templatesData = await rootBundle.loadString(path);
-            stringBuffer.write(
-              templatesData
-                  .replaceAll("{UNIT_NAME}", unitName)
-                  .replaceAll("{INPUT_NAME}", inputName),
-            );
+            if (templates.custom) {
+              String? data = await fileSystemOperator.readAsString(path);
+              if (data != null) {
+                stringBuffer.write(data);
+              }
+            } else {
+              var templatesData = await rootBundle.loadString(path);
+              stringBuffer.write(
+                templatesData
+                    .replaceAll("{UNIT_NAME}", unitName)
+                    .replaceAll("{INPUT_NAME}", inputName),
+              );
+            }
           }
         }
       }
@@ -912,6 +921,25 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             onPressed: _openedFilePath.isEmpty ? null : _performSave,
             icon: const Icon(Icons.save_outlined),
           ),
+          if (_projectAnalyzer.lastResult != null &&
+              _projectAnalyzer.lastResult!.problems.isNotEmpty)
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.problem,
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  showDragHandle: true,
+                  isScrollControlled: true,
+                  builder: (context) {
+                    return ProblemDialog(
+                      onRequestOpenFile: _onRequestOpenFile,
+                      problemItemList: _projectAnalyzer.lastResult!.problems,
+                    );
+                  },
+                );
+              },
+              icon: const Icon(Icons.error_outline),
+            ),
           PopupMenuButton<String>(
             tooltip: AppLocalizations.of(context)!.moreActions,
             onSelected: (value) {
@@ -929,6 +957,15 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     final nowOpened = _openedFilePath[_targetTabIndex];
                     return SaveAsTemplateDialog(path: nowOpened);
                   },
+                );
+              } else if (value == 'manageCustomTemplates') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ManagementTemplatePage();
+                    },
+                  ),
                 );
               }
             },
@@ -971,6 +1008,12 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                         },
                       ),
                     ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'manageCustomTemplates',
+                  child: Text(
+                    AppLocalizations.of(context)!.manageCustomTemplates,
                   ),
                 ),
                 PopupMenuItem<String>(

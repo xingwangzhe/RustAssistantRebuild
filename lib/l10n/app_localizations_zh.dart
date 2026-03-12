@@ -880,4 +880,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get closeRightHandTab => '关闭右侧标签';
+
+  @override
+  String get manageCustomTemplates => '管理自定义模板';
+
+  @override
+  String get management => '管理';
+
+  @override
+  String get noCustomTemplates => '无自定义模板';
+
+  @override
+  String get redefinition => '重复定义键';
+
+  @override
+  String get problem => '问题';
+
+  @override
+  String get repeatKey => '发现重复定义的%s在%s节。';
+
+  @override
+  String get handle => '处理';
+
+  @override
+  String get handleAll => '处理全部';
 }

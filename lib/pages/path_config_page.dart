@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
+import 'package:rust_assistant/code_data_base.dart';
 import 'package:rust_assistant/global_depend.dart';
 
 import '../l10n/app_localizations.dart';
@@ -58,7 +59,6 @@ class _PathConfigPageState extends State<PathConfigPage> {
       HiveHelper.showSteamMod,
       defaultValue: _getEnableSteamModDefaultValue(),
     );
-    bool result = false;
     if (modPath != null) {
       setState(() {
         _modEditingController.text = modPath;
@@ -289,6 +289,7 @@ class _PathConfigPageState extends State<PathConfigPage> {
     }
     if (await GlobalDepend.getFileSystemOperator().checkFolderAvailable(text)) {
       HiveHelper.put(HiveHelper.templatePath, text);
+      CodeDataBase.loadCustomTemplate();
       setState(() {
         _templatePathErrorText = null;
       });

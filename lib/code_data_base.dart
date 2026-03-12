@@ -446,8 +446,15 @@ class CodeDataBase {
     }
     _customTemplate.clear();
     fileSystemOperator.list(templatePath, (path) async {
+      if (await fileSystemOperator.isDir(path)) {
+        return false;
+      }
       _customTemplate.add(
-        Templates(path: path, name: await fileSystemOperator.name(path)),
+        Templates(
+          path: path,
+          name: await fileSystemOperator.name(path),
+          custom: true,
+        ),
       );
       return false;
     });

@@ -19,6 +19,7 @@ class ProjectAnalyzer {
   final List<UnitRef> unitRefList = List.empty(growable: true);
   Map<String, DateTime> modificationTime = {};
   Map<String, List<ListDataTask>> pathToListData = {};
+  Map<String, List<ProblemItem>> problemItemListData = {};
 
   ProjectAnalyzer(this.rootPath, this.fileSystemOperator);
 
@@ -63,6 +64,10 @@ class ProjectAnalyzer {
       configPath,
       "listData.json",
     );
+    String problemItemJsonPath = fileSystemOperator.join(
+      configPath,
+      "problemItem.json",
+    );
     if (modificationTime.isEmpty || pathToListData.isEmpty) {
       if (progress?.call(-1, 0, appLocalizations.readCache) == true) {
         return;
@@ -89,6 +94,23 @@ class ProjectAnalyzer {
             List<ListDataTask> tasks = (value as List)
                 .map(
                   (item) => ListDataTask.fromJson(item as Map<String, dynamic>),
+                )
+                .toList();
+            return MapEntry(key, tasks);
+          });
+        }
+      }
+
+      if (await fileSystemOperator.exist(problemItemJsonPath)) {
+        String? problemItem = await fileSystemOperator.readAsString(
+          problemItemJsonPath,
+        );
+        if (problemItem != null && problemItem.isNotEmpty) {
+          Map<String, dynamic> dataMap = jsonDecode(problemItem);
+          problemItemListData = dataMap.map((key, value) {
+            List<ProblemItem> tasks = (value as List)
+                .map(
+                  (item) => ProblemItem.fromJson(item as Map<String, dynamic>),
                 )
                 .toList();
             return MapEntry(key, tasks);
@@ -176,6 +198,12 @@ class ProjectAnalyzer {
               }
             }
           }
+          List<ProblemItem>? problemList = problemItemListData[path];
+          if (problemList != null) {
+            for (var value in problemList) {
+              result.problems.add(value);
+            }
+          }
           continue;
         }
       }
@@ -220,6 +248,8 @@ class ProjectAnalyzer {
       var text = await fileSystemOperator.readAsString(path) ?? "";
       var lineParser = LineParser(text);
       String? section;
+      String? fullSection;
+      Set<String> repeatKeys = {};
       while (true) {
         var line = lineParser.nextLine();
         if (line == null) {
@@ -227,6 +257,8 @@ class ProjectAnalyzer {
         }
         if (line.startsWith("[") && line.endsWith("]")) {
           section = GlobalDepend.getSectionPrefix(line);
+          fullSection = GlobalDepend.getSecureFileName(line);
+          repeatKeys.clear();
           continue;
         }
         var lineLowerCase = line.toLowerCase();
@@ -244,6 +276,27 @@ class ProjectAnalyzer {
         var symbol = lineLowerCase.indexOf(':');
         if (symbol > -1) {
           var keyName = lineLowerCase.substring(0, symbol);
+          if (repeatKeys.contains(keyName)) {
+            //A duplicate key has been found.
+            //发现重复key。
+            ProblemItem problemItem = ProblemItem();
+            problemItem.message = sprintf(appLocalizations.repeatKey, [
+              keyName,
+              fullSection ?? "null",
+            ]);
+            problemItem.type = ProblemType.RepeatKey;
+            problemItem.path = path;
+            problemItem.relativePath = relativePath;
+            result.problems.add(problemItem);
+            if (problemItemListData.containsKey(path)) {
+              problemItemListData[path]?.add(problemItem);
+            } else {
+              List<ProblemItem> list = List.empty(growable: true);
+              list.add(problemItem);
+              problemItemListData[path] = list;
+            }
+          }
+          repeatKeys.add(keyName);
           if (keyName == "tags") {
             var tagListData = ListData();
             tagListData.title = line;
@@ -313,6 +366,19 @@ class ProjectAnalyzer {
       configPath,
       "listData.json",
       dataJsonStr,
+    );
+    Map<String, List<Map<String, dynamic>>> problemItemListJsonData =
+        problemItemListData.map((key, value) {
+          List<Map<String, dynamic>> tasksJson = value
+              .map((task) => task.toJson())
+              .toList();
+          return MapEntry(key, tasksJson);
+        });
+    String problemItemListJsonStr = jsonEncode(problemItemListJsonData);
+    await fileSystemOperator.writeFile(
+      configPath,
+      "problemItem.json",
+      problemItemListJsonStr,
     );
     result.items.add(fileVisualAnalytics);
     result.items.add(assetsVisualAnalytics);
