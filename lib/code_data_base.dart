@@ -7,6 +7,7 @@ import 'package:rust_assistant/databeans/code.dart';
 import 'package:rust_assistant/databeans/enum_data.dart';
 import 'package:rust_assistant/databeans/logical_boolean.dart';
 import 'package:rust_assistant/databeans/section_info.dart';
+import 'package:rust_assistant/file_operator/file_operator.dart';
 import 'package:rust_assistant/global_depend.dart';
 
 import 'dataSources/code_data_source.dart';
@@ -26,6 +27,7 @@ class CodeDataBase {
   );
   static final Map<String, EnumData> _enumData = {};
   static UnitTemplate? _unitTemplate;
+  static final List<Templates> _customTemplate = List.empty(growable: true);
   static final List<LanguageCode> _languageCode = List.empty(growable: true);
   static final List<LogicalBooleanTranslate> _logicalBooleanTranslate =
       List.empty(growable: true);
@@ -426,6 +428,29 @@ class CodeDataBase {
       }
     }
     _unitTemplate = null;
+  }
+
+  static List<Templates> getCustomTemplate() {
+    return _customTemplate;
+  }
+
+  static Future<void> loadCustomTemplate() async {
+    if (!HiveHelper.containsKey(HiveHelper.templatePath)) {
+      return;
+    }
+    String templatePath = HiveHelper.get(HiveHelper.templatePath);
+    FileSystemOperator fileSystemOperator =
+        GlobalDepend.getFileSystemOperator();
+    if (!await fileSystemOperator.exist(templatePath)) {
+      return;
+    }
+    _customTemplate.clear();
+    fileSystemOperator.list(templatePath, (path) async {
+      _customTemplate.add(
+        Templates(path: path, name: await fileSystemOperator.name(path)),
+      );
+      return false;
+    });
   }
 
   static Future<void> loadSectionInfo(String language) async {

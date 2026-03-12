@@ -53,6 +53,12 @@ class _CreateFileOfFolderStatus extends State<CreateFileOfFolderDialog> {
         }
       }
     }
+    var customTemplate = CodeDataBase.getCustomTemplate();
+    if (customTemplate.isNotEmpty) {
+      for (var value in customTemplate) {
+        _unitsTemplate.add(value);
+      }
+    }
   }
 
   List<String> _getSuggestions(String text) {

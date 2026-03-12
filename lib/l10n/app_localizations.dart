@@ -1798,6 +1798,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'builtIn'**
   String get builtIn;
+
+  /// No description provided for @fileName.
+  ///
+  /// In en, this message translates to:
+  /// **'File name'**
+  String get fileName;
+
+  /// No description provided for @templateSavedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Template saved successfully.'**
+  String get templateSavedSuccessfully;
+
+  /// No description provided for @templateSavedFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Template saving failed.'**
+  String get templateSavedFailed;
+
+  /// No description provided for @closeOtherTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Close other tabs'**
+  String get closeOtherTabs;
+
+  /// No description provided for @closeAllTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Close all tabs'**
+  String get closeAllTabs;
+
+  /// No description provided for @closeLeftHandTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the left sidebar'**
+  String get closeLeftHandTab;
+
+  /// No description provided for @closeRightHandTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the right-hand tab'**
+  String get closeRightHandTab;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

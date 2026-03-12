@@ -13,6 +13,7 @@ import 'package:rust_assistant/mod/ini_reader.dart';
 import 'package:rust_assistant/mod/mod.dart';
 import 'package:rust_assistant/operation_dialog.dart';
 import 'package:rust_assistant/pages/built_in_file_manager_page.dart';
+import 'package:rust_assistant/pages/save_as_template_dialog.dart';
 import 'package:rust_assistant/pages/work_space_page.dart';
 import 'package:rust_assistant/text_difference.dart';
 import 'package:sprintf/sprintf.dart';
@@ -35,6 +36,14 @@ class EditUnitsPage extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _EditUnitsPageState();
   }
+}
+
+enum CloseTagType {
+  CLOSE_SELF,
+  CLOSE_OTHER,
+  CLOSE_ALL,
+  CLOSE_LEFT,
+  CLOSE_RIGHT,
 }
 
 class _EditUnitsPageState extends State<EditUnitsPage>
@@ -630,22 +639,112 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             saveOpenedFile();
           },
           onDelete: (String path) {
-            _closeTag(path);
+            _closeTag(path, CloseTagType.CLOSE_SELF);
           },
         );
       },
     );
   }
 
-  void _closeTag(String path) {
+  void _closeTag(String path, CloseTagType type) {
     setState(() {
-      _openedFilePath.remove(path);
-      _targetTabIndex = _openedFilePath.length - 1;
-      _unsavedFilePath.remove(path);
-      _pathToFileData.remove(path);
-      _pathToFileName.remove(path);
-      _pathTofileType.remove(path);
+      if (type == CloseTagType.CLOSE_SELF) {
+        // 关闭指定标签（原有逻辑，保持不变）
+        int removedIndex = _openedFilePath.indexOf(path);
+        _openedFilePath.remove(path);
+        // 更新选中索引：如果移除的是当前选中的，选中最后一个；否则保持原索引（需处理越界）
+        if (removedIndex == _targetTabIndex) {
+          _targetTabIndex = _openedFilePath.isEmpty
+              ? 0
+              : _openedFilePath.length - 1;
+        } else if (removedIndex < _targetTabIndex) {
+          // 如果移除的是当前选中索引之前的标签，索引减1
+          _targetTabIndex -= 1;
+        }
+        // 清理关联数据
+        _unsavedFilePath.remove(path);
+        _pathToFileData.remove(path);
+        _pathToFileName.remove(path);
+        _pathTofileType.remove(path);
+      } else if (type == CloseTagType.CLOSE_OTHER) {
+        // 关闭除指定标签外的所有标签（原有逻辑，保持不变）
+        if (!_openedFilePath.contains(path)) {
+          // 指定路径不在已打开列表中，直接返回
+          return;
+        }
+        // 收集要删除的路径
+        List<String> toRemovePaths = _openedFilePath
+            .where((p) => p != path)
+            .toList();
+        // 清理要删除的路径的关联数据
+        for (String p in toRemovePaths) {
+          _unsavedFilePath.remove(p);
+          _pathToFileData.remove(p);
+          _pathToFileName.remove(p);
+          _pathTofileType.remove(p);
+        }
+        // 保留指定路径，重置打开列表
+        _openedFilePath.clear();
+        _openedFilePath.add(path);
+        // 选中唯一的标签
+        _targetTabIndex = 0;
+      } else if (type == CloseTagType.CLOSE_LEFT) {
+        // 关闭当前标签左侧所有标签
+        // 1. 校验路径是否存在，避免无效操作
+        int currentIndex = _openedFilePath.indexOf(path);
+        if (currentIndex <= 0) {
+          // 当前标签是第一个（索引0）或路径不存在，无需操作
+          return;
+        }
+        // 2. 收集左侧所有要删除的路径（0 ~ currentIndex-1）
+        List<String> toRemovePaths = _openedFilePath.sublist(0, currentIndex);
+        // 3. 批量清理关联数据
+        for (String p in toRemovePaths) {
+          _unsavedFilePath.remove(p);
+          _pathToFileData.remove(p);
+          _pathToFileName.remove(p);
+          _pathTofileType.remove(p);
+        }
+        // 4. 移除左侧标签，保留当前及右侧标签
+        _openedFilePath.removeWhere((p) => toRemovePaths.contains(p));
+        // 5. 更新选中索引：左侧标签删除后，当前标签索引变为0（原currentIndex - 移除数量 = 0）
+        _targetTabIndex = 0;
+      } else if (type == CloseTagType.CLOSE_RIGHT) {
+        // 关闭当前标签右侧所有标签
+        // 1. 校验路径是否存在，避免无效操作
+        int currentIndex = _openedFilePath.indexOf(path);
+        int lastIndex = _openedFilePath.length - 1;
+        if (currentIndex == -1 || currentIndex >= lastIndex) {
+          // 路径不存在 或 当前标签是最后一个，无需操作
+          return;
+        }
+        // 2. 收集右侧所有要删除的路径（currentIndex+1 ~ 末尾）
+        List<String> toRemovePaths = _openedFilePath.sublist(currentIndex + 1);
+        // 3. 批量清理关联数据
+        for (String p in toRemovePaths) {
+          _unsavedFilePath.remove(p);
+          _pathToFileData.remove(p);
+          _pathToFileName.remove(p);
+          _pathTofileType.remove(p);
+        }
+        // 4. 移除右侧标签，保留当前及左侧标签
+        _openedFilePath.removeWhere((p) => toRemovePaths.contains(p));
+        // 5. 更新选中索引：当前标签位置未变，索引保持不变（无需修改）
+        // 额外处理：如果删除后列表为空，索引置0
+        if (_openedFilePath.isEmpty) {
+          _targetTabIndex = 0;
+        }
+      } else if (type == CloseTagType.CLOSE_ALL) {
+        // 关闭所有标签（原有逻辑，保持不变）
+        _openedFilePath.clear();
+        _unsavedFilePath.clear();
+        _pathToFileData.clear();
+        _pathToFileName.clear();
+        _pathTofileType.clear();
+        _targetTabIndex = 0;
+      }
     });
+    // 保存更新后的打开文件列表
     saveOpenedFile();
   }
 
@@ -698,8 +797,8 @@ class _EditUnitsPageState extends State<EditUnitsPage>
               _showLeftWidget = !_showLeftWidget;
             });
           },
-          closeTag: (String p1) {
-            _closeTag(p1);
+          closeTag: (String p1, CloseTagType type) {
+            _closeTag(p1, type);
           },
           modUnit: _projectAnalyzer.unitRefList,
         );
@@ -822,52 +921,74 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 _showSourceDiff.call();
               } else if (value == 'display_operation_options') {
                 _setDisplayOperationOptions(!_displayOperationOptions);
+              } else if (value == 'saveAsTemplate') {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    final nowOpened = _openedFilePath[_targetTabIndex];
+                    return SaveAsTemplateDialog(path: nowOpened);
+                  },
+                );
               }
             },
-            itemBuilder: (context) => [
-              PopupMenuItem<String>(
-                value: 'toggle_line_number',
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context)!.toggleLineNumber),
-                    Switch(
-                      value: _displayLineNumber,
-                      onChanged: (b) {
-                        Navigator.pop(context);
-                        _setDisplayLineNumber(b);
-                      },
-                    ),
-                  ],
+            itemBuilder: (context) {
+              int fileType = FileTypeChecker.FileTypeUnknown;
+              if (_openedFilePath.isNotEmpty) {
+                final nowOpened = _openedFilePath[_targetTabIndex];
+                fileType = FileTypeChecker.getFileType(nowOpened);
+              }
+              return [
+                PopupMenuItem<String>(
+                  value: 'toggle_line_number',
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(AppLocalizations.of(context)!.toggleLineNumber),
+                      Switch(
+                        value: _displayLineNumber,
+                        onChanged: (b) {
+                          Navigator.pop(context);
+                          _setDisplayLineNumber(b);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              PopupMenuItem<String>(
-                value: 'display_operation_options',
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context)!.displayOperationOptions),
-                    Switch(
-                      value: _displayOperationOptions,
-                      onChanged: (b) {
-                        Navigator.pop(context);
-                        _setDisplayOperationOptions(b);
-                      },
-                    ),
-                  ],
+                PopupMenuItem<String>(
+                  value: 'display_operation_options',
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.displayOperationOptions,
+                      ),
+                      Switch(
+                        value: _displayOperationOptions,
+                        onChanged: (b) {
+                          Navigator.pop(context);
+                          _setDisplayOperationOptions(b);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              PopupMenuItem<String>(
-                value: 'show_source_diff',
-                enabled: _openedFilePath.isNotEmpty,
-                child: Text(AppLocalizations.of(context)!.showSourceDiff),
-              ),
-              PopupMenuItem<String>(
-                value: 'saveAsTemplate',
-                enabled: _openedFilePath.isNotEmpty,
-                child: Text(AppLocalizations.of(context)!.saveAsTemplate),
-              ),
-            ],
+                PopupMenuItem<String>(
+                  value: 'show_source_diff',
+                  enabled:
+                      _openedFilePath.isNotEmpty &&
+                      fileType == FileTypeChecker.FileTypeText,
+                  child: Text(AppLocalizations.of(context)!.showSourceDiff),
+                ),
+                PopupMenuItem<String>(
+                  value: 'saveAsTemplate',
+                  enabled:
+                      _openedFilePath.isNotEmpty &&
+                      fileType == FileTypeChecker.FileTypeText,
+                  child: Text(AppLocalizations.of(context)!.saveAsTemplate),
+                ),
+              ];
+            },
             icon: const Icon(Icons.more_vert),
           ),
         ],

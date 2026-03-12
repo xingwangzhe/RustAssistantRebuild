@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../global_depend.dart';
 import '../l10n/app_localizations.dart';
 
+import 'edit_units_page.dart';
 import 'ini_editor_page.dart';
 
 class WorkspacePage extends StatefulWidget {
@@ -28,7 +29,7 @@ class WorkspacePage extends StatefulWidget {
   final List<ResourceRef> globalResource;
   final Function(int) onTabIndexChange;
   final Function(String)? navigateToTheDirectory;
-  final Function(String)? closeTag;
+  final Function(String, CloseTagType)? closeTag;
   final bool displayLineNumber;
   final bool displayOperationOptions;
   final Map<String, int> pathToMaxLineNumber;
@@ -143,9 +144,46 @@ class _WorkspaceStatus extends State<WorkspacePage>
           MenuItemButton(
             requestFocusOnHover: false,
             onPressed: () async {
-              widget.closeTag?.call(f);
+              widget.closeTag?.call(f, CloseTagType.CLOSE_SELF);
             },
             child: Text(AppLocalizations.of(context)!.close),
+          ),
+        );
+
+        menuItemButtonList.add(
+          MenuItemButton(
+            requestFocusOnHover: false,
+            onPressed: () async {
+              widget.closeTag?.call(f, CloseTagType.CLOSE_OTHER);
+            },
+            child: Text(AppLocalizations.of(context)!.closeOtherTabs),
+          ),
+        );
+        menuItemButtonList.add(
+          MenuItemButton(
+            requestFocusOnHover: false,
+            onPressed: () async {
+              widget.closeTag?.call(f, CloseTagType.CLOSE_ALL);
+            },
+            child: Text(AppLocalizations.of(context)!.closeAllTabs),
+          ),
+        );
+        menuItemButtonList.add(
+          MenuItemButton(
+            requestFocusOnHover: false,
+            onPressed: () async {
+              widget.closeTag?.call(f, CloseTagType.CLOSE_LEFT);
+            },
+            child: Text(AppLocalizations.of(context)!.closeLeftHandTab),
+          ),
+        );
+        menuItemButtonList.add(
+          MenuItemButton(
+            requestFocusOnHover: false,
+            onPressed: () async {
+              widget.closeTag?.call(f, CloseTagType.CLOSE_RIGHT);
+            },
+            child: Text(AppLocalizations.of(context)!.closeRightHandTab),
           ),
         );
 

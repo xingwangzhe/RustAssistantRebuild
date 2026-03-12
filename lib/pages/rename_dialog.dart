@@ -69,6 +69,7 @@ class _RenameDialogState extends State<RenameDialog> {
         controller: _textEditingController,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
+          label: Text(AppLocalizations.of(context)!.fileName),
           errorText: _errorText,
         ),
       ),

@@ -859,4 +859,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get builtIn => '内置';
+
+  @override
+  String get fileName => '文件名';
+
+  @override
+  String get templateSavedSuccessfully => '模板保存成功。';
+
+  @override
+  String get templateSavedFailed => '模板保存失败。';
+
+  @override
+  String get closeOtherTabs => '关闭其他标签';
+
+  @override
+  String get closeAllTabs => '关闭全部标签';
+
+  @override
+  String get closeLeftHandTab => '关闭左侧标签';
+
+  @override
+  String get closeRightHandTab => '关闭右侧标签';
 }

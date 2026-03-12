@@ -70,6 +70,7 @@ class _SplashPageState extends State<SplashPage> {
     await CodeDataBase.loadLogicalBoolean();
     await CodeDataBase.loadGameVersion();
     await CodeDataBase.loadCode();
+    await CodeDataBase.loadCustomTemplate();
     var finalBuildContext = buildContext;
     if (finalBuildContext.mounted) {
       var language = GlobalDepend.getLanguage(finalBuildContext);

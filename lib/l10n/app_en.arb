@@ -282,5 +282,12 @@
   "restoreOpenedFileTip": "Restore the last opened file upon startup",
   "readMagicNumberOfFiles": "Read the magic number of files",
   "readMagicNumberOfFilesTip": "Infer the file type by reading the first 16 bytes of the file's data, rather than determining it based on the file format. For example, if a.png is named a, the software infers the file type based on the first 16 bytes of data, even if the file suffix is not png.",
-  "builtIn": "builtIn"
+  "builtIn": "builtIn",
+  "fileName": "File name",
+  "templateSavedSuccessfully": "Template saved successfully.",
+  "templateSavedFailed": "Template saving failed.",
+  "closeOtherTabs": "Close other tabs",
+  "closeAllTabs": "Close all tabs",
+  "closeLeftHandTab": "Close the left sidebar",
+  "closeRightHandTab": "Close the right-hand tab"
 }

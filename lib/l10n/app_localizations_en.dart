@@ -859,4 +859,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get builtIn => 'builtIn';
+
+  @override
+  String get fileName => 'File name';
+
+  @override
+  String get templateSavedSuccessfully => 'Template saved successfully.';
+
+  @override
+  String get templateSavedFailed => 'Template saving failed.';
+
+  @override
+  String get closeOtherTabs => 'Close other tabs';
+
+  @override
+  String get closeAllTabs => 'Close all tabs';
+
+  @override
+  String get closeLeftHandTab => 'Close the left sidebar';
+
+  @override
+  String get closeRightHandTab => 'Close the right-hand tab';
 }
