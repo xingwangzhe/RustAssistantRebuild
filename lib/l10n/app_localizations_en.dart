@@ -919,4 +919,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get synchronizeVisualEditor => 'Synchronize to the visual editor';
+
+  @override
+  String get notSynchronizedYet => 'There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?';
 }

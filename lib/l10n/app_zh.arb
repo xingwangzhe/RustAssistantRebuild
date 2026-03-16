@@ -302,5 +302,6 @@
   "loadDataFromFile": "从文件重新加载数据",
   "notSavedYet": "有尚未保存的内容，从文件加载数据这部分内容会丢失。仍要继续吗？",
   "loadingCompleted": "加载完成。",
-  "synchronizeVisualEditor": "同步到可视化编辑器"
+  "synchronizeVisualEditor": "同步到可视化编辑器",
+  "notSynchronizedYet": "有尚未同步的数据，切换到可视化编辑器这部分数据将会丢失。仍要继续吗？"
 }

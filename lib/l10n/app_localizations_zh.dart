@@ -919,4 +919,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get synchronizeVisualEditor => '同步到可视化编辑器';
+
+  @override
+  String get notSynchronizedYet => '有尚未同步的数据，切换到可视化编辑器这部分数据将会丢失。仍要继续吗？';
 }

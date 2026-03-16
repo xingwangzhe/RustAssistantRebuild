@@ -483,6 +483,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
 
   void deleteSectionCallBack(String fullSectionName) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -750,7 +751,58 @@ class _IniEditorPageStatus extends State<IniEditorPage>
             ],
             selected: <int>{_mode},
             onSelectionChanged: (newSelection) {
-              if (_mode == _modeVisual && _needSync) {
+              if (_mode == _modeEditor && _needSync) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (builderContext) {
+                    return AlertDialog(
+                      title: Text(AppLocalizations.of(context)!.visual),
+                      content: Text(
+                        AppLocalizations.of(context)!.notSynchronizedYet,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            if (context.mounted) {
+                              setState(() {
+                                _needSync = false;
+                                _codeEditorText = null;
+                                _mode = newSelection.first;
+                              });
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(AppLocalizations.of(context)!.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            String? text = _codeEditorText;
+                            if (text != null) {
+                              if (context.mounted) {
+                                setState(() {
+                                  _needSync = false;
+                                  _mode = newSelection.first;
+                                  _iniReader = IniReader(
+                                    text,
+                                    containsNotes: true,
+                                  );
+                                });
+                              }
+                              widget.onDataChange?.call(text);
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.synchronizeVisualEditor,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
                 return;
               }
               setState(() {

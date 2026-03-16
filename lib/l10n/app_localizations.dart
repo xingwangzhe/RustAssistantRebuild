@@ -1918,6 +1918,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Synchronize to the visual editor'**
   String get synchronizeVisualEditor;
+
+  /// No description provided for @notSynchronizedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?'**
+  String get notSynchronizedYet;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
