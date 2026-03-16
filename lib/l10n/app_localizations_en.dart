@@ -904,4 +904,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handleAll => 'handle all';
+
+  @override
+  String get problemResolved => 'The problem has been resolved.';
+
+  @override
+  String get loadDataFromFile => 'Reload data from the file';
+
+  @override
+  String get notSavedYet => 'There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?';
+
+  @override
+  String get loadingCompleted => 'Loading completed.';
 }

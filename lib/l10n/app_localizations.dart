@@ -1888,6 +1888,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'handle all'**
   String get handleAll;
+
+  /// No description provided for @problemResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'The problem has been resolved.'**
+  String get problemResolved;
+
+  /// No description provided for @loadDataFromFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload data from the file'**
+  String get loadDataFromFile;
+
+  /// No description provided for @notSavedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?'**
+  String get notSavedYet;
+
+  /// No description provided for @loadingCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading completed.'**
+  String get loadingCompleted;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

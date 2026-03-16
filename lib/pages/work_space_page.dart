@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:rust_assistant/databeans/resource_ref.dart';
+import 'package:rust_assistant/databeans/runtime_file_info.dart';
 import 'package:rust_assistant/databeans/unit_ref.dart';
 import 'package:rust_assistant/file_operator/file_operator.dart';
 import 'package:rust_assistant/file_type_checker.dart';
@@ -21,9 +22,7 @@ class WorkspacePage extends StatefulWidget {
   final int openedFileLen;
   final int targetTabIndex;
   final List<String> unsavedFilePath;
-  final Map<String, String> pathToFileData;
-  final Map<String, String> pathToFileName;
-  final Map<String, int> pathToFileType;
+  final Map<String, RuntimeFileInfo> pathToRuntimeFileInfo;
   final List<String> tagList;
   final Function(String)? addUnsaved;
   final List<ResourceRef> globalResource;
@@ -32,7 +31,6 @@ class WorkspacePage extends StatefulWidget {
   final Function(String, CloseTagType)? closeTag;
   final bool displayLineNumber;
   final bool displayOperationOptions;
-  final Map<String, int> pathToMaxLineNumber;
   final Function onRequestOpenDrawer;
   final Function onRequestChangeLeftWidget;
   final Function(String) onRequestOpenFile;
@@ -53,17 +51,14 @@ class WorkspacePage extends StatefulWidget {
     required this.unsavedFilePath,
     required this.addUnsaved,
     required this.targetTabIndex,
-    required this.pathToFileData,
     required this.onTabIndexChange,
     required this.navigateToTheDirectory,
     required this.displayLineNumber,
-    required this.pathToMaxLineNumber,
     required this.onRequestOpenDrawer,
     required this.onRequestShowCreateFileDialog,
     required this.displayOperationOptions,
     required this.onRequestOpenFile,
-    required this.pathToFileName,
-    required this.pathToFileType,
+    required this.pathToRuntimeFileInfo,
     required this.modUnit,
     required this.tagList,
     required this.onRequestChangeLeftWidget,
@@ -78,8 +73,6 @@ class WorkspacePage extends StatefulWidget {
 
 class _WorkspaceStatus extends State<WorkspacePage>
     with TickerProviderStateMixin {
-  late List<String> _unsavedFilePath;
-  late Map<String, String> _pathToFileData;
   TabController? _tabController;
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
@@ -87,8 +80,6 @@ class _WorkspaceStatus extends State<WorkspacePage>
   @override
   void initState() {
     super.initState();
-    _unsavedFilePath = widget.unsavedFilePath;
-    _pathToFileData = widget.pathToFileData;
     if (widget.openedFileLen > 0) {
       //确保状态被销毁后，有文件处于打开状态，那么重建TabController。例如，从大屏幕切换到小屏幕，会销毁对象。那么我们在这里创建_tabController。
       _tabController = TabController(length: widget.openedFileLen, vsync: this);
@@ -187,11 +178,12 @@ class _WorkspaceStatus extends State<WorkspacePage>
           ),
         );
 
-        var contains = _unsavedFilePath.contains(f);
+        var contains = widget.unsavedFilePath.contains(f);
+        var runtimeFile = widget.pathToRuntimeFileInfo[f];
         var tab = Tab(
           child: Row(
             children: [
-              Text(widget.pathToFileName[f] ?? f),
+              Text(runtimeFile?.fileName ?? f),
               MenuAnchor(
                 builder: (context, controller, child) {
                   return IconButton(
@@ -220,7 +212,8 @@ class _WorkspaceStatus extends State<WorkspacePage>
     List<Widget> widgets = List.empty(growable: true);
     if (widget.openedFilePath.isNotEmpty) {
       for (var f in widget.openedFilePath) {
-        var fileType = widget.pathToFileType[f];
+        var runtimeFile = widget.pathToRuntimeFileInfo[f];
+        var fileType = runtimeFile?.fileType ?? FileTypeChecker.FileTypeUnknown;
         if (fileType == FileTypeChecker.FileTypeImage) {
           widgets.add(ImageViewer(path: f));
           continue;
@@ -231,25 +224,29 @@ class _WorkspaceStatus extends State<WorkspacePage>
               key: PageStorageKey<String>(f),
               sourceFilePath: f,
               globalResource: widget.globalResource,
-              fileData: _pathToFileData.containsKey(f)
-                  ? _pathToFileData[f]
-                  : null,
+              fileData: runtimeFile?.data,
               onDataChange: (data) {
-                if (!_unsavedFilePath.contains(f)) {
+                if (!widget.unsavedFilePath.contains(f)) {
                   widget.addUnsaved?.call(f);
                 }
                 // 延迟 setState 到下一帧
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (runtimeFile == null) {
+                    return;
+                  }
                   if (mounted) {
                     setState(() {
-                      _pathToFileData[f] = data;
+                      runtimeFile.data = data;
                     });
                   }
                 });
               },
               displayLineNumber: widget.displayLineNumber,
               onMaxLineNumberChange: (lineNumber) {
-                widget.pathToMaxLineNumber[f] = lineNumber;
+                if (runtimeFile == null) {
+                  return;
+                }
+                runtimeFile.maxLineNumber = lineNumber;
               },
               onRequestOpenDrawer: widget.onRequestOpenDrawer,
               onRequestChangeLeftWidget: widget.onRequestChangeLeftWidget,
@@ -275,7 +272,6 @@ class _WorkspaceStatus extends State<WorkspacePage>
   @override
   void didUpdateWidget(covariant WorkspacePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    //一定要使用openedFileLen进行比较，因为他们时两个不同的整数。使用widget.openedFilePath == oldWidget.openedFilePath是无效的他们属于同一引用。
     if (oldWidget.openedFileLen != widget.openedFileLen) {
       _tabController?.dispose();
       _tabController = TabController(length: widget.openedFileLen, vsync: this);

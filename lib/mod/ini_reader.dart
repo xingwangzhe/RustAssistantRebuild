@@ -18,14 +18,13 @@ class IniReader {
       if (line == null) {
         break;
       }
-      var trimValue = line.trim();
-      if (!containsBlankLines && trimValue.isEmpty) {
+      if (!containsBlankLines && line.isEmpty) {
         continue;
       }
-      if (!containsNotes && trimValue.startsWith("#")) {
+      if (!containsNotes && line.startsWith("#")) {
         continue;
       }
-      lines.add(trimValue);
+      lines.add(line);
     }
   }
 

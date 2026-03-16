@@ -117,7 +117,6 @@ class _StringDataInterpreterStatus extends State<StringDataInterpreter> {
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {
-                // widget.onLineDataChange?.call(widget, '');
                 showDialog<void>(
                   context: context,
                   builder: (BuildContext context) {

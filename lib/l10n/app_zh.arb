@@ -297,5 +297,9 @@
   "redefinition": "重复定义键",
   "repeatKey": "发现重复定义的%s在%s节。",
   "handle": "处理",
-  "handleAll": "处理全部"
+  "handleAll": "处理全部",
+  "problemResolved": "问题处理完成。",
+  "loadDataFromFile": "从文件重新加载数据",
+  "notSavedYet": "有尚未保存的内容，从文件加载数据这部分内容会丢失。仍要继续吗？",
+  "loadingCompleted": "加载完成。"
 }

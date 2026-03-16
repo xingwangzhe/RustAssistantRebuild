@@ -20,6 +20,7 @@ class ProjectAnalyzer {
   Map<String, DateTime> modificationTime = {};
   Map<String, List<ListDataTask>> pathToListData = {};
   Map<String, List<ProblemItem>> problemItemListData = {};
+  bool first = true;
 
   ProjectAnalyzer(this.rootPath, this.fileSystemOperator);
 
@@ -68,56 +69,57 @@ class ProjectAnalyzer {
       configPath,
       "problemItem.json",
     );
-    if (modificationTime.isEmpty || pathToListData.isEmpty) {
-      if (progress?.call(-1, 0, appLocalizations.readCache) == true) {
-        return;
-      }
-      if (await fileSystemOperator.exist(modificationTimeJsonPath)) {
-        String? modificationTimeJson = await fileSystemOperator.readAsString(
-          modificationTimeJsonPath,
-        );
-        if (modificationTimeJson != null && modificationTimeJson.isNotEmpty) {
-          Map<String, dynamic> timeMap = jsonDecode(modificationTimeJson);
-          modificationTime = timeMap.map((key, value) {
-            return MapEntry(key, DateTime.parse(value as String));
-          });
-        }
-      }
-
-      if (await fileSystemOperator.exist(listDataJsonPath)) {
-        String? listDataJson = await fileSystemOperator.readAsString(
-          listDataJsonPath,
-        );
-        if (listDataJson != null && listDataJson.isNotEmpty) {
-          Map<String, dynamic> dataMap = jsonDecode(listDataJson);
-          pathToListData = dataMap.map((key, value) {
-            List<ListDataTask> tasks = (value as List)
-                .map(
-                  (item) => ListDataTask.fromJson(item as Map<String, dynamic>),
-                )
-                .toList();
-            return MapEntry(key, tasks);
-          });
-        }
-      }
-
-      if (await fileSystemOperator.exist(problemItemJsonPath)) {
-        String? problemItem = await fileSystemOperator.readAsString(
-          problemItemJsonPath,
-        );
-        if (problemItem != null && problemItem.isNotEmpty) {
-          Map<String, dynamic> dataMap = jsonDecode(problemItem);
-          problemItemListData = dataMap.map((key, value) {
-            List<ProblemItem> tasks = (value as List)
-                .map(
-                  (item) => ProblemItem.fromJson(item as Map<String, dynamic>),
-                )
-                .toList();
-            return MapEntry(key, tasks);
-          });
-        }
+    if (progress?.call(-1, 0, appLocalizations.readCache) == true) {
+      return;
+    }
+    if (modificationTime.isEmpty &&
+        await fileSystemOperator.exist(modificationTimeJsonPath)) {
+      String? modificationTimeJson = await fileSystemOperator.readAsString(
+        modificationTimeJsonPath,
+      );
+      if (modificationTimeJson != null && modificationTimeJson.isNotEmpty) {
+        Map<String, dynamic> timeMap = jsonDecode(modificationTimeJson);
+        modificationTime = timeMap.map((key, value) {
+          return MapEntry(key, DateTime.parse(value as String));
+        });
       }
     }
+    if (pathToListData.isEmpty &&
+        await fileSystemOperator.exist(listDataJsonPath)) {
+      String? listDataJson = await fileSystemOperator.readAsString(
+        listDataJsonPath,
+      );
+      if (listDataJson != null && listDataJson.isNotEmpty) {
+        Map<String, dynamic> dataMap = jsonDecode(listDataJson);
+        pathToListData = dataMap.map((key, value) {
+          List<ListDataTask> tasks = (value as List)
+              .map(
+                (item) => ListDataTask.fromJson(item as Map<String, dynamic>),
+              )
+              .toList();
+          return MapEntry(key, tasks);
+        });
+      }
+    }
+    if (first && await fileSystemOperator.exist(problemItemJsonPath)) {
+      //The first analysis requires reading data from the file.
+      //第一次分析，需要从文件内读取数据。
+      String? problemItem = await fileSystemOperator.readAsString(
+        problemItemJsonPath,
+      );
+      if (problemItem != null && problemItem.isNotEmpty) {
+        Map<String, dynamic> dataMap = jsonDecode(problemItem);
+        problemItemListData = dataMap.map((key, value) {
+          List<ProblemItem> tasks = (value as List)
+              .map((item) => ProblemItem.fromJson(item as Map<String, dynamic>))
+              .toList();
+          return MapEntry(key, tasks);
+        });
+      }
+    } else {
+      problemItemListData.clear();
+    }
+    first = false;
     List<UnitRef> temporary = List.empty(growable: true);
     var fileVisualAnalytics = VisualAnalyticsResultItem();
     var assetsVisualAnalytics = VisualAnalyticsResultItem();
@@ -257,7 +259,7 @@ class ProjectAnalyzer {
         }
         if (line.startsWith("[") && line.endsWith("]")) {
           section = GlobalDepend.getSectionPrefix(line);
-          fullSection = GlobalDepend.getSecureFileName(line);
+          fullSection = GlobalDepend.getSection(line);
           repeatKeys.clear();
           continue;
         }
@@ -343,43 +345,63 @@ class ProjectAnalyzer {
     if (progress?.call(-1, 0, appLocalizations.writeCache) == true) {
       return;
     }
-    Map<String, String> timeJsonMap = modificationTime.map((key, value) {
-      return MapEntry(key, value.toIso8601String());
-    });
-    String timeJsonStr = jsonEncode(timeJsonMap);
-    await fileSystemOperator.writeFile(
-      configPath,
-      "timeIndex.json",
-      timeJsonStr,
-    );
-    Map<String, List<Map<String, dynamic>>> dataJsonMap = pathToListData.map((
-      key,
-      value,
-    ) {
-      List<Map<String, dynamic>> tasksJson = value
-          .map((task) => task.toJson())
-          .toList();
-      return MapEntry(key, tasksJson);
-    });
-    String dataJsonStr = jsonEncode(dataJsonMap);
-    await fileSystemOperator.writeFile(
-      configPath,
-      "listData.json",
-      dataJsonStr,
-    );
-    Map<String, List<Map<String, dynamic>>> problemItemListJsonData =
-        problemItemListData.map((key, value) {
-          List<Map<String, dynamic>> tasksJson = value
-              .map((task) => task.toJson())
-              .toList();
-          return MapEntry(key, tasksJson);
-        });
-    String problemItemListJsonStr = jsonEncode(problemItemListJsonData);
-    await fileSystemOperator.writeFile(
-      configPath,
-      "problemItem.json",
-      problemItemListJsonStr,
-    );
+    if (modificationTime.isEmpty) {
+      if (await fileSystemOperator.exist(modificationTimeJsonPath)) {
+        await fileSystemOperator.delete(modificationTimeJsonPath);
+      }
+    } else {
+      Map<String, String> timeJsonMap = modificationTime.map((key, value) {
+        return MapEntry(key, value.toIso8601String());
+      });
+      String timeJsonStr = jsonEncode(timeJsonMap);
+      await fileSystemOperator.writeFile(
+        configPath,
+        "timeIndex.json",
+        timeJsonStr,
+      );
+    }
+
+    if (pathToListData.isEmpty) {
+      if (await fileSystemOperator.exist(listDataJsonPath)) {
+        await fileSystemOperator.delete(listDataJsonPath);
+      }
+    } else {
+      Map<String, List<Map<String, dynamic>>> dataJsonMap = pathToListData.map((
+        key,
+        value,
+      ) {
+        List<Map<String, dynamic>> tasksJson = value
+            .map((task) => task.toJson())
+            .toList();
+        return MapEntry(key, tasksJson);
+      });
+      String dataJsonStr = jsonEncode(dataJsonMap);
+      await fileSystemOperator.writeFile(
+        configPath,
+        "listData.json",
+        dataJsonStr,
+      );
+    }
+
+    if (problemItemListData.isEmpty) {
+      if (await fileSystemOperator.exist(problemItemJsonPath)) {
+        await fileSystemOperator.delete(problemItemJsonPath);
+      }
+    } else {
+      Map<String, List<Map<String, dynamic>>> problemItemListJsonData =
+          problemItemListData.map((key, value) {
+            List<Map<String, dynamic>> tasksJson = value
+                .map((task) => task.toJson())
+                .toList();
+            return MapEntry(key, tasksJson);
+          });
+      String problemItemListJsonStr = jsonEncode(problemItemListJsonData);
+      await fileSystemOperator.writeFile(
+        configPath,
+        "problemItem.json",
+        problemItemListJsonStr,
+      );
+    }
     result.items.add(fileVisualAnalytics);
     result.items.add(assetsVisualAnalytics);
     result.items.add(memoryVisualAnalytics);

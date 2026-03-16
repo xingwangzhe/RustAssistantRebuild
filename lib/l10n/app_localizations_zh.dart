@@ -904,4 +904,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get handleAll => '处理全部';
+
+  @override
+  String get problemResolved => '问题处理完成。';
+
+  @override
+  String get loadDataFromFile => '从文件重新加载数据';
+
+  @override
+  String get notSavedYet => '有尚未保存的内容，从文件加载数据这部分内容会丢失。仍要继续吗？';
+
+  @override
+  String get loadingCompleted => '加载完成。';
 }

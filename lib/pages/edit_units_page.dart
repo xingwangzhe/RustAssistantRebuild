@@ -22,6 +22,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../constant.dart';
 import '../create_file_of_folder_dialog.dart';
+import '../databeans/runtime_file_info.dart';
 import '../databeans/visual_analytics_result.dart';
 import '../l10n/app_localizations.dart';
 import '../progress_info.dart';
@@ -55,7 +56,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   final List<String> _unsavedFilePath = List.empty(growable: true);
   final List<ResourceRef> _globalResource = List.empty(growable: true);
   String? _currentPath;
-  final Map<String, String> _pathToFileData = {};
+  final Map<String, RuntimeFileInfo> _pathToRuntimeFileInfo = {};
   int _targetTabIndex = 0;
   late ProjectAnalyzer _projectAnalyzer;
   final ValueNotifier<ProgressInfo> _progressInfoNotifier = ValueNotifier(
@@ -63,9 +64,6 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   );
   bool _displayLineNumber = false;
   bool _displayOperationOptions = true;
-  final Map<String, int> _pathToMaxLineNumber = {};
-  final Map<String, String> _pathToFileName = {};
-  final Map<String, int> _pathTofileType = {};
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
   bool _firstDid = true;
@@ -245,17 +243,23 @@ class _EditUnitsPageState extends State<EditUnitsPage>
 
   Future<bool> _performSave() async {
     if (_openedFilePath.isEmpty) return false;
-    final nowOpened = _openedFilePath[_targetTabIndex];
-    if (!_unsavedFilePath.contains(nowOpened)) {
+    final nowOpenedPath = _openedFilePath[_targetTabIndex];
+    if (!_unsavedFilePath.contains(nowOpenedPath)) {
       return false;
     }
-    final newText = _pathToFileData[nowOpened];
-    var name = await _fileSystemOperator.name(nowOpened);
-    if (newText != null) {
+    final runtimeFileInfo = _pathToRuntimeFileInfo[nowOpenedPath];
+    if (runtimeFileInfo == null) {
+      return false;
+    }
+    var name = runtimeFileInfo.fileName;
+    if (name == null) {
+      return false;
+    }
+    if (runtimeFileInfo.data != null) {
       await _fileSystemOperator.writeFile(
-        await _fileSystemOperator.dirname(nowOpened),
+        await _fileSystemOperator.dirname(nowOpenedPath),
         name,
-        newText,
+        runtimeFileInfo.data,
       );
     }
     if (mounted) {
@@ -268,7 +272,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       );
     }
     setState(() {
-      _unsavedFilePath.remove(nowOpened);
+      _unsavedFilePath.remove(nowOpenedPath);
     });
     var finalContext = context;
     if (_automaticIndexConstruction && finalContext.mounted) {
@@ -276,17 +280,25 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     }
     //额外的条件，如果保存的是allUnits
     var allUnitsTemplate = p.join(widget.mod.path, Constant.allUnitsTemplate);
-    if (nowOpened == allUnitsTemplate) {
+    if (nowOpenedPath == allUnitsTemplate) {
       loadGlobalRes();
     }
     return true;
   }
 
   Future<void> _showSourceDiff() async {
-    if (_openedFilePath.isEmpty) return;
-    final nowOpened = _openedFilePath[_targetTabIndex];
-    final fileContent = await _fileSystemOperator.readAsString(nowOpened);
-    if (!mounted) return;
+    if (_openedFilePath.isEmpty) {
+      return;
+    }
+    final nowOpenedPath = _openedFilePath[_targetTabIndex];
+    final fileContent = await _fileSystemOperator.readAsString(nowOpenedPath);
+    RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[nowOpenedPath];
+    if (runtimeFileInfo == null) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
     showModalBottomSheet(
       showDragHandle: true,
       isScrollControlled: true,
@@ -297,14 +309,14 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              p.basename(nowOpened),
+              p.basename(nowOpenedPath),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 16),
             Expanded(
               child: TextDifference(
                 original: fileContent ?? "",
-                newText: _pathToFileData[nowOpened] ?? fileContent ?? "",
+                newText: runtimeFileInfo.data ?? fileContent ?? "",
               ),
             ),
           ],
@@ -321,8 +333,10 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     if (index < 0) {
       setState(() {
         _openedFilePath.add(path);
-        _pathToFileName[path] = fileName;
-        _pathTofileType[path] = fileType;
+        RuntimeFileInfo fileInfo = RuntimeFileInfo();
+        fileInfo.fileName = fileName;
+        fileInfo.fileType = fileType;
+        _pathToRuntimeFileInfo[path] = fileInfo;
         _targetTabIndex = _openedFilePath.length - 1;
       });
     } else {
@@ -608,16 +622,11 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     _unsavedFilePath.remove(oldSubPath);
                     _unsavedFilePath.add(newSubPath);
                   }
-                  final data = _pathToFileData.remove(oldSubPath);
-                  if (data != null) {
-                    _pathToFileData[newSubPath] = data;
-                  }
-                  _pathToFileName.remove(oldSubPath);
-                  _pathToFileName[newSubPath] = fileName;
-                  var oldType = _pathTofileType[oldSubPath];
-                  _pathTofileType.remove(oldSubPath);
-                  if (oldType != null) {
-                    _pathTofileType[newSubPath] = oldType;
+                  final runtimeFileInfo = _pathToRuntimeFileInfo[oldPath];
+                  if (runtimeFileInfo != null) {
+                    runtimeFileInfo.fileName = fileName;
+                    _pathToRuntimeFileInfo.remove(oldPath);
+                    _pathToRuntimeFileInfo[newSubPath] = runtimeFileInfo;
                   }
                 });
                 saveOpenedFile();
@@ -632,17 +641,11 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 _unsavedFilePath.remove(oldPath);
                 _unsavedFilePath.add(newPath);
               }
-              String? oldData = _pathToFileData[oldPath];
-              _pathToFileData.remove(oldPath);
-              if (oldData != null) {
-                _pathToFileData[newPath] = oldData;
-              }
-              _pathToFileName.remove(oldPath);
-              _pathToFileName[newPath] = fileName;
-              var oldType = _pathTofileType[oldPath];
-              _pathTofileType.remove(oldPath);
-              if (oldType != null) {
-                _pathTofileType[newPath] = oldType;
+              final runtimeFileInfo = _pathToRuntimeFileInfo[oldPath];
+              if (runtimeFileInfo != null) {
+                runtimeFileInfo.fileName = fileName;
+                _pathToRuntimeFileInfo.remove(oldPath);
+                _pathToRuntimeFileInfo[newPath] = runtimeFileInfo;
               }
             });
             saveOpenedFile();
@@ -672,9 +675,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         }
         // 清理关联数据
         _unsavedFilePath.remove(path);
-        _pathToFileData.remove(path);
-        _pathToFileName.remove(path);
-        _pathTofileType.remove(path);
+        _pathToRuntimeFileInfo.remove(path);
       } else if (type == CloseTagType.CLOSE_OTHER) {
         // 关闭除指定标签外的所有标签（原有逻辑，保持不变）
         if (!_openedFilePath.contains(path)) {
@@ -688,9 +689,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         // 清理要删除的路径的关联数据
         for (String p in toRemovePaths) {
           _unsavedFilePath.remove(p);
-          _pathToFileData.remove(p);
-          _pathToFileName.remove(p);
-          _pathTofileType.remove(p);
+          _pathToRuntimeFileInfo.remove(p);
         }
         // 保留指定路径，重置打开列表
         _openedFilePath.clear();
@@ -710,9 +709,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         // 3. 批量清理关联数据
         for (String p in toRemovePaths) {
           _unsavedFilePath.remove(p);
-          _pathToFileData.remove(p);
-          _pathToFileName.remove(p);
-          _pathTofileType.remove(p);
+          _pathToRuntimeFileInfo.remove(p);
         }
         // 4. 移除左侧标签，保留当前及右侧标签
         _openedFilePath.removeWhere((p) => toRemovePaths.contains(p));
@@ -732,9 +729,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         // 3. 批量清理关联数据
         for (String p in toRemovePaths) {
           _unsavedFilePath.remove(p);
-          _pathToFileData.remove(p);
-          _pathToFileName.remove(p);
-          _pathTofileType.remove(p);
+          _pathToRuntimeFileInfo.remove(p);
         }
         // 4. 移除右侧标签，保留当前及左侧标签
         _openedFilePath.removeWhere((p) => toRemovePaths.contains(p));
@@ -747,9 +742,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         // 关闭所有标签（原有逻辑，保持不变）
         _openedFilePath.clear();
         _unsavedFilePath.clear();
-        _pathToFileData.clear();
-        _pathToFileName.clear();
-        _pathTofileType.clear();
+        _pathToRuntimeFileInfo.clear();
         _targetTabIndex = 0;
       }
     });
@@ -770,7 +763,6 @@ class _EditUnitsPageState extends State<EditUnitsPage>
               _unsavedFilePath.add(s);
             });
           },
-          pathToFileData: _pathToFileData,
           targetTabIndex: _targetTabIndex,
           onTabIndexChange: (index) {
             setState(() {
@@ -785,7 +777,6 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           },
           displayLineNumber: _displayLineNumber,
           displayOperationOptions: _displayOperationOptions,
-          pathToMaxLineNumber: _pathToMaxLineNumber,
           onRequestOpenDrawer: () {
             Scaffold.of(c).openDrawer();
           },
@@ -797,8 +788,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             });
             _onRequestOpenFile(path, true);
           },
-          pathToFileName: _pathToFileName,
-          pathToFileType: _pathTofileType,
+          pathToRuntimeFileInfo: _pathToRuntimeFileInfo,
           rootPath: widget.mod.path,
           tagList: _tagList,
           onRequestChangeLeftWidget: () {
@@ -918,26 +908,35 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           ),
           IconButton(
             tooltip: AppLocalizations.of(context)!.saveAction,
-            onPressed: _openedFilePath.isEmpty ? null : _performSave,
+            onPressed: _unsavedFilePath.isEmpty ? null : _performSave,
             icon: const Icon(Icons.save_outlined),
           ),
           if (_projectAnalyzer.lastResult != null &&
               _projectAnalyzer.lastResult!.problems.isNotEmpty)
             IconButton(
               tooltip: AppLocalizations.of(context)!.problem,
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  showDragHandle: true,
-                  isScrollControlled: true,
-                  builder: (context) {
-                    return ProblemDialog(
-                      onRequestOpenFile: _onRequestOpenFile,
-                      problemItemList: _projectAnalyzer.lastResult!.problems,
-                    );
-                  },
-                );
-              },
+              onPressed: _unsavedFilePath.isEmpty
+                  ? () {
+                      showModalBottomSheet(
+                        context: context,
+                        showDragHandle: true,
+                        isScrollControlled: true,
+                        builder: (context) {
+                          return ProblemDialog(
+                            onRequestOpenFile: _onRequestOpenFile,
+                            problemItemList:
+                                _projectAnalyzer.lastResult!.problems,
+                            onRescan: () {
+                              setState(() {
+                                _projectAnalyzer.lastResult!.problems.clear();
+                              });
+                              _doAnalyze(context);
+                            },
+                          );
+                        },
+                      );
+                    }
+                  : null,
               icon: const Icon(Icons.error_outline),
             ),
           PopupMenuButton<String>(
@@ -967,6 +966,70 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     },
                   ),
                 );
+              } else if (value == 'reloadDataFromFile') {
+                final nowOpenedPath = _openedFilePath[_targetTabIndex];
+                if (_unsavedFilePath.contains(nowOpenedPath)) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          AppLocalizations.of(context)!.loadDataFromFile,
+                        ),
+                        content: Text(
+                          AppLocalizations.of(context)!.notSavedYet,
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(AppLocalizations.of(context)!.cancel),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                RuntimeFileInfo? runtimeFileInfo =
+                                    _pathToRuntimeFileInfo[nowOpenedPath];
+                                if (runtimeFileInfo != null) {
+                                  runtimeFileInfo.data = null;
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.loadingCompleted,
+                                    ),
+                                  ),
+                                );
+                                _unsavedFilePath.remove(nowOpenedPath);
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: Text(AppLocalizations.of(context)!.confirm),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  setState(() {
+                    RuntimeFileInfo? runtimeFileInfo =
+                        _pathToRuntimeFileInfo[nowOpenedPath];
+                    if (runtimeFileInfo != null) {
+                      runtimeFileInfo.data = null;
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.loadingCompleted,
+                        ),
+                      ),
+                    );
+                  });
+                }
               }
             },
             itemBuilder: (context) {
@@ -1029,6 +1092,13 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                       _openedFilePath.isNotEmpty &&
                       fileType == FileTypeChecker.FileTypeText,
                   child: Text(AppLocalizations.of(context)!.saveAsTemplate),
+                ),
+                PopupMenuItem<String>(
+                  value: 'reloadDataFromFile',
+                  enabled:
+                      _openedFilePath.isNotEmpty &&
+                      fileType == FileTypeChecker.FileTypeText,
+                  child: Text(AppLocalizations.of(context)!.loadDataFromFile),
                 ),
               ];
             },

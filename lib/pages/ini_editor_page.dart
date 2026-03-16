@@ -160,12 +160,12 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         });
         return;
       }
-      final String data =
-          await _fileSystemOperator.readAsString(widget.sourceFilePath) ?? "";
-      _iniReader = IniReader(data, containsNotes: true);
       if (!mounted) {
         return;
       }
+      final String data =
+          await _fileSystemOperator.readAsString(widget.sourceFilePath) ?? "";
+      _iniReader = IniReader(data, containsNotes: true);
       _textEditingController.text = data;
     } else {
       if (!mounted) {
@@ -418,6 +418,14 @@ class _IniEditorPageStatus extends State<IniEditorPage>
       );
     }
     return getDefaultView(lineNumber, keyValue, codeData, codeInfo);
+  }
+
+  @override
+  void didUpdateWidget(IniEditorPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.fileData != widget.fileData) {
+      _loadFile();
+    }
   }
 
   int _argumentsToFileType(String? arguments) {

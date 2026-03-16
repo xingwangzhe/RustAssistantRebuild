@@ -297,5 +297,9 @@
   "problem": "problem",
   "repeatKey": "A duplicate definition of %s was found in the %s section.",
   "handle": "handle",
-  "handleAll": "handle all"
+  "handleAll": "handle all",
+  "problemResolved": "The problem has been resolved.",
+  "loadDataFromFile": "Reload data from the file",
+  "notSavedYet": "There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?",
+  "loadingCompleted": "Loading completed."
 }

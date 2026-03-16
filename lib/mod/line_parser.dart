@@ -43,7 +43,7 @@ class LineParser {
     } else {
       // 普通行
       _index++;
-      return line;
+      return line.trim();
     }
   }
 
