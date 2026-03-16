@@ -916,4 +916,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loadingCompleted => '加载完成。';
+
+  @override
+  String get synchronizeVisualEditor => '同步到可视化编辑器';
 }

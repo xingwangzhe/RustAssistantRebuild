@@ -301,5 +301,6 @@
   "problemResolved": "The problem has been resolved.",
   "loadDataFromFile": "Reload data from the file",
   "notSavedYet": "There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?",
-  "loadingCompleted": "Loading completed."
+  "loadingCompleted": "Loading completed.",
+  "synchronizeVisualEditor": "Synchronize to the visual editor"
 }

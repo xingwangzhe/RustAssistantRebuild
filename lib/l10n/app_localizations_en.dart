@@ -916,4 +916,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingCompleted => 'Loading completed.';
+
+  @override
+  String get synchronizeVisualEditor => 'Synchronize to the visual editor';
 }

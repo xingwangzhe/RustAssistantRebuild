@@ -8,14 +8,14 @@ class SectionInterpreter extends DataInterpreter {
   final SectionInfo? sectionInfo;
   final bool Function(String) checkForRepetition;
   final Function(String) editSequenceCallBack;
-  final Function(String) deletSectionCallBack;
+  final Function(String) deleteSectionCallBack;
   final Function(int, String) addCallBack;
 
   const SectionInterpreter({
     super.key,
     required this.addCallBack,
     required this.editSequenceCallBack,
-    required this.deletSectionCallBack,
+    required this.deleteSectionCallBack,
     required this.sectionInfo,
     required this.checkForRepetition,
     required super.keyValue,
@@ -115,7 +115,7 @@ class _SectionInterpreterStatus extends State<SectionInterpreter> {
               IconButton(
                 tooltip: AppLocalizations.of(context)?.delete,
                 onPressed: () {
-                  widget.deletSectionCallBack.call(widget.keyValue.key);
+                  widget.deleteSectionCallBack.call(widget.keyValue.key);
                 },
                 icon: Icon(Icons.delete_outline),
               ),

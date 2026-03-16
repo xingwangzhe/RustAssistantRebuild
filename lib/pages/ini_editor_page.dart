@@ -19,6 +19,7 @@ import 'package:rust_assistant/interpreters/tag_interprete.dart';
 import 'package:rust_assistant/interpreters/unit_interpreter.dart';
 import 'package:rust_assistant/mod/ini_writer.dart';
 import 'package:rust_assistant/mod/ini_reader.dart';
+import 'package:rust_assistant/pages/code_editor.dart';
 import 'package:rust_assistant/search_multiple_selection_dialog.dart';
 
 import '../databeans/code_info.dart';
@@ -90,10 +91,12 @@ class _IniEditorPageStatus extends State<IniEditorPage>
   int _mode = _modeVisual;
   static final int _modeVisual = 1;
   static final int _modeEditor = 2;
-  final TextEditingController _textEditingController = TextEditingController();
   int _maxLineNumber = 0;
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
+  String? _text;
+  bool _needSync = false;
+  String? _codeEditorText;
 
   List<ResourceRef> getLocalResource() {
     final List<ResourceRef> returnList = [];
@@ -133,12 +136,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
     _loadFile();
   }
 
-  @override
-  void dispose() {
-    _textEditingController.dispose();
-    super.dispose();
-  }
-
   void _loadFile() async {
     setState(() {
       _loading = true;
@@ -165,14 +162,18 @@ class _IniEditorPageStatus extends State<IniEditorPage>
       }
       final String data =
           await _fileSystemOperator.readAsString(widget.sourceFilePath) ?? "";
-      _iniReader = IniReader(data, containsNotes: true);
-      _textEditingController.text = data;
+      setState(() {
+        _iniReader = IniReader(data, containsNotes: true);
+        _text = data;
+      });
     } else {
       if (!mounted) {
         return;
       }
-      _iniReader = IniReader(widget.fileData!, containsNotes: true);
-      _textEditingController.text = widget.fileData!;
+      setState(() {
+        _iniReader = IniReader(widget.fileData!, containsNotes: true);
+        _text = widget.fileData!;
+      });
     }
     setState(() {
       _loading = false;
@@ -447,9 +448,11 @@ class _IniEditorPageStatus extends State<IniEditorPage>
   void onLineDataChange(DataInterpreter dataInterpreter, String lineData) {
     _dataInterpretersValues[dataInterpreter] = lineData;
     var newIniData = toIniData();
-    _textEditingController.text = newIniData;
+    setState(() {
+      _text = newIniData;
+      _iniReader = IniReader(newIniData, containsNotes: true);
+    });
     widget.onDataChange?.call(newIniData);
-    _iniReader = IniReader(newIniData, containsNotes: true);
   }
 
   void editSequenceCallBack(String key) {
@@ -467,16 +470,18 @@ class _IniEditorPageStatus extends State<IniEditorPage>
               sectionName: "[$key]",
               content: string,
             );
-            _textEditingController.text = newIniData;
+            setState(() {
+              _text = newIniData;
+              _iniReader = IniReader(newIniData, containsNotes: true);
+            });
             widget.onDataChange?.call(newIniData);
-            _iniReader = IniReader(newIniData, containsNotes: true);
           },
         );
       },
     );
   }
 
-  void deletSectionCallBack(String fullSectionName) {
+  void deleteSectionCallBack(String fullSectionName) {
     showDialog(
       context: context,
       builder: (context) {
@@ -498,9 +503,11 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   _iniReader!.content,
                   fullSectionName,
                 );
-                _textEditingController.text = newIniData;
+                setState(() {
+                  _text = newIniData;
+                  _iniReader = IniReader(newIniData, containsNotes: true);
+                });
                 widget.onDataChange?.call(newIniData);
-                _iniReader = IniReader(newIniData, containsNotes: true);
                 Navigator.of(context).pop();
               },
               child: Text(AppLocalizations.of(context)!.delete),
@@ -611,9 +618,11 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                     fullSection +
                     appendData.toString() +
                     content.substring(insertionPosition);
-                _textEditingController.text = newContent;
+                setState(() {
+                  _text = newContent;
+                  _iniReader = IniReader(newContent, containsNotes: true);
+                });
                 widget.onDataChange?.call(newContent);
-                _iniReader = IniReader(newContent, containsNotes: true);
               }
             }
           },
@@ -665,7 +674,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
           return false;
         },
         displayOperationOptions: widget.displayOperationOptions,
-        deletSectionCallBack: deletSectionCallBack,
+        deleteSectionCallBack: deleteSectionCallBack,
       );
       addDataInterpreter(sectionInterpreter, fullSection);
       sections.add(sectionInterpreter);
@@ -741,6 +750,9 @@ class _IniEditorPageStatus extends State<IniEditorPage>
             ],
             selected: <int>{_mode},
             onSelectionChanged: (newSelection) {
+              if (_mode == _modeVisual && _needSync) {
+                return;
+              }
               setState(() {
                 _mode = newSelection.first;
               });
@@ -752,16 +764,19 @@ class _IniEditorPageStatus extends State<IniEditorPage>
             index: _mode == _modeVisual ? 0 : 1,
             children: [
               _getVisualWidget(sections),
-              TextField(
-                onChanged: (s) {
-                  widget.onDataChange?.call(s);
-                  _iniReader = IniReader(s, containsNotes: true);
+              CodeEditor(
+                text: _text,
+                onNeedSyncChanged: (needSync, codeEditText) {
+                  _needSync = needSync;
+                  _codeEditorText = codeEditText;
                 },
-                style: TextStyle(fontFamily: 'Mono'),
-                expands: true,
-                maxLines: null,
-                controller: _textEditingController,
-                decoration: InputDecoration(border: OutlineInputBorder()),
+                onChanged: (text) {
+                  setState(() {
+                    _text = text;
+                    _iniReader = IniReader(text, containsNotes: true);
+                  });
+                  widget.onDataChange?.call(text);
+                },
               ),
             ],
           ),
@@ -970,12 +985,14 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   stringBuffer.write(additionalCode(section.section));
                 }
               }
-              _textEditingController.text = stringBuffer.toString();
+              setState(() {
+                _text = stringBuffer.toString();
+                _iniReader = IniReader(
+                  stringBuffer.toString(),
+                  containsNotes: true,
+                );
+              });
               widget.onDataChange?.call(stringBuffer.toString());
-              _iniReader = IniReader(
-                stringBuffer.toString(),
-                containsNotes: true,
-              );
             },
             dataSource: sectionDataSource,
           );

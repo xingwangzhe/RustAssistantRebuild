@@ -1912,6 +1912,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading completed.'**
   String get loadingCompleted;
+
+  /// No description provided for @synchronizeVisualEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronize to the visual editor'**
+  String get synchronizeVisualEditor;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
