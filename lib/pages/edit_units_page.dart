@@ -78,6 +78,10 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   DateTime? _lastProgressUpdateTime;
   final Duration _throttleDuration = const Duration(milliseconds: 500);
 
+  //Reload all the open files after the analysis.
+  //重新加载所有打开的文件在分析后。
+  bool reloadAllOpenedFileAfterAnalyze = false;
+
   @override
   void initState() {
     super.initState();
@@ -379,6 +383,24 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           analysis: false,
         );
       }
+      if (reloadAllOpenedFileAfterAnalyze && _openedFilePath.isNotEmpty) {
+        for (var value in _openedFilePath) {
+          if (_unsavedFilePath.contains(value)) {
+            //Do not corrupt the file that the user is currently editing in the memory.
+            //不要破坏内存中用户正编辑的文件。
+            continue;
+          }
+          RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[value];
+          if (runtimeFileInfo != null) {
+            //Make it reload.
+            //使其重新加载。
+            runtimeFileInfo.data = null;
+          }
+        }
+      }
+      //Always clear the marks.
+      //永远清除标记。
+      reloadAllOpenedFileAfterAnalyze = false;
       if (result != null) {
         _tagList = result.tagList;
       }
@@ -930,6 +952,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                               setState(() {
                                 _projectAnalyzer.lastResult!.problems.clear();
                               });
+                              reloadAllOpenedFileAfterAnalyze = true;
                               _doAnalyze(context);
                             },
                           );
