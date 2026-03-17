@@ -22,7 +22,8 @@ class TagInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
-    required this.tagList
+    required this.tagList,
+    required super.overRiderValue,
   });
 
   @override
@@ -39,15 +40,17 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     _textEditingController.text = widget.keyValue.value;
     var value = widget.keyValue.value.toString();
     generateSelectTag(value);
   }
 
   void generateSelectTag(String value) {
-    setState(() {
-      _selectedTag.clear();
-    });
+    _selectedTag.clear();
     if (value.isEmpty) {
       return;
     }
@@ -58,9 +61,7 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
     for (String item in temArray) {
       var trim = item.trim();
       if (trim.isNotEmpty) {
-        setState(() {
-          _selectedTag.add(trim);
-        });
+        _selectedTag.add(trim);
       }
     }
   }
@@ -74,8 +75,11 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
   @override
   void didUpdateWidget(TagInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 
@@ -144,7 +148,9 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
                   maxLines: null,
                   style: TextStyle(fontFamily: 'Mono'),
                   onChanged: (s) {
-                    generateSelectTag(s);
+                    setState(() {
+                      generateSelectTag(s);
+                    });
                     widget.keyValue.value = s;
                     widget.onLineDataChange?.call(
                       widget,
@@ -194,8 +200,8 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
                                         }
                                       }
                                       var str = stringBuffer.toString();
+                                      _textEditingController.text = str;
                                       setState(() {
-                                        _textEditingController.text = str;
                                         generateSelectTag(str);
                                       });
                                       widget.keyValue.value = str;

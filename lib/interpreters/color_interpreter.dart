@@ -18,6 +18,7 @@ class ColorInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -33,9 +34,7 @@ class _ColorInsterpreterStatus extends State<ColorInterpreter> {
   @override
   void initState() {
     super.initState();
-    var newText = widget.keyValue.value.trim().replaceFirst('#', '');
-    _textEditingController.text = newText;
-    _color = _parseColor(newText);
+    _loadValue();
   }
 
   @override
@@ -44,14 +43,19 @@ class _ColorInsterpreterStatus extends State<ColorInterpreter> {
     super.dispose();
   }
 
+  void _loadValue() {
+    var newText = widget.keyValue.value.trim().replaceFirst('#', '');
+    _textEditingController.text = newText;
+    _color = _parseColor(newText);
+  }
+
   @override
   void didUpdateWidget(ColorInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      var newText = widget.keyValue.value.trim().replaceFirst('#', '');
-      _textEditingController.text = newText;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
       setState(() {
-        _color = _parseColor(newText);
+        _loadValue();
       });
     }
   }

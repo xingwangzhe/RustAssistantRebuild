@@ -772,6 +772,52 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     saveOpenedFile();
   }
 
+  /**
+   * 当数据改变时，
+   * file文件路径
+   * newData新的数据
+   * overRiderValue是否覆盖用户输入的值
+   */
+  void onDataChange(String? file, String? newData, bool overRiderValue) {
+    if (file == null) {
+      return;
+    }
+    setState(() {
+      RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[file];
+      if (runtimeFileInfo == null) {
+        return;
+      }
+      if (overRiderValue) {
+        runtimeFileInfo.overRiderValue = true;
+      } else {
+        runtimeFileInfo.overRiderValue = false;
+      }
+      if (newData == null) {
+        runtimeFileInfo.data = null;
+        runtimeFileInfo.origin = null;
+        _unsavedFilePath.remove(file);
+        return;
+      }
+      if (runtimeFileInfo.data == null) {
+        runtimeFileInfo.data = newData;
+        runtimeFileInfo.origin = newData;
+        _unsavedFilePath.remove(file);
+        return;
+      }
+      bool same = runtimeFileInfo.origin == newData;
+      runtimeFileInfo.data = newData;
+      if (same) {
+        if (_unsavedFilePath.contains(file)) {
+          _unsavedFilePath.remove(file);
+        }
+      } else {
+        if (!_unsavedFilePath.contains(file)) {
+          _unsavedFilePath.add(file);
+        }
+      }
+    });
+  }
+
   Widget getRight() {
     return Builder(
       builder: (c) {
@@ -817,23 +863,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             _closeTag(p1, type);
           },
           modUnit: _projectAnalyzer.unitRefList,
-          onDataChange: (String? file, String? newData) {
-            if (file == null) {
-              return;
-            }
-            setState(() {
-              RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[file];
-              if (runtimeFileInfo == null) {
-                return;
-              }
-              bool same = runtimeFileInfo.data == newData;
-              if (same) {
-                _unsavedFilePath.remove(file);
-              } else {
-                _unsavedFilePath.add(file);
-              }
-            });
-          },
+          onDataChange: onDataChange,
         );
       },
     );
@@ -1024,23 +1054,16 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                           ),
                           TextButton(
                             onPressed: () {
-                              setState(() {
-                                RuntimeFileInfo? runtimeFileInfo =
-                                    _pathToRuntimeFileInfo[nowOpenedPath];
-                                if (runtimeFileInfo != null) {
-                                  runtimeFileInfo.data = null;
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.loadingCompleted,
-                                    ),
+                              onDataChange(nowOpenedPath, null, true);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.loadingCompleted,
                                   ),
-                                );
-                                _unsavedFilePath.remove(nowOpenedPath);
-                              });
+                                ),
+                              );
                               Navigator.pop(context);
                             },
                             child: Text(AppLocalizations.of(context)!.confirm),
@@ -1050,20 +1073,14 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     },
                   );
                 } else {
-                  setState(() {
-                    RuntimeFileInfo? runtimeFileInfo =
-                        _pathToRuntimeFileInfo[nowOpenedPath];
-                    if (runtimeFileInfo != null) {
-                      runtimeFileInfo.data = null;
-                    }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.loadingCompleted,
-                        ),
+                  onDataChange(nowOpenedPath, null, true);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.loadingCompleted,
                       ),
-                    );
-                  });
+                    ),
+                  );
                 }
               }
             },

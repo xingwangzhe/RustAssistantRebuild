@@ -17,6 +17,7 @@ class FloatDataInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -31,6 +32,10 @@ class _FloatDataInterpreterStatus extends State<FloatDataInterpreter> {
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     _textEditingController.text = widget.keyValue.value;
   }
 
@@ -43,8 +48,11 @@ class _FloatDataInterpreterStatus extends State<FloatDataInterpreter> {
   @override
   void didUpdateWidget(FloatDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

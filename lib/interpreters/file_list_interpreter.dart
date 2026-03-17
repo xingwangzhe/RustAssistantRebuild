@@ -29,6 +29,7 @@ class FileListInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -45,6 +46,15 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
   void initState() {
     super.initState();
     _loadList();
+  }
+
+  @override
+  void didUpdateWidget(covariant FileListInterpreter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      _loadList();
+    }
   }
 
   void _loadList() async {

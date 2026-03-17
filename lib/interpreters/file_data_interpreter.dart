@@ -33,6 +33,7 @@ class FileDataInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -96,7 +97,8 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
   @override
   void didUpdateWidget(FileDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
       _loadFileReference();
     }
   }

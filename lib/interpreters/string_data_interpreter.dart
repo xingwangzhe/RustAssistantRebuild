@@ -15,7 +15,8 @@ class StringDataInterpreter extends DataInterpreter {
     super.codeInfo,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions
+    required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -30,6 +31,10 @@ class _StringDataInterpreterStatus extends State<StringDataInterpreter> {
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     _textEditingController.text = widget.keyValue.value;
   }
 
@@ -42,8 +47,11 @@ class _StringDataInterpreterStatus extends State<StringDataInterpreter> {
   @override
   void didUpdateWidget(StringDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

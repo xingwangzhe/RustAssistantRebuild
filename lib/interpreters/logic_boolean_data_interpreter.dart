@@ -23,6 +23,7 @@ class LogicBooleanDataInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -40,8 +41,7 @@ class _LogicBooleanDataInterpreterState
   @override
   void initState() {
     super.initState();
-    _textEditingController.text = widget.keyValue.value;
-    _presenterList = _generatePresenterList(widget.keyValue.value);
+    _loadValue();
     _textEditingController.addListener(() {
       var text = _textEditingController.text;
       widget.keyValue.value = text;
@@ -52,11 +52,19 @@ class _LogicBooleanDataInterpreterState
     });
   }
 
+  void _loadValue() {
+    _textEditingController.text = widget.keyValue.value;
+    _presenterList = _generatePresenterList(widget.keyValue.value);
+  }
+
   @override
   void didUpdateWidget(LogicBooleanDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

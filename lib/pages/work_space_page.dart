@@ -27,7 +27,7 @@ class WorkspacePage extends StatefulWidget {
   final List<ResourceRef> globalResource;
   final Function(int) onTabIndexChange;
   final Function(String)? navigateToTheDirectory;
-  final Function(String?, String)? onDataChange;
+  final Function(String?, String?, bool) onDataChange;
   final Function(String, CloseTagType)? closeTag;
   final bool displayLineNumber;
   final bool displayOperationOptions;
@@ -226,8 +226,10 @@ class _WorkspaceStatus extends State<WorkspacePage>
               sourceFilePath: f,
               globalResource: widget.globalResource,
               fileData: widget.pathToRuntimeFileInfo[f]?.data,
-              onDataChange: (data) {
-                widget.onDataChange?.call(f, data);
+              overRiderValue:
+                  widget.pathToRuntimeFileInfo[f]?.overRiderValue ?? false,
+              onDataChange: (data, overRide) {
+                widget.onDataChange.call(f, data, overRide);
               },
               displayLineNumber: widget.displayLineNumber,
               onMaxLineNumberChange: (lineNumber) {

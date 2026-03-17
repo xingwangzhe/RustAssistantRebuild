@@ -16,6 +16,7 @@ class BoolDataInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -30,20 +31,22 @@ class _BoolDataInterpreterStatus extends State<BoolDataInterpreter> {
   @override
   void initState() {
     super.initState();
-    _enable = widget.keyValue.value == "true";
+    _loadValue();
   }
 
   @override
   void didUpdateWidget(BoolDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _enable = widget.keyValue.value == "true";
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void _loadValue() {
+    _enable = widget.keyValue.value == "true";
   }
 
   @override

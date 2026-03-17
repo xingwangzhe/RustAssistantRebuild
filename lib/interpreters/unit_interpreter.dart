@@ -11,6 +11,7 @@ import 'data_interpreter.dart';
 class UnitInterpreter extends DataInterpreter {
   final bool multiple;
   final List<UnitRef> modUnit;
+
   const UnitInterpreter({
     super.key,
     required super.keyValue,
@@ -21,7 +22,7 @@ class UnitInterpreter extends DataInterpreter {
     required super.lineNumber,
     required this.modUnit,
     required super.displayLineNumber,
-    required super.displayOperationOptions,
+    required super.displayOperationOptions, required super.overRiderValue,
   });
 
   @override
@@ -36,6 +37,10 @@ class _UnitInterpreterStatus extends State<UnitInterpreter> {
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     _textEditingController.text = widget.keyValue.value;
   }
 
@@ -48,8 +53,11 @@ class _UnitInterpreterStatus extends State<UnitInterpreter> {
   @override
   void didUpdateWidget(UnitInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

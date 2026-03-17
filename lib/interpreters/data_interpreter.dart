@@ -13,11 +13,14 @@ abstract class DataInterpreter extends StatefulWidget {
   final bool displayLineNumber;
   final bool displayOperationOptions;
   final String? arguments;
+  final bool overRiderValue;
+
   const DataInterpreter({
     super.key,
     required this.keyValue,
     required this.onLineDataChange,
     required this.lineNumber,
+    required this.overRiderValue,
     this.codeData,
     this.codeInfo,
     this.arguments,

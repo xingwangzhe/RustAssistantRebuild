@@ -40,20 +40,25 @@ import '../l10n/app_localizations.dart';
 class IniEditorPage extends StatefulWidget {
   final bool displayLineNumber;
   final bool displayOperationOptions;
+  final bool overRiderValue;
   final Function(String) onRequestOpenFile;
   final Function onRequestChangeLeftWidget;
   final List<String> tagList;
   final List<UnitRef> modUnit;
 
+  //当文件内容被改变时
+  final Function(String, bool) onDataChange;
+
   const IniEditorPage({
     super.key,
     required this.sourceFilePath,
     this.fileData,
-    this.onDataChange,
+    required this.onDataChange,
     required this.globalResource,
     required this.modUnit,
     required this.displayLineNumber,
     required this.displayOperationOptions,
+    required this.overRiderValue,
     this.onMaxLineNumberChange,
     required this.onRequestOpenDrawer,
     required this.onRequestChangeLeftWidget,
@@ -68,9 +73,6 @@ class IniEditorPage extends StatefulWidget {
 
   //文件内容
   final String? fileData;
-
-  //当文件内容被改变时
-  final Function(String)? onDataChange;
 
   final Function(int)? onMaxLineNumberChange;
   final Function onRequestOpenDrawer;
@@ -91,7 +93,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
   int _maxLineNumber = 0;
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
-  String? _text;
 
   List<ResourceRef> getLocalResource() {
     final List<ResourceRef> returnList = [];
@@ -152,23 +153,16 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         });
         return;
       }
-      if (!mounted) {
-        return;
-      }
-      final String data =
-          await _fileSystemOperator.readAsString(widget.sourceFilePath) ?? "";
-      setState(() {
-        _iniReader = IniReader(data, containsNotes: true);
-        _text = data;
-      });
+      widget.onDataChange(
+        await _fileSystemOperator.readAsString(widget.sourceFilePath) ?? "",
+        true,
+      );
     } else {
-      if (!mounted) {
-        return;
+      if (mounted) {
+        setState(() {
+          _iniReader = IniReader(widget.fileData!, containsNotes: true);
+        });
       }
-      setState(() {
-        _iniReader = IniReader(widget.fileData!, containsNotes: true);
-        _text = widget.fileData!;
-      });
     }
     setState(() {
       _loading = false;
@@ -215,6 +209,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
+        overRiderValue: widget.overRiderValue,
       );
     } else if (interpreter == "color") {
       return ColorInterpreter(
@@ -225,6 +220,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
+        overRiderValue: widget.overRiderValue,
       );
     } else if (interpreter == "int") {
       return IntDataInterpreter(
@@ -235,6 +231,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
+        overRiderValue: widget.overRiderValue,
       );
     } else if (interpreter == "float") {
       return FloatDataInterpreter(
@@ -245,6 +242,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
+        overRiderValue: widget.overRiderValue,
       );
     } else if (interpreter == "intOrPrice") {
       return IntORPriceDataInterpreter(
@@ -257,6 +255,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
         onRequestOpenFile: widget.onRequestOpenFile,
+        overRiderValue: widget.overRiderValue,
         getLocalResource: getLocalResource,
       );
     } else if (interpreter == "floatORTime") {
@@ -268,6 +267,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "time") {
@@ -279,6 +279,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "enum") {
@@ -290,6 +291,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         arguments: arguments,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "tagsWithoutAddDialog") {
@@ -301,6 +303,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         enableAddDialog: false,
       );
@@ -313,6 +316,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         enableAddDialog: true,
       );
@@ -324,6 +328,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "logicBoolean") {
@@ -334,6 +339,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "multilingual") {
@@ -344,6 +350,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "fileList") {
@@ -354,6 +361,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         onRequestOpenFile: widget.onRequestOpenFile,
         sourceFilePath: widget.sourceFilePath,
@@ -368,6 +376,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         sourceFilePath: widget.sourceFilePath,
         modPath: widget.modPath,
@@ -382,6 +391,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         sourceFilePath: widget.sourceFilePath,
         modPath: widget.modPath,
@@ -397,6 +407,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         multiple: false,
       );
@@ -409,6 +420,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         multiple: true,
       );
@@ -442,7 +454,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
 
   void onLineDataChange(DataInterpreter dataInterpreter, String lineData) {
     _dataInterpretersValues[dataInterpreter] = lineData;
-    widget.onDataChange?.call(toIniData());
+    widget.onDataChange.call(toIniData(), false);
   }
 
   void editSequenceCallBack(String key) {
@@ -460,7 +472,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
               sectionName: "[$key]",
               content: string,
             );
-            widget.onDataChange?.call(newIniData);
+            widget.onDataChange.call(newIniData, false);
           },
         );
       },
@@ -490,7 +502,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   _iniReader!.content,
                   fullSectionName,
                 );
-                widget.onDataChange?.call(newIniData);
+                widget.onDataChange.call(newIniData, false);
                 Navigator.of(context).pop();
               },
               child: Text(AppLocalizations.of(context)!.delete),
@@ -601,7 +613,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                     fullSection +
                     appendData.toString() +
                     content.substring(insertionPosition);
-                widget.onDataChange?.call(newContent);
+                widget.onDataChange.call(newContent, false);
               }
             }
           },
@@ -611,13 +623,13 @@ class _IniEditorPageStatus extends State<IniEditorPage>
     );
   }
 
-  //add
   void addDataInterpreter(DataInterpreter dataInterpreter, String keyValue) {
     _dataInterpreters.add(dataInterpreter);
     _dataInterpretersValues[dataInterpreter] = keyValue;
   }
 
   Widget _buildCoreWidget(BuildContext context) {
+    debugPrint("iniEditorPage buildCoreWidget");
     var allSection = _iniReader!.getAllSection();
     _dataInterpreters.clear();
     var lineNumber = 0;
@@ -640,6 +652,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         addCallBack: addCodeOrNote,
         editSequenceCallBack: editSequenceCallBack,
         displayLineNumber: widget.displayLineNumber,
+        overRiderValue: widget.overRiderValue,
         checkForRepetition: (fullSection) {
           var allSection = _iniReader!.getAllSection();
           if (allSection.isEmpty) {
@@ -679,6 +692,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
               keyValue: kv,
               onLineDataChange: onLineDataChange,
               displayLineNumber: widget.displayLineNumber,
+              overRiderValue: widget.overRiderValue,
               displayOperationOptions: widget.displayOperationOptions,
             ),
             value,
@@ -782,12 +796,9 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                       isScrollControlled: true,
                       builder: (buildContext) {
                         return CodeEditor(
-                          text: _text,
+                          text: widget.fileData,
                           onSubmit: (text) {
-                            setState(() {
-                              _loading = true;
-                            });
-                            widget.onDataChange?.call(text);
+                            widget.onDataChange.call(text, true);
                           },
                         );
                       },
@@ -935,7 +946,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   stringBuffer.write(additionalCode(section.section));
                 }
               }
-              widget.onDataChange?.call(stringBuffer.toString());
+              widget.onDataChange.call(stringBuffer.toString(), false);
             },
             dataSource: sectionDataSource,
           );
@@ -981,7 +992,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (_loading) {
+    if (_loading || _iniReader == null) {
       return Center(child: CircularProgressIndicator());
     }
     if (_errorInfo != null) {
@@ -1018,6 +1029,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
       onLineDataChange: onLineDataChange,
       lineNumber: lineNumber,
       displayLineNumber: widget.displayLineNumber,
+      overRiderValue: widget.overRiderValue,
       displayOperationOptions: widget.displayOperationOptions,
     );
   }

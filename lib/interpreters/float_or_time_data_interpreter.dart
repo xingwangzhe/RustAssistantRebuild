@@ -20,6 +20,7 @@ class FloatORTimeDataInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -36,6 +37,10 @@ class _FloatORTimeDataInterpreterStatus
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     if (widget.lockTime) {
       _enableTime = true;
     } else {
@@ -62,8 +67,11 @@ class _FloatORTimeDataInterpreterStatus
   @override
   void didUpdateWidget(FloatORTimeDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

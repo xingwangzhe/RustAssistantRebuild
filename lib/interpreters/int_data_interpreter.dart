@@ -17,7 +17,8 @@ class IntDataInterpreter extends DataInterpreter {
     super.codeInfo,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions
+    required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -38,15 +39,22 @@ class _IntDataInterpreterStatus extends State<IntDataInterpreter> {
   @override
   void didUpdateWidget(IntDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
+  }
+
+  void _loadValue() {
+    _textEditingController.text = widget.keyValue.value;
   }
 
   @override
   void initState() {
     super.initState();
-    _textEditingController.text = widget.keyValue.value;
+    _loadValue();
   }
 
   @override
@@ -79,9 +87,7 @@ class _IntDataInterpreterStatus extends State<IntDataInterpreter> {
                 );
               },
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                SignedNumberTextInputFormatter(),
-              ],
+              inputFormatters: [SignedNumberTextInputFormatter()],
               controller: _textEditingController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),

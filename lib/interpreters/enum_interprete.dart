@@ -19,6 +19,7 @@ class EnumInterprete extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -34,6 +35,10 @@ class _EnumInterpreterStatus extends State<EnumInterprete> {
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     final args = widget.arguments;
     if (args != null && args.isNotEmpty) {
       _enumDataList = args
@@ -58,6 +63,17 @@ class _EnumInterpreterStatus extends State<EnumInterprete> {
       var temporary = EnumData(id: value, key: value, value: value);
       _enumDataList.add(temporary);
       _selected = temporary;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant EnumInterprete oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

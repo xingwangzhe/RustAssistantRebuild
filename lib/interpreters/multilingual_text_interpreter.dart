@@ -17,7 +17,7 @@ class MultilingualTextInterpreter extends DataInterpreter {
     super.codeInfo,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions,
+    required super.displayOperationOptions, required super.overRiderValue,
   });
 
   @override
@@ -106,7 +106,8 @@ class _MultilingualTextInterpreterStatus
   @override
   void didUpdateWidget(covariant MultilingualTextInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
       _updateData();
       _didChangeDependencies();
     }

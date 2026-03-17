@@ -25,6 +25,7 @@ class IntORPriceDataInterpreter extends DataInterpreter {
     required super.lineNumber,
     required super.displayLineNumber,
     required super.displayOperationOptions,
+    required super.overRiderValue,
   });
 
   @override
@@ -40,6 +41,10 @@ class _IntORPriceDataInterpreterStatus
   @override
   void initState() {
     super.initState();
+    _loadValue();
+  }
+
+  void _loadValue() {
     _textEditingController.text = widget.keyValue.value;
   }
 
@@ -52,8 +57,11 @@ class _IntORPriceDataInterpreterStatus
   @override
   void didUpdateWidget(IntORPriceDataInterpreter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.keyValue.key != widget.keyValue.key) {
-      _textEditingController.text = widget.keyValue.value;
+    if (widget.overRiderValue ||
+        oldWidget.keyValue.key != widget.keyValue.key) {
+      setState(() {
+        _loadValue();
+      });
     }
   }
 

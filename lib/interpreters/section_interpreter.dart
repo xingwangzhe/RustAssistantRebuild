@@ -22,7 +22,7 @@ class SectionInterpreter extends DataInterpreter {
     required super.onLineDataChange,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions,
+    required super.displayOperationOptions, required super.overRiderValue,
   });
 
   @override
