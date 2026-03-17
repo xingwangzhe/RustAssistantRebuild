@@ -822,6 +822,9 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           unsavedFilePath: _unsavedFilePath,
           targetTabIndex: _targetTabIndex,
           onTabIndexChange: (index) {
+            if (index == _targetTabIndex) {
+              return;
+            }
             setState(() {
               _targetTabIndex = index;
             });

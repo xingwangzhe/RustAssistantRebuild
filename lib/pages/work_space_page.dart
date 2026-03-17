@@ -278,11 +278,7 @@ class _WorkspaceStatus extends State<WorkspacePage>
       return;
     }
     finalTabController.addListener(() {
-      // 只有当动画完成时才触发回调，避免动画过程中的中间状态
-      if (!finalTabController.indexIsChanging) {
-        int selectedIndex = finalTabController.index;
-        widget.onTabIndexChange(selectedIndex);
-      }
+      widget.onTabIndexChange(finalTabController.index);
     });
   }
 

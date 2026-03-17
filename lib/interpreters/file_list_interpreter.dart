@@ -81,9 +81,11 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
       if (fileReference == null) {
         continue;
       }
-      setState(() {
-        _fileReferenceList.add(fileReference);
-      });
+      if (mounted) {
+        setState(() {
+          _fileReferenceList.add(fileReference);
+        });
+      }
     }
   }
 
