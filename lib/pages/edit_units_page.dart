@@ -375,14 +375,14 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     if (!mounted) {
       return;
     }
+    if (_ready != null) {
+      _progressInfoNotifier.value = ProgressInfo(
+        value: 1,
+        message: _ready!,
+        analysis: false,
+      );
+    }
     setState(() {
-      if (_ready != null) {
-        _progressInfoNotifier.value = ProgressInfo(
-          value: 1,
-          message: _ready!,
-          analysis: false,
-        );
-      }
       if (reloadAllOpenedFileAfterAnalyze && _openedFilePath.isNotEmpty) {
         for (var value in _openedFilePath) {
           if (_unsavedFilePath.contains(value)) {
@@ -392,9 +392,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           }
           RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[value];
           if (runtimeFileInfo != null) {
-            //Make it reload.
-            //使其重新加载。
-            runtimeFileInfo.data = null;
+            onDataChange(value, null, true);
           }
         }
       }
@@ -409,15 +407,13 @@ class _EditUnitsPageState extends State<EditUnitsPage>
 
   void _onStartAnalyze() {
     _cancelAnalytics = false;
-    setState(() {
-      if (_updateIndexStart != null) {
-        _progressInfoNotifier.value = ProgressInfo(
-          value: -1,
-          message: _updateIndexStart!,
-          analysis: true,
-        );
-      }
-    });
+    if (_updateIndexStart != null) {
+      _progressInfoNotifier.value = ProgressInfo(
+        value: -1,
+        message: _updateIndexStart!,
+        analysis: true,
+      );
+    }
   }
 
   bool _progress(int index, int total, String message) {
@@ -433,13 +429,11 @@ class _EditUnitsPageState extends State<EditUnitsPage>
 
     //达到执行时间，执行更新逻辑并记录最新时间
     _lastProgressUpdateTime = now; // 更新上次执行时间
-    setState(() {
-      _progressInfoNotifier.value = ProgressInfo(
-        value: index == -1 ? -1 : index / total,
-        message: message,
-        analysis: true,
-      );
-    });
+    _progressInfoNotifier.value = ProgressInfo(
+      value: index == -1 ? -1 : index / total,
+      message: message,
+      analysis: true,
+    );
     return _cancelAnalytics;
   }
 
