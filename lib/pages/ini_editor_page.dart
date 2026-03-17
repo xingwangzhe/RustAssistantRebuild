@@ -88,15 +88,10 @@ class _IniEditorPageStatus extends State<IniEditorPage>
   IniReader? _iniReader;
   final List<DataInterpreter> _dataInterpreters = List.empty(growable: true);
   final Map<DataInterpreter, String> _dataInterpretersValues = {};
-  int _mode = _modeVisual;
-  static final int _modeVisual = 1;
-  static final int _modeEditor = 2;
   int _maxLineNumber = 0;
   final FileSystemOperator _fileSystemOperator =
       GlobalDepend.getFileSystemOperator();
   String? _text;
-  bool _needSync = false;
-  String? _codeEditorText;
 
   List<ResourceRef> getLocalResource() {
     final List<ResourceRef> returnList = [];
@@ -731,110 +726,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
       _maxLineNumber = lineNumber;
       widget.onMaxLineNumberChange?.call(lineNumber);
     }
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<int>(
-            showSelectedIcon: false,
-            segments: [
-              ButtonSegment(
-                value: _modeVisual,
-                label: Text(AppLocalizations.of(context)!.visual),
-                icon: const Icon(Icons.view_compact_alt_outlined),
-              ),
-              ButtonSegment(
-                value: _modeEditor,
-                label: Text(AppLocalizations.of(context)!.editor),
-                icon: const Icon(Icons.edit_outlined),
-              ),
-            ],
-            selected: <int>{_mode},
-            onSelectionChanged: (newSelection) {
-              if (_mode == _modeEditor && _needSync) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (builderContext) {
-                    return AlertDialog(
-                      title: Text(AppLocalizations.of(context)!.visual),
-                      content: Text(
-                        AppLocalizations.of(context)!.notSynchronizedYet,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            if (context.mounted) {
-                              setState(() {
-                                _needSync = false;
-                                _codeEditorText = null;
-                                _mode = newSelection.first;
-                              });
-                            }
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(AppLocalizations.of(context)!.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            String? text = _codeEditorText;
-                            if (text != null) {
-                              if (context.mounted) {
-                                setState(() {
-                                  _needSync = false;
-                                  _mode = newSelection.first;
-                                  _iniReader = IniReader(
-                                    text,
-                                    containsNotes: true,
-                                  );
-                                });
-                              }
-                              widget.onDataChange?.call(text);
-                            }
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.synchronizeVisualEditor,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                return;
-              }
-              setState(() {
-                _mode = newSelection.first;
-              });
-            },
-          ),
-        ),
-        Expanded(
-          child: IndexedStack(
-            index: _mode == _modeVisual ? 0 : 1,
-            children: [
-              _getVisualWidget(sections),
-              CodeEditor(
-                text: _text,
-                onNeedSyncChanged: (needSync, codeEditText) {
-                  _needSync = needSync;
-                  _codeEditorText = codeEditText;
-                },
-                onChanged: (text) {
-                  setState(() {
-                    _text = text;
-                    _iniReader = IniReader(text, containsNotes: true);
-                  });
-                  widget.onDataChange?.call(text);
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+    return Column(children: [Expanded(child: _getVisualWidget(sections))]);
   }
 
   Widget _getVisualWidget(List<Widget> sections) {
@@ -896,6 +788,29 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                     addSection();
                   },
                   icon: Icon(Icons.add),
+                ),
+                IconButton(
+                  tooltip: AppLocalizations.of(context)!.editor,
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isDismissible: false,
+                      showDragHandle: true,
+                      isScrollControlled: true,
+                      builder: (buildContext) {
+                        return CodeEditor(
+                          text: _text,
+                          onChanged: (text) {
+                            setState(() {
+                              _text = text;
+                              widget.onDataChange?.call(text);
+                            });
+                          },
+                        );
+                      },
+                    );
+                  },
+                  icon: Icon(Icons.edit_outlined),
                 ),
               ],
             ),
