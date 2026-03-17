@@ -442,12 +442,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
 
   void onLineDataChange(DataInterpreter dataInterpreter, String lineData) {
     _dataInterpretersValues[dataInterpreter] = lineData;
-    var newIniData = toIniData();
-    setState(() {
-      _text = newIniData;
-      _iniReader = IniReader(newIniData, containsNotes: true);
-    });
-    widget.onDataChange?.call(newIniData);
+    widget.onDataChange?.call(toIniData());
   }
 
   void editSequenceCallBack(String key) {
@@ -465,10 +460,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
               sectionName: "[$key]",
               content: string,
             );
-            setState(() {
-              _text = newIniData;
-              _iniReader = IniReader(newIniData, containsNotes: true);
-            });
             widget.onDataChange?.call(newIniData);
           },
         );
@@ -499,10 +490,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   _iniReader!.content,
                   fullSectionName,
                 );
-                setState(() {
-                  _text = newIniData;
-                  _iniReader = IniReader(newIniData, containsNotes: true);
-                });
                 widget.onDataChange?.call(newIniData);
                 Navigator.of(context).pop();
               },
@@ -614,10 +601,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                     fullSection +
                     appendData.toString() +
                     content.substring(insertionPosition);
-                setState(() {
-                  _text = newContent;
-                  _iniReader = IniReader(newContent, containsNotes: true);
-                });
                 widget.onDataChange?.call(newContent);
               }
             }
@@ -800,11 +783,11 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                       builder: (buildContext) {
                         return CodeEditor(
                           text: _text,
-                          onChanged: (text) {
+                          onSubmit: (text) {
                             setState(() {
-                              _text = text;
-                              widget.onDataChange?.call(text);
+                              _loading = true;
                             });
+                            widget.onDataChange?.call(text);
                           },
                         );
                       },
@@ -952,13 +935,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   stringBuffer.write(additionalCode(section.section));
                 }
               }
-              setState(() {
-                _text = stringBuffer.toString();
-                _iniReader = IniReader(
-                  stringBuffer.toString(),
-                  containsNotes: true,
-                );
-              });
               widget.onDataChange?.call(stringBuffer.toString());
             },
             dataSource: sectionDataSource,

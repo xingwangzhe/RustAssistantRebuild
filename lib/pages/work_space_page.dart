@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
@@ -25,10 +24,10 @@ class WorkspacePage extends StatefulWidget {
   final List<String> unsavedFilePath;
   final Map<String, RuntimeFileInfo> pathToRuntimeFileInfo;
   final List<String> tagList;
-  final Function(String)? addUnsaved;
   final List<ResourceRef> globalResource;
   final Function(int) onTabIndexChange;
   final Function(String)? navigateToTheDirectory;
+  final Function(String?, String)? onDataChange;
   final Function(String, CloseTagType)? closeTag;
   final bool displayLineNumber;
   final bool displayOperationOptions;
@@ -50,7 +49,6 @@ class WorkspacePage extends StatefulWidget {
     required this.globalResource,
     required this.openedFilePath,
     required this.unsavedFilePath,
-    required this.addUnsaved,
     required this.targetTabIndex,
     required this.onTabIndexChange,
     required this.navigateToTheDirectory,
@@ -60,6 +58,7 @@ class WorkspacePage extends StatefulWidget {
     required this.displayOperationOptions,
     required this.onRequestOpenFile,
     required this.pathToRuntimeFileInfo,
+    required this.onDataChange,
     required this.modUnit,
     required this.tagList,
     required this.onRequestChangeLeftWidget,
@@ -213,8 +212,9 @@ class _WorkspaceStatus extends State<WorkspacePage>
     List<Widget> widgets = List.empty(growable: true);
     if (widget.openedFilePath.isNotEmpty) {
       for (var f in widget.openedFilePath) {
-        var runtimeFile = widget.pathToRuntimeFileInfo[f];
-        var fileType = runtimeFile?.fileType ?? FileTypeChecker.FileTypeUnknown;
+        var fileType =
+            widget.pathToRuntimeFileInfo[f]?.fileType ??
+            FileTypeChecker.FileTypeUnknown;
         if (fileType == FileTypeChecker.FileTypeImage) {
           widgets.add(ImageViewer(path: f));
           continue;
@@ -225,29 +225,16 @@ class _WorkspaceStatus extends State<WorkspacePage>
               key: PageStorageKey<String>(f),
               sourceFilePath: f,
               globalResource: widget.globalResource,
-              fileData: runtimeFile?.data,
+              fileData: widget.pathToRuntimeFileInfo[f]?.data,
               onDataChange: (data) {
-                if (!widget.unsavedFilePath.contains(f)) {
-                  widget.addUnsaved?.call(f);
-                }
-                // 延迟 setState 到下一帧
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (runtimeFile == null) {
-                    return;
-                  }
-                  if (mounted) {
-                    setState(() {
-                      runtimeFile.data = data;
-                    });
-                  }
-                });
+                widget.onDataChange?.call(f, data);
               },
               displayLineNumber: widget.displayLineNumber,
               onMaxLineNumberChange: (lineNumber) {
-                if (runtimeFile == null) {
+                if (widget.pathToRuntimeFileInfo[f] == null) {
                   return;
                 }
-                runtimeFile.maxLineNumber = lineNumber;
+                widget.pathToRuntimeFileInfo[f]?.maxLineNumber = lineNumber;
               },
               onRequestOpenDrawer: widget.onRequestOpenDrawer,
               onRequestChangeLeftWidget: widget.onRequestChangeLeftWidget,

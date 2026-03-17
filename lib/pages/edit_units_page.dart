@@ -780,11 +780,6 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           globalResource: _globalResource,
           openedFilePath: _openedFilePath,
           unsavedFilePath: _unsavedFilePath,
-          addUnsaved: (s) {
-            setState(() {
-              _unsavedFilePath.add(s);
-            });
-          },
           targetTabIndex: _targetTabIndex,
           onTabIndexChange: (index) {
             setState(() {
@@ -822,6 +817,23 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             _closeTag(p1, type);
           },
           modUnit: _projectAnalyzer.unitRefList,
+          onDataChange: (String? file, String? newData) {
+            if (file == null) {
+              return;
+            }
+            setState(() {
+              RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[file];
+              if (runtimeFileInfo == null) {
+                return;
+              }
+              bool same = runtimeFileInfo.data == newData;
+              if (same) {
+                _unsavedFilePath.remove(file);
+              } else {
+                _unsavedFilePath.add(file);
+              }
+            });
+          },
         );
       },
     );

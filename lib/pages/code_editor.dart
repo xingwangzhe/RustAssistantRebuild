@@ -3,9 +3,9 @@ import 'package:rust_assistant/l10n/app_localizations.dart';
 
 class CodeEditor extends StatefulWidget {
   final String? text;
-  final void Function(String)? onChanged;
+  final void Function(String)? onSubmit;
 
-  const CodeEditor({super.key, required this.text, required this.onChanged});
+  const CodeEditor({super.key, required this.text, required this.onSubmit});
 
   @override
   State<StatefulWidget> createState() {
@@ -28,19 +28,6 @@ class _CodeEditorStatus extends State<CodeEditor> {
   void dispose() {
     _textEditingController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(CodeEditor oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    String? newText = widget.text;
-    if (newText == null) {
-      return;
-    }
-    String editorText = _textEditingController.text;
-    if (newText != editorText) {
-      _textEditingController.text = newText;
-    }
   }
 
   @override
@@ -81,7 +68,7 @@ class _CodeEditorStatus extends State<CodeEditor> {
               ),
               TextButton(
                 onPressed: () {
-                  widget.onChanged?.call(_textEditingController.text);
+                  widget.onSubmit?.call(_textEditingController.text);
                   Navigator.of(context).pop();
                 },
                 child: Text(AppLocalizations.of(context)!.save),
