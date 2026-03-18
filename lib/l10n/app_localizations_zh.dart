@@ -934,4 +934,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get itemNumber => '共%d条';
+
+  @override
+  String get noCodeFound => '没有找到代码';
+
+  @override
+  String get copy => '复制';
+
+  @override
+  String get share => '分享';
+
+  @override
+  String get collect => '收藏';
+
+  @override
+  String get alreadyCopied => '已复制\"%s\"。';
+
+  @override
+  String get shareOutdatedContent => '因为你有内容尚未保存，分享的文件可能不是最新的。仍要继续吗？';
+
+  @override
+  String get shareOldVersion => '分享旧版本';
 }

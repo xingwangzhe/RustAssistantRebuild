@@ -17,6 +17,7 @@ import 'package:rust_assistant/pages/problem_dialog.dart';
 import 'package:rust_assistant/pages/save_as_template_dialog.dart';
 import 'package:rust_assistant/pages/work_space_page.dart';
 import 'package:rust_assistant/text_difference.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -1003,7 +1004,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             ),
           PopupMenuButton<String>(
             tooltip: AppLocalizations.of(context)!.moreActions,
-            onSelected: (value) {
+            onSelected: (value) async {
               if (value == 'toggle_line_number') {
                 _setDisplayLineNumber(!_displayLineNumber);
               } else if (value == 'show_source_diff') {
@@ -1079,6 +1080,47 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     ),
                   );
                 }
+              } else if (value == 'shareFile') {
+                final nowOpenedPath = _openedFilePath[_targetTabIndex];
+                if (_unsavedFilePath.contains(nowOpenedPath)) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(AppLocalizations.of(context)!.share),
+                        content: Text(
+                          AppLocalizations.of(context)!.shareOutdatedContent,
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () async {
+                              final params = ShareParams(
+                                files: [XFile(nowOpenedPath)],
+                              );
+                              await SharePlus.instance.share(params);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            },
+                            child: Text(
+                              AppLocalizations.of(context)!.shareOldVersion,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(AppLocalizations.of(context)!.cancel),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  return;
+                }
+                final params = ShareParams(files: [XFile(nowOpenedPath)]);
+                await SharePlus.instance.share(params);
               }
             },
             itemBuilder: (context) {
@@ -1149,6 +1191,12 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                       fileType == FileTypeChecker.FileTypeText,
                   child: Text(AppLocalizations.of(context)!.loadDataFromFile),
                 ),
+                if (!Platform.isLinux)
+                  PopupMenuItem<String>(
+                    value: 'shareFile',
+                    enabled: _openedFilePath.isNotEmpty,
+                    child: Text(AppLocalizations.of(context)!.share),
+                  ),
               ];
             },
             icon: const Icon(Icons.more_vert),

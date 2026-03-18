@@ -140,7 +140,7 @@ class CodeDataBase {
     return null;
   }
 
-  static int geTargetVersion() {
+  static int getTargetVersion() {
     return _targetVersion;
   }
 
@@ -289,7 +289,7 @@ class CodeDataBase {
             HiveHelper.language,
             defaultValue: Constant.defaultLanguage,
           ),
-          gameVersion.hashCode,
+          gameVersion.versionCode ?? 8,
         );
       }
       haveGenerateCode = true;

@@ -9,6 +9,7 @@ import 'package:rust_assistant/global_depend.dart';
 import 'package:rust_assistant/highlight_text.dart';
 import 'package:rust_assistant/mod/mod.dart';
 import 'package:rust_assistant/pages/path_config_page.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
@@ -262,6 +263,18 @@ class _ModPageStatus extends State<ModPage>
               }
             }
           },
+        ),
+      );
+    }
+    if (!mod.isDirectory && !Platform.isLinux) {
+      menuItem.add(
+        MenuItemButton(
+          requestFocusOnHover: false,
+          onPressed: () async {
+            final params = ShareParams(files: [XFile(mod.path)]);
+            await SharePlus.instance.share(params);
+          },
+          child: Text(AppLocalizations.of(context)!.share),
         ),
       );
     }

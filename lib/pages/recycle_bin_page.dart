@@ -103,24 +103,25 @@ class _RecycleBinPageStatus extends State<RecycleBinPage> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.recycleBin),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline_sharp),
-            tooltip: AppLocalizations.of(context)!.clearRecycleBin,
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return ClearRecycleBinDialog(
-                    onClear: () {
-                      setState(() {
-                        _recycleBinList.clear();
-                      });
-                    },
-                  );
-                },
-              );
-            },
-          ),
+          if (_recycleBinList.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_outline_sharp),
+              tooltip: AppLocalizations.of(context)!.clearRecycleBin,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return ClearRecycleBinDialog(
+                      onClear: () {
+                        setState(() {
+                          _recycleBinList.clear();
+                        });
+                      },
+                    );
+                  },
+                );
+              },
+            ),
         ],
       ),
       body: getBody(),

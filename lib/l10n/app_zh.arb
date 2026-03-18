@@ -307,5 +307,12 @@
   "notSynchronizedYet": "有尚未同步的数据，切换到可视化编辑器这部分数据将会丢失。仍要继续吗？",
   "codeTable": "代码表",
   "unknow": "未知",
-  "searchCodeOrTranslate": "按照代码或翻译搜索"
+  "searchCodeOrTranslate": "按照代码或翻译搜索",
+  "noCodeFound": "没有找到代码",
+  "copy": "复制",
+  "share": "分享",
+  "collect": "收藏",
+  "alreadyCopied": "已复制\"%s\"。",
+  "shareOutdatedContent": "因为你有内容尚未保存，分享的文件可能不是最新的。仍要继续吗？",
+  "shareOldVersion": "分享旧版本"
 }

@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rust_assistant/code_data_base.dart';
 import 'package:rust_assistant/highlight_link_text.dart';
 import 'package:rust_assistant/l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sprintf/sprintf.dart';
 
 import '../code_detail_dialog.dart';
@@ -43,18 +46,17 @@ class CodeTableStatus extends State<CodeTablePage> {
   @override
   void initState() {
     super.initState();
-
     List<GameVersion> list = CodeDataBase.getGameVersion()
         .where(
           (gv) =>
               gv.visible == true &&
-              gv.versionCode == CodeDataBase.geTargetVersion(),
+              gv.versionCode == CodeDataBase.getTargetVersion(),
         )
         .toList();
     if (list.isNotEmpty) {
       gameVersionStr = list[0].versionName;
     }
-    Future.delayed(Duration(milliseconds: 350), () {
+    Future.delayed(Duration(milliseconds: 150), () {
       _loadData();
     });
   }
@@ -132,7 +134,7 @@ class CodeTableStatus extends State<CodeTablePage> {
       _loading = true;
     });
     SearchData searchData = SearchData();
-    searchData.targetVersion = CodeDataBase.geTargetVersion();
+    searchData.targetVersion = CodeDataBase.getTargetVersion();
     searchData.keyWord = _textEditingController.text.trim().isEmpty
         ? null
         : _textEditingController.text.trim();
@@ -231,11 +233,14 @@ class CodeTableStatus extends State<CodeTablePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.code_off_rounded),
+            Icon(Icons.code_off_rounded, size: 48),
             const SizedBox(height: 16),
-            Text("No code found"),
+            Text(
+              loc.noCodeFound,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
-            Text("Try changing your search keyword"),
+            Text(loc.pleaseTryUsingOtherKeywords),
           ],
         ),
       );
@@ -243,19 +248,37 @@ class CodeTableStatus extends State<CodeTablePage> {
     return SingleChildScrollView(
       child: ExpansionPanelList.radio(
         elevation: 0,
+        expandedHeaderPadding: EdgeInsets.zero,
+        dividerColor: Colors.transparent,
         children: sectionToDisplayCode.entries.map((entry) {
           final section = entry.key;
           final codeList = entry.value;
           return ExpansionPanelRadio(
             value: section,
+            canTapOnHeader: true,
             headerBuilder: (context, isExpanded) {
-              return ListTile(
-                title: Text(getSectionTile(section)),
-                subtitle: Text(sprintf(loc.itemNumber, [codeList.length])),
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      getSectionTile(section),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(sprintf(loc.itemNumber, [codeList.length])),
+                  ],
+                ),
               );
             },
             body: ListView.builder(
               shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               itemCount: codeList.length,
               itemBuilder: (context, index) {
                 final displayCode = codeList[index];
@@ -266,6 +289,18 @@ class CodeTableStatus extends State<CodeTablePage> {
         }).toList(),
       ),
     );
+  }
+
+  String displayCodeToString(DisplayCode displayCode) {
+    StringBuffer stringBuffer = StringBuffer();
+    stringBuffer.write(displayCode.codeInfo?.translate);
+    stringBuffer.write('\n');
+    stringBuffer.write(displayCode.code?.defaultKey);
+    stringBuffer.write('\n');
+    stringBuffer.write(displayCode.codeInfo?.description);
+    stringBuffer.write('\n');
+    stringBuffer.write(displayCode.codeInfo?.section);
+    return stringBuffer.toString();
   }
 
   Widget _buildCodeItem(DisplayCode displayCode, AppLocalizations loc) {
@@ -309,6 +344,37 @@ class CodeTableStatus extends State<CodeTablePage> {
                   ),
                 );
               },
+            ),
+            Row(
+              children: [
+                if (!Platform.isLinux)
+                  TextButton(
+                    onPressed: () {
+                      String data = displayCodeToString(displayCode);
+                      SharePlus.instance.share(ShareParams(text: data));
+                    },
+                    child: Text(loc.share),
+                  ),
+                Expanded(child: SizedBox()),
+                FilledButton(
+                  onPressed: () {
+                    String data = displayCodeToString(displayCode);
+                    Clipboard.setData(ClipboardData(text: data));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          sprintf(loc.alreadyCopied, [
+                            displayCode.codeInfo?.translate,
+                          ]),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(loc.copy),
+                ),
+              ],
             ),
           ],
         ),

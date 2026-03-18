@@ -934,4 +934,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get itemNumber => '%d items';
+
+  @override
+  String get noCodeFound => 'No code was found.';
+
+  @override
+  String get copy => 'copy';
+
+  @override
+  String get share => 'share';
+
+  @override
+  String get collect => 'collect';
+
+  @override
+  String get alreadyCopied => 'The text \"%s\" has been copied.';
+
+  @override
+  String get shareOutdatedContent => 'Because your content has not been saved yet, the shared file might not be the latest version. Do you still want to proceed?';
+
+  @override
+  String get shareOldVersion => 'Share the old version';
 }

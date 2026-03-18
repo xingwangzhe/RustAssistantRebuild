@@ -1948,6 +1948,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'%d items'**
   String get itemNumber;
+
+  /// No description provided for @noCodeFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No code was found.'**
+  String get noCodeFound;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'copy'**
+  String get copy;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'share'**
+  String get share;
+
+  /// No description provided for @collect.
+  ///
+  /// In en, this message translates to:
+  /// **'collect'**
+  String get collect;
+
+  /// No description provided for @alreadyCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'The text \"%s\" has been copied.'**
+  String get alreadyCopied;
+
+  /// No description provided for @shareOutdatedContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Because your content has not been saved yet, the shared file might not be the latest version. Do you still want to proceed?'**
+  String get shareOutdatedContent;
+
+  /// No description provided for @shareOldVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the old version'**
+  String get shareOldVersion;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

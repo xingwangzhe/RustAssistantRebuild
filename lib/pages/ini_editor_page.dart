@@ -36,6 +36,7 @@ import '../interpreters/note_data_interpreter.dart';
 import '../interpreters/section_interpreter.dart';
 import '../interpreters/string_data_interpreter.dart';
 import '../l10n/app_localizations.dart';
+import 'code_table_page.dart';
 
 class IniEditorPage extends StatefulWidget {
   final bool displayLineNumber;
@@ -805,6 +806,18 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                     );
                   },
                   icon: Icon(Icons.edit_outlined),
+                ),
+                IconButton(
+                  tooltip: AppLocalizations.of(context)!.codeTable,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CodeTablePage(),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.code),
                 ),
               ],
             ),

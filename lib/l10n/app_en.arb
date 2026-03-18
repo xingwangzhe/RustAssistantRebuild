@@ -307,5 +307,12 @@
   "codeTable": "codeTable",
   "unknow": "unknow",
   "searchCodeOrTranslate": "Search by code or translation",
-  "itemNumber": "%d items"
+  "itemNumber": "%d items",
+  "noCodeFound": "No code was found.",
+  "copy": "copy",
+  "share": "share",
+  "collect": "collect",
+  "alreadyCopied": "The text \"%s\" has been copied.",
+  "shareOutdatedContent": "Because your content has not been saved yet, the shared file might not be the latest version. Do you still want to proceed?",
+  "shareOldVersion": "Share the old version"
 }
