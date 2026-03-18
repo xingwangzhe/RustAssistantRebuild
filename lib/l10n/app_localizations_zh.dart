@@ -922,4 +922,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notSynchronizedYet => '有尚未同步的数据，切换到可视化编辑器这部分数据将会丢失。仍要继续吗？';
+
+  @override
+  String get codeTable => '代码表';
+
+  @override
+  String get unknow => '未知';
+
+  @override
+  String get searchCodeOrTranslate => '按照代码或翻译搜索';
+
+  @override
+  String get itemNumber => '共%d条';
 }

@@ -1924,6 +1924,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?'**
   String get notSynchronizedYet;
+
+  /// No description provided for @codeTable.
+  ///
+  /// In en, this message translates to:
+  /// **'codeTable'**
+  String get codeTable;
+
+  /// No description provided for @unknow.
+  ///
+  /// In en, this message translates to:
+  /// **'unknow'**
+  String get unknow;
+
+  /// No description provided for @searchCodeOrTranslate.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by code or translation'**
+  String get searchCodeOrTranslate;
+
+  /// No description provided for @itemNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'%d items'**
+  String get itemNumber;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

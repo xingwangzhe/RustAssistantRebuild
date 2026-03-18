@@ -47,6 +47,26 @@ class CodeDataBase {
     return _enumData[id];
   }
 
+  static Map<String, SectionInfo> getSectionInfoMap() {
+    Map<String, SectionInfo> sectionInfoMap = {};
+    for (var value in _sectionInfo) {
+      String? section = value.section;
+      if (section == null) {
+        continue;
+      }
+      sectionInfoMap[section] = value;
+    }
+    return sectionInfoMap;
+  }
+
+  static List<Code> getAllCode() {
+    return _code;
+  }
+
+  static List<CodeInfo> getAllCodeInfo() {
+    return _codeInfo;
+  }
+
   static LogicalBoolean? matchLogicalBooleanByContent(String item) {
     for (var value in _logicalBoolean) {
       String? rule = value.rule;
@@ -58,6 +78,10 @@ class CodeDataBase {
       }
     }
     return null;
+  }
+
+  static List<SectionInfo> getAllSection() {
+    return _sectionInfo;
   }
 
   static SectionInfo? findSectionInfo(String fullSectionName) {
@@ -114,6 +138,10 @@ class CodeDataBase {
       }
     }
     return null;
+  }
+
+  static int geTargetVersion() {
+    return _targetVersion;
   }
 
   //根据key获取代码(key和section)section要前缀

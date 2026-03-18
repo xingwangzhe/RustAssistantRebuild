@@ -200,6 +200,7 @@
   "returnText": "返回",
   "core": "核心",
   "shared": "共享",
+  "itemNumber": "共%d条",
   "dragTheFileHere": "拖拽文件到这里",
   "modNotBeenResolvedFromSelectedPath": "从您选择的目录内未解析到模组。",
   "analysisInProgress": "解析中，请稍等...",
@@ -303,5 +304,8 @@
   "notSavedYet": "有尚未保存的内容，从文件加载数据这部分内容会丢失。仍要继续吗？",
   "loadingCompleted": "加载完成。",
   "synchronizeVisualEditor": "同步到可视化编辑器",
-  "notSynchronizedYet": "有尚未同步的数据，切换到可视化编辑器这部分数据将会丢失。仍要继续吗？"
+  "notSynchronizedYet": "有尚未同步的数据，切换到可视化编辑器这部分数据将会丢失。仍要继续吗？",
+  "codeTable": "代码表",
+  "unknow": "未知",
+  "searchCodeOrTranslate": "按照代码或翻译搜索"
 }

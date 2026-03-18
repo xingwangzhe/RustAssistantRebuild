@@ -47,7 +47,7 @@ class _CodeEditorStatus extends State<CodeEditor> {
           const SizedBox(height: 16),
           Expanded(
             child: Padding(
-              padding: EdgeInsetsGeometry.fromLTRB(16, 8, 16, 0),
+              padding: EdgeInsetsGeometry.fromLTRB(0, 8, 0, 0),
               child: TextField(
                 style: TextStyle(fontFamily: 'Mono'),
                 textAlignVertical: TextAlignVertical.top,

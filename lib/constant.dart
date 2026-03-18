@@ -20,7 +20,7 @@ class Constant {
   static const int darkModeFollowDark = 2;
   static const int checkBoxModeNone = 0;
   static const int checkBoxModeFile = 1;
-  static const String defaultLanguage = 'zh';
+  static const String defaultLanguage = 'en';
   static const String currentPathRefresh = "Refresh";
   static const String androidChannel = "Android_Channel";
   static const String flutterChannel = "Flutter_Channel";

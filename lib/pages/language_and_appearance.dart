@@ -74,15 +74,15 @@ class _LanguageAndAppearancePageState extends State<LanguageAndAppearancePage> {
                   actions: <Widget>[
                     TextButton(
                       onPressed: () {
-                        Navigator.of(ctx).pop(); // 先关闭对话框
-                        _applyLanguage(languageCode); // 应用语言
-                      }, // 取消
+                        Navigator.of(ctx).pop();
+                        _applyLanguage(languageCode);
+                      },
                       child: Text('Cancel'),
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(ctx).pop(); // 先关闭对话框
-                        _applyLanguage(systemLocale); // 应用语言
+                        Navigator.of(ctx).pop();
+                        _applyLanguage(systemLocale);
                       },
                       child: Text('Apply'),
                     ),

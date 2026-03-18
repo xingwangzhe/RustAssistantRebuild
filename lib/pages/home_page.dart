@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:rust_assistant/constant.dart';
 import 'package:rust_assistant/global_depend.dart';
 import 'package:rust_assistant/mod/mod.dart';
+import 'package:rust_assistant/pages/code_table_page.dart';
 import 'package:rust_assistant/pages/import_mod_page.dart';
 import 'package:rust_assistant/pages/mod_page.dart';
 import 'package:rust_assistant/pages/recycle_bin_page.dart';
@@ -179,6 +180,19 @@ class _HomeStatus extends State<HomePage> {
                         );
                       },
                       icon: Icon(Icons.recycling_outlined),
+                    ),
+                  if (_selectedIndex == 0)
+                    IconButton(
+                      tooltip: AppLocalizations.of(context)!.codeTable,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CodeTablePage(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.code),
                     ),
                 ],
               ),

@@ -303,5 +303,9 @@
   "notSavedYet": "There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?",
   "loadingCompleted": "Loading completed.",
   "synchronizeVisualEditor": "Synchronize to the visual editor",
-  "notSynchronizedYet": "There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?"
+  "notSynchronizedYet": "There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?",
+  "codeTable": "codeTable",
+  "unknow": "unknow",
+  "searchCodeOrTranslate": "Search by code or translation",
+  "itemNumber": "%d items"
 }

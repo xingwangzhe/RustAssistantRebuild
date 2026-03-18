@@ -262,7 +262,10 @@ class _SettingsStatus extends State<SettingsPage> {
                 }
                 HiveHelper.put(HiveHelper.targetGameVersion, gameVersion);
                 await CodeDataBase.setTargetVersion(
-                  HiveHelper.get(HiveHelper.language),
+                  HiveHelper.get(
+                    HiveHelper.language,
+                    defaultValue: Constant.defaultLanguage,
+                  ),
                   gameVersion,
                 );
                 setState(() {

@@ -354,6 +354,7 @@ class _ModPageStatus extends State<ModPage>
           padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: TextField(
             controller: _searchController,
+            textInputAction: TextInputAction.search,
             onChanged: (text) => _onSearchChanged(),
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.searchByTitle,

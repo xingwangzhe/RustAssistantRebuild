@@ -5,6 +5,7 @@ import 'package:rust_assistant/file_type_checker.dart';
 import 'package:rust_assistant/global_depend.dart';
 import 'package:sprintf/sprintf.dart';
 
+import 'constant.dart';
 import 'databeans/visual_analytics_result.dart';
 
 import 'file_operator/file_operator.dart';
@@ -134,7 +135,8 @@ class ProjectAnalyzer {
     int index = 0;
     Set<String> tagSet = {};
     var languageDisplayText =
-        "displayText_${HiveHelper.get(HiveHelper.language)}".toLowerCase();
+        "displayText_${HiveHelper.get(HiveHelper.language, defaultValue: Constant.defaultLanguage)}"
+            .toLowerCase();
     List<String> pathList = [];
     await fileSystemOperator.list(rootPath, (path) async {
       if (await fileSystemOperator.isDir(path)) {
