@@ -419,15 +419,27 @@ class CodeDataBase {
       ),
     );
     builtInUnit.clear();
+    Map<String, UnitRef> dexUnitsSet = {};
     for (var item in dexUnits) {
       UnitRef ref = UnitRef.fromJson(item);
       ref.type = UnitRefType.DEX;
-      builtInUnit.add(ref);
+      String? name = ref.name;
+      if (name != null) {
+        dexUnitsSet[name] = ref;
+      }
     }
     for (var item in units) {
       UnitRef ref = UnitRef.fromJson(item);
+      String? name = ref.name;
+      if (name != null && dexUnitsSet.containsKey(name)) {
+        dexUnitsSet.remove(name);
+      }
       ref.type = UnitRefType.BUILT_IN;
+      ref.path = 'assets/game_res/$_gameDataVersion/units/${ref.path}';
       builtInUnit.add(ref);
+    }
+    for (var value in dexUnitsSet.values) {
+      builtInUnit.add(value);
     }
   }
 

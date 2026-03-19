@@ -17,7 +17,9 @@ class MultilingualTextInterpreter extends DataInterpreter {
     super.codeInfo,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions, required super.overRiderValue,
+    required super.displayOperationOptions,
+    required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -174,6 +176,7 @@ class _MultilingualTextInterpreterStatus
                           ),
                         );
                     return TextField(
+                      enabled: !widget.readOnly,
                       focusNode: focusNode,
                       controller: fieldTextEditingController,
                       decoration: InputDecoration(
@@ -189,6 +192,7 @@ class _MultilingualTextInterpreterStatus
           Expanded(
             flex: 2,
             child: TextField(
+              enabled: !widget.readOnly,
               maxLines: null,
               style: TextStyle(fontFamily: 'Mono'),
               onChanged: (s) {
@@ -222,7 +226,7 @@ class _MultilingualTextInterpreterStatus
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -234,7 +238,7 @@ class _MultilingualTextInterpreterStatus
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

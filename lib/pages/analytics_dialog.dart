@@ -6,11 +6,12 @@ import 'package:sprintf/sprintf.dart';
 
 import '../global_depend.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
 
 class AnalyticsDialog extends StatefulWidget {
   final VisualAnalyticsResult? result;
   final ProgressInfo progressInfo;
-  final Function(String, bool) onRequestOpenFile;
+  final Function(OpenFileParameters, bool) onRequestOpenFile;
   final Function onCancelAnalytics;
   final Function onRescan;
 
@@ -254,7 +255,10 @@ class _AnalyticsDialogState extends State<AnalyticsDialog>
                         onTap: () {
                           final path = data.path;
                           if (path != null) {
-                            widget.onRequestOpenFile.call(path, true);
+                            widget.onRequestOpenFile.call(
+                              OpenFileParameters(path: path, readOnly: false),
+                              true,
+                            );
                           }
                           Navigator.of(context).pop();
                         },

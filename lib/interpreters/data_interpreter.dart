@@ -14,6 +14,7 @@ abstract class DataInterpreter extends StatefulWidget {
   final bool displayOperationOptions;
   final String? arguments;
   final bool overRiderValue;
+  final bool readOnly;
 
   const DataInterpreter({
     super.key,
@@ -24,6 +25,7 @@ abstract class DataInterpreter extends StatefulWidget {
     this.codeData,
     this.codeInfo,
     this.arguments,
+    required this.readOnly,
     required this.displayLineNumber,
     required this.displayOperationOptions,
   });

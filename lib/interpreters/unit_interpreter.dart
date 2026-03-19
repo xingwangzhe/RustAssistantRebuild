@@ -22,7 +22,9 @@ class UnitInterpreter extends DataInterpreter {
     required super.lineNumber,
     required this.modUnit,
     required super.displayLineNumber,
-    required super.displayOperationOptions, required super.overRiderValue,
+    required super.displayOperationOptions,
+    required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -82,6 +84,7 @@ class _UnitInterpreterStatus extends State<UnitInterpreter> {
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               maxLines: null,
               style: TextStyle(fontFamily: 'Mono'),
               onChanged: (s) {
@@ -95,28 +98,40 @@ class _UnitInterpreterStatus extends State<UnitInterpreter> {
               decoration: InputDecoration(
                 suffixIcon: IconButton(
                   tooltip: AppLocalizations.of(context)!.citationUnit,
-                  onPressed: () {
-                    showModalBottomSheet(
-                      showDragHandle: true,
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return UnitDialog(
-                          modUnit: widget.modUnit,
-                          multiple: widget.multiple,
-                          value: widget.keyValue.value.toString(),
-                          onSave: (String p1) {
-                            _textEditingController.text = p1;
-                            widget.keyValue.value = p1;
-                            widget.onLineDataChange?.call(
-                              widget,
-                              widget.keyValue.getLineData(),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                  onPressed: widget.readOnly
+                      ? null
+                      : () {
+                          showModalBottomSheet(
+                            showDragHandle: true,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return UnitDialog(
+                                displayOnlyBuiltinUnits: false,
+                                modUnit: widget.modUnit,
+                                multiple: widget.multiple,
+                                value: widget.keyValue.value.toString(),
+                                onSave: (List<UnitRef> unitList) {
+                                  StringBuffer stringBuffer = StringBuffer();
+                                  for (UnitRef unit in unitList) {
+                                    if (stringBuffer.isNotEmpty) {
+                                      stringBuffer.write(',');
+                                    }
+                                    stringBuffer.write(unit.name);
+                                  }
+                                  _textEditingController.text = stringBuffer
+                                      .toString();
+                                  widget.keyValue.value = stringBuffer
+                                      .toString();
+                                  widget.onLineDataChange?.call(
+                                    widget,
+                                    widget.keyValue.getLineData(),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
                   icon: Icon(Icons.link_outlined),
                 ),
                 border: OutlineInputBorder(),
@@ -141,7 +156,7 @@ class _UnitInterpreterStatus extends State<UnitInterpreter> {
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -153,7 +168,7 @@ class _UnitInterpreterStatus extends State<UnitInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

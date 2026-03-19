@@ -17,6 +17,7 @@ class StringDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -76,6 +77,7 @@ class _StringDataInterpreterStatus extends State<StringDataInterpreter> {
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               maxLines: null,
               style: TextStyle(fontFamily: 'Mono'),
               onChanged: (s) {
@@ -109,7 +111,7 @@ class _StringDataInterpreterStatus extends State<StringDataInterpreter> {
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -121,7 +123,7 @@ class _StringDataInterpreterStatus extends State<StringDataInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

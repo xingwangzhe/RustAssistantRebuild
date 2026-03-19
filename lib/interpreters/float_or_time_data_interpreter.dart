@@ -21,6 +21,7 @@ class FloatORTimeDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -96,6 +97,7 @@ class _FloatORTimeDataInterpreterStatus
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               style: TextStyle(fontFamily: 'Mono'),
               onChanged: (s) {
                 if (_enableTime) {
@@ -175,7 +177,7 @@ class _FloatORTimeDataInterpreterStatus
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -187,7 +189,7 @@ class _FloatORTimeDataInterpreterStatus
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

@@ -17,6 +17,7 @@ class BoolDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -104,21 +105,23 @@ class _BoolDataInterpreterStatus extends State<BoolDataInterpreter> {
                 // Switch 固定在右侧
                 Switch(
                   value: _enable,
-                  onChanged: (b) {
-                    setState(() {
-                      _enable = b;
-                    });
-                    widget.keyValue.value = b;
-                    widget.onLineDataChange?.call(
-                      widget,
-                      widget.keyValue.getLineData(),
-                    );
-                  },
+                  onChanged: widget.readOnly
+                      ? null
+                      : (b) {
+                          setState(() {
+                            _enable = b;
+                          });
+                          widget.keyValue.value = b;
+                          widget.onLineDataChange?.call(
+                            widget,
+                            widget.keyValue.getLineData(),
+                          );
+                        },
                 ),
               ],
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -130,7 +133,7 @@ class _BoolDataInterpreterStatus extends State<BoolDataInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

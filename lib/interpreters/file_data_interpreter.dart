@@ -34,6 +34,7 @@ class FileDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -206,7 +207,8 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
                     Expanded(child: SizedBox()),
                     if (widget.supportAuto)
                       TextButton(
-                        onPressed: valueUpperCase == Constant.auto
+                        onPressed:
+                            widget.readOnly || valueUpperCase == Constant.auto
                             ? null
                             : () {
                                 showDialog<void>(
@@ -258,7 +260,9 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
                       ),
                     if (widget.supportAuto)
                       TextButton(
-                        onPressed: valueUpperCase == Constant.autoAnimated
+                        onPressed:
+                            widget.readOnly ||
+                                valueUpperCase == Constant.autoAnimated
                             ? null
                             : () {
                                 showDialog<void>(
@@ -311,52 +315,56 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
                         child: Text(AppLocalizations.of(context)!.autoAnimated),
                       ),
                     TextButton(
-                      onPressed: () async {
-                        List<String>? selectList = await showModalBottomSheet(
-                          showDragHandle: true,
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return BuiltInFileSelectorPage(
-                              rootPath: widget.modPath,
-                              selectFile: true,
-                              checkBoxMode: Constant.checkBoxModeFile,
-                              maxSelectCount: 1,
-                              selectFileType: widget.selectFileType,
-                            );
-                          },
-                        );
-                        if (selectList == null || selectList.isEmpty) {
-                          return;
-                        }
-                        var select = selectList.first;
-                        FileReference? fileReference =
-                            await FileReference.fromData(
-                              widget.sourceFilePath,
-                              widget.modPath,
-                              GlobalDepend.switchToRelativePath(
-                                widget.modPath,
-                                widget.sourceFilePath,
-                                select,
-                              ),
-                              null,
-                            );
-                        if (fileReference == null) {
-                          return;
-                        }
-                        widget.keyValue.value = fileReference.data;
-                        widget.onLineDataChange?.call(
-                          widget,
-                          widget.keyValue.getLineData(),
-                        );
-                        setState(() {
-                          _fileReference = fileReference;
-                        });
-                      },
+                      onPressed: widget.readOnly
+                          ? null
+                          : () async {
+                              List<String>? selectList =
+                                  await showModalBottomSheet(
+                                    showDragHandle: true,
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return BuiltInFileSelectorPage(
+                                        rootPath: widget.modPath,
+                                        selectFile: true,
+                                        checkBoxMode: Constant.checkBoxModeFile,
+                                        maxSelectCount: 1,
+                                        selectFileType: widget.selectFileType,
+                                      );
+                                    },
+                                  );
+                              if (selectList == null || selectList.isEmpty) {
+                                return;
+                              }
+                              var select = selectList.first;
+                              FileReference? fileReference =
+                                  await FileReference.fromData(
+                                    widget.sourceFilePath,
+                                    widget.modPath,
+                                    GlobalDepend.switchToRelativePath(
+                                      widget.modPath,
+                                      widget.sourceFilePath,
+                                      select,
+                                    ),
+                                    null,
+                                  );
+                              if (fileReference == null) {
+                                return;
+                              }
+                              widget.keyValue.value = fileReference.data;
+                              widget.onLineDataChange?.call(
+                                widget,
+                                widget.keyValue.getLineData(),
+                              );
+                              setState(() {
+                                _fileReference = fileReference;
+                              });
+                            },
                       child: Text(AppLocalizations.of(context)!.selectTheFile),
                     ),
                     TextButton(
-                      onPressed: valueUpperCase == Constant.none
+                      onPressed:
+                          widget.readOnly || valueUpperCase == Constant.none
                           ? null
                           : () {
                               showDialog<void>(
@@ -406,7 +414,7 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
               ],
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -418,7 +426,7 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

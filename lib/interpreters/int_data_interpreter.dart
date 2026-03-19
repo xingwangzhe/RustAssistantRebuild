@@ -19,6 +19,7 @@ class IntDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -78,6 +79,7 @@ class _IntDataInterpreterStatus extends State<IntDataInterpreter> {
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               style: TextStyle(fontFamily: 'Mono'),
               onChanged: (s) {
                 widget.keyValue.value = s;
@@ -112,7 +114,7 @@ class _IntDataInterpreterStatus extends State<IntDataInterpreter> {
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -124,7 +126,7 @@ class _IntDataInterpreterStatus extends State<IntDataInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

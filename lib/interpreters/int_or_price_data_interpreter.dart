@@ -6,12 +6,14 @@ import 'package:sprintf/sprintf.dart';
 import '../code_detail_dialog.dart';
 import '../highlight_link_text.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
+import '../pages/edit_units_page.dart';
 import 'data_interpreter.dart';
 
 class IntORPriceDataInterpreter extends DataInterpreter {
   final List<ResourceRef> globalResource;
   final List<ResourceRef> Function() getLocalResource;
-  final Function(String) onRequestOpenFile;
+  final Function(OpenFileParameters) onRequestOpenFile;
 
   const IntORPriceDataInterpreter({
     super.key,
@@ -26,6 +28,7 @@ class IntORPriceDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -86,6 +89,7 @@ class _IntORPriceDataInterpreterStatus
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               maxLines: null,
               style: TextStyle(fontFamily: 'Mono'),
               onChanged: (s) {
@@ -99,29 +103,31 @@ class _IntORPriceDataInterpreterStatus
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 suffixIcon: IconButton(
-                  onPressed: () async {
-                    var result = await showModalBottomSheet(
-                      context: context,
-                      showDragHandle: true,
-                      isScrollControlled: true,
-                      builder: (context) {
-                        return ResourceConfigDialog(
-                          getLocalResource: widget.getLocalResource,
-                          globalResource: widget.globalResource,
-                          value: widget.keyValue.value,
-                          onRequestOpenFile: widget.onRequestOpenFile,
-                        );
-                      },
-                    );
-                    if (result != null) {
-                      _textEditingController.text = result;
-                      widget.keyValue.value = result;
-                      widget.onLineDataChange?.call(
-                        widget,
-                        widget.keyValue.getLineData(),
-                      );
-                    }
-                  },
+                  onPressed: widget.readOnly
+                      ? null
+                      : () async {
+                          var result = await showModalBottomSheet(
+                            context: context,
+                            showDragHandle: true,
+                            isScrollControlled: true,
+                            builder: (context) {
+                              return ResourceConfigDialog(
+                                getLocalResource: widget.getLocalResource,
+                                globalResource: widget.globalResource,
+                                value: widget.keyValue.value,
+                                onRequestOpenFile: widget.onRequestOpenFile,
+                              );
+                            },
+                          );
+                          if (result != null) {
+                            _textEditingController.text = result;
+                            widget.keyValue.value = result;
+                            widget.onLineDataChange?.call(
+                              widget,
+                              widget.keyValue.getLineData(),
+                            );
+                          }
+                        },
                   icon: Icon(Icons.menu_book_outlined),
                   tooltip: AppLocalizations.of(context)!.resourceAllocation,
                 ),
@@ -146,7 +152,7 @@ class _IntORPriceDataInterpreterStatus
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -158,7 +164,7 @@ class _IntORPriceDataInterpreterStatus
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

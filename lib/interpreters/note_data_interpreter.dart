@@ -1,4 +1,3 @@
-//用于解释注解。
 import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -6,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../mod/ini_reader.dart';
 import 'data_interpreter.dart';
 
+//用于解释注解。
 class NoteDataInterpreter extends DataInterpreter {
   const NoteDataInterpreter({
     super.key,
@@ -13,7 +13,9 @@ class NoteDataInterpreter extends DataInterpreter {
     required super.onLineDataChange,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions, required super.overRiderValue,
+    required super.displayOperationOptions,
+    required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -84,6 +86,7 @@ class _NoteDataInterpreterStatus extends State<NoteDataInterpreter> {
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               style: TextStyle(fontFamily: 'Mono'),
               maxLines: null,
               onChanged: (s) {
@@ -100,7 +103,9 @@ class _NoteDataInterpreterStatus extends State<NoteDataInterpreter> {
               ),
             ),
           ),
-          if (convertibleValue && widget.displayOperationOptions)
+          if (!widget.readOnly &&
+              convertibleValue &&
+              widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 var lineData = widget.keyValue.value;
@@ -113,7 +118,7 @@ class _NoteDataInterpreterStatus extends State<NoteDataInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToCode,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

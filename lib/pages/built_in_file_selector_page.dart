@@ -8,6 +8,7 @@ import 'package:sprintf/sprintf.dart';
 
 import '../constant.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
 import 'built_in_file_manager_page.dart';
 
 class BuiltInFileSelectorPage extends StatefulWidget {
@@ -157,6 +158,7 @@ class _BuiltInFileSelectorPageStatus extends State<BuiltInFileSelectorPage> {
                     selectFileType: widget.selectFileType,
                     onRename: (String p1, String p2) {},
                     onDelete: (String p1) {},
+                    onRequestOpenFile: (OpenFileParameters p1) {},
                   );
                 } else {
                   final listData = _segmentIndex == Constant.segmentIndexCore

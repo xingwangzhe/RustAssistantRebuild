@@ -24,6 +24,7 @@ class TagInterpreter extends DataInterpreter {
     required super.displayOperationOptions,
     required this.tagList,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -145,6 +146,7 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
+                  enabled: !widget.readOnly,
                   maxLines: null,
                   style: TextStyle(fontFamily: 'Mono'),
                   onChanged: (s) {
@@ -245,7 +247,7 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
               ],
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -257,7 +259,7 @@ class _TagInterpreterStatus extends State<TagInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

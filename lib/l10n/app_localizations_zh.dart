@@ -426,10 +426,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get storageAccessFrameworkDefault => '存储访问框架（默认）';
 
   @override
-  String get storageAccessFrameworkOpenDescription => '仅允许访问用户选定的目录，文件读写和检索效率低下。';
+  String get storageAccessFrameworkOpenDescription =>
+      '仅允许访问用户选定的目录，文件读写和检索效率低下。';
 
   @override
-  String get storageAccessFrameworkCloseDescription => '能够访问设备上大部分文件和目录，显著提升读写和检索文件的效率。';
+  String get storageAccessFrameworkCloseDescription =>
+      '能够访问设备上大部分文件和目录，显著提升读写和检索文件的效率。';
 
   @override
   String get permission => '权限';
@@ -438,7 +440,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get revokeGrantedAccessPermissionSAFDirectory => '撤销目录访问权限';
 
   @override
-  String get revokeGrantedAccessPermissionSAFDirectoryDescription => '撤销应用已获得的目录访问权限，禁止继续访问该目录。';
+  String get revokeGrantedAccessPermissionSAFDirectoryDescription =>
+      '撤销应用已获得的目录访问权限，禁止继续访问该目录。';
 
   @override
   String get noSAFDirectoryPermissions => '当前无可撤销的目录访问权限。';
@@ -501,7 +504,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get automaticIndexConstruction => '自动检索项目';
 
   @override
-  String get automaticIndexConstructionTip => '当文件被保存，或者您从其他应用返回，检索项目变更，用于自动提示和全局搜索。';
+  String get automaticIndexConstructionTip =>
+      '当文件被保存，或者您从其他应用返回，检索项目变更，用于自动提示和全局搜索。';
 
   @override
   String get addSectionTitle => '添加节';
@@ -579,7 +583,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get targetGameVersion => '目标游戏版本';
 
   @override
-  String get targetGameVersionMessage => '选择目标游戏版本后，应用仅显示目标游戏版本可用的数据。例如选中1.14，那么仅显示1.13和1.14版本的数据。不包含1.15。';
+  String get targetGameVersionMessage =>
+      '选择目标游戏版本后，应用仅显示目标游戏版本可用的数据。例如选中1.14，那么仅显示1.13和1.14版本的数据。不包含1.15。';
 
   @override
   String get clear => '清空';
@@ -855,7 +860,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readMagicNumberOfFiles => '读取文件魔数';
 
   @override
-  String get readMagicNumberOfFilesTip => '通过读取文件前16字节的数据来推断文件类型，而不是根据文件格式来确定。（例如：将a.png命名为a，软件根据其前16字节的数据来推断文件类型，即使文件后缀不是png，也会被识别为图像）。';
+  String get readMagicNumberOfFilesTip =>
+      '通过读取文件前16字节的数据来推断文件类型，而不是根据文件格式来确定。（例如：将a.png命名为a，软件根据其前16字节的数据来推断文件类型，即使文件后缀不是png，也会被识别为图像）。';
 
   @override
   String get builtIn => '内置';
@@ -960,7 +966,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get originalUnit => '原版单位';
 
   @override
-  String get openUnitCode => '打开%d个源文件';
+  String get open => '打开';
+
+  @override
+  String get readOnlyModeHint => '当前文件以只读模式打开';
 
   @override
   String get dexBuiltIn => 'Dex内置';

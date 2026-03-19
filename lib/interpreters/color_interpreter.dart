@@ -19,6 +19,7 @@ class ColorInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -120,6 +121,7 @@ class _ColorInsterpreterStatus extends State<ColorInterpreter> {
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               maxLines: null,
               maxLength: 8,
               style: TextStyle(fontFamily: 'Mono'),
@@ -166,7 +168,7 @@ class _ColorInsterpreterStatus extends State<ColorInterpreter> {
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -178,7 +180,7 @@ class _ColorInsterpreterStatus extends State<ColorInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

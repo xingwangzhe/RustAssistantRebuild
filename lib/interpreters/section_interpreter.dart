@@ -22,7 +22,9 @@ class SectionInterpreter extends DataInterpreter {
     required super.onLineDataChange,
     required super.lineNumber,
     required super.displayLineNumber,
-    required super.displayOperationOptions, required super.overRiderValue,
+    required super.displayOperationOptions,
+    required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -79,7 +81,8 @@ class _SectionInterpreterStatus extends State<SectionInterpreter> {
               ),
             SizedBox(width: 8),
             Expanded(child: Text(_getDisplaySection())),
-            if (widget.keyValue.key.contains("_") &&
+            if (!widget.readOnly &&
+                widget.keyValue.key.contains("_") &&
                 widget.displayOperationOptions)
               IconButton(
                 tooltip: AppLocalizations.of(context)?.rename,
@@ -103,7 +106,7 @@ class _SectionInterpreterStatus extends State<SectionInterpreter> {
                 icon: Icon(Icons.edit_outlined),
               ),
 
-            if (widget.displayOperationOptions)
+            if (!widget.readOnly && widget.displayOperationOptions)
               IconButton(
                 tooltip: AppLocalizations.of(context)?.editingSequence,
                 onPressed: () {
@@ -111,7 +114,7 @@ class _SectionInterpreterStatus extends State<SectionInterpreter> {
                 },
                 icon: Icon(Icons.format_list_bulleted_outlined),
               ),
-            if (widget.displayOperationOptions)
+            if (!widget.readOnly && widget.displayOperationOptions)
               IconButton(
                 tooltip: AppLocalizations.of(context)?.delete,
                 onPressed: () {
@@ -119,13 +122,17 @@ class _SectionInterpreterStatus extends State<SectionInterpreter> {
                 },
                 icon: Icon(Icons.delete_outline),
               ),
-            IconButton(
-              tooltip: AppLocalizations.of(context)?.addCodeTitle,
-              onPressed: () {
-                widget.addCallBack.call(widget.lineNumber, widget.keyValue.key);
-              },
-              icon: Icon(Icons.add_outlined),
-            ),
+            if (!widget.readOnly)
+              IconButton(
+                tooltip: AppLocalizations.of(context)?.addCodeTitle,
+                onPressed: () {
+                  widget.addCallBack.call(
+                    widget.lineNumber,
+                    widget.keyValue.key,
+                  );
+                },
+                icon: Icon(Icons.add_outlined),
+              ),
           ],
         ),
       ),

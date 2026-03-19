@@ -14,11 +14,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../global_depend.dart';
 import '../l10n/app_localizations.dart';
 
+import '../open_file_parameters.dart';
 import 'edit_units_page.dart';
 import 'ini_editor_page.dart';
 
 class WorkspacePage extends StatefulWidget {
-  final List<String> openedFilePath;
+  final List<OpenFileParameters> openedFilePath;
   final int openedFileLen;
   final int targetTabIndex;
   final List<String> unsavedFilePath;
@@ -28,12 +29,12 @@ class WorkspacePage extends StatefulWidget {
   final Function(int) onTabIndexChange;
   final Function(String)? navigateToTheDirectory;
   final Function(String?, String?, bool) onDataChange;
-  final Function(String, CloseTagType)? closeTag;
+  final Function(OpenFileParameters, CloseTagType)? closeTag;
   final bool displayLineNumber;
   final bool displayOperationOptions;
   final Function onRequestOpenDrawer;
   final Function onRequestChangeLeftWidget;
-  final Function(String) onRequestOpenFile;
+  final Function(OpenFileParameters) onRequestOpenFile;
   final Function(
     Function(String, String, bool, String, bool) onCreate, {
     String? folder,
@@ -97,7 +98,7 @@ class _WorkspaceStatus extends State<WorkspacePage>
             requestFocusOnHover: false,
             onPressed: () async {
               widget.navigateToTheDirectory?.call(
-                await _fileSystemOperator.dirname(f),
+                await _fileSystemOperator.dirname(f.path),
               );
             },
             child: Text(
@@ -112,7 +113,7 @@ class _WorkspaceStatus extends State<WorkspacePage>
             MenuItemButton(
               requestFocusOnHover: false,
               onPressed: () async {
-                var uri = Uri.parse("file:${path.dirname(f)}");
+                var uri = Uri.parse("file:${path.dirname(f.path)}");
                 var finalContext = context;
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri);
@@ -178,12 +179,12 @@ class _WorkspaceStatus extends State<WorkspacePage>
           ),
         );
 
-        var contains = widget.unsavedFilePath.contains(f);
-        var runtimeFile = widget.pathToRuntimeFileInfo[f];
+        var contains = widget.unsavedFilePath.contains(f.path);
+        var runtimeFile = widget.pathToRuntimeFileInfo[f.path];
         var tab = Tab(
           child: Row(
             children: [
-              Text(runtimeFile?.fileName ?? f),
+              Text(runtimeFile?.fileName ?? f.path),
               MenuAnchor(
                 builder: (context, controller, child) {
                   return IconButton(
@@ -213,30 +214,32 @@ class _WorkspaceStatus extends State<WorkspacePage>
     if (widget.openedFilePath.isNotEmpty) {
       for (var f in widget.openedFilePath) {
         var fileType =
-            widget.pathToRuntimeFileInfo[f]?.fileType ??
+            widget.pathToRuntimeFileInfo[f.path]?.fileType ??
             FileTypeChecker.FileTypeUnknown;
         if (fileType == FileTypeChecker.FileTypeImage) {
-          widgets.add(ImageViewer(path: f));
+          widgets.add(ImageViewer(path: f.path));
           continue;
         }
         if (fileType == FileTypeChecker.FileTypeText) {
           widgets.add(
             IniEditorPage(
-              key: PageStorageKey<String>(f),
-              sourceFilePath: f,
+              key: PageStorageKey<String>(f.path),
+              sourceFilePath: f.path,
+              readOnly: f.readOnly,
               globalResource: widget.globalResource,
-              fileData: widget.pathToRuntimeFileInfo[f]?.data,
+              fileData: widget.pathToRuntimeFileInfo[f.path]?.data,
               overRiderValue:
-                  widget.pathToRuntimeFileInfo[f]?.overRiderValue ?? false,
+                  widget.pathToRuntimeFileInfo[f.path]?.overRiderValue ?? false,
               onDataChange: (data, overRide) {
-                widget.onDataChange.call(f, data, overRide);
+                widget.onDataChange.call(f.path, data, overRide);
               },
               displayLineNumber: widget.displayLineNumber,
               onMaxLineNumberChange: (lineNumber) {
-                if (widget.pathToRuntimeFileInfo[f] == null) {
+                if (widget.pathToRuntimeFileInfo[f.path] == null) {
                   return;
                 }
-                widget.pathToRuntimeFileInfo[f]?.maxLineNumber = lineNumber;
+                widget.pathToRuntimeFileInfo[f.path]?.maxLineNumber =
+                    lineNumber;
               },
               onRequestOpenDrawer: widget.onRequestOpenDrawer,
               onRequestChangeLeftWidget: widget.onRequestChangeLeftWidget,
@@ -292,7 +295,9 @@ class _WorkspaceStatus extends State<WorkspacePage>
     if (asFolder) {
       widget.onRequestOpenDrawer.call();
     } else {
-      widget.onRequestOpenFile.call(path);
+      widget.onRequestOpenFile.call(
+        OpenFileParameters(path: path, readOnly: false),
+      );
     }
   }
 

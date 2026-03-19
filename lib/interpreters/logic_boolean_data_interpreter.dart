@@ -24,6 +24,7 @@ class LogicBooleanDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -224,6 +225,7 @@ class _LogicBooleanDataInterpreterState
                 TextField(
                   style: TextStyle(fontFamily: 'Mono'),
                   controller: _textEditingController,
+                  enabled: !widget.readOnly,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText:
@@ -251,86 +253,103 @@ class _LogicBooleanDataInterpreterState
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          showDragHandle: true,
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (context) {
-                            final LogicBooleanDataSource
-                            logicBooleanDataSource = LogicBooleanDataSource(
-                              AppLocalizations.of(context)!.addFunction,
-                              AppLocalizations.of(context)!.searchFunction,
-                              AppLocalizations.of(context)!.addFunctionTip,
-                            );
-                            var logicalBooleanList =
-                                CodeDataBase.getLogicalBooleanList();
-                            for (LogicalBoolean logicalBoolean
-                                in logicalBooleanList) {
-                              var rule = logicalBoolean.rule;
-                              var mixedLogicalBoolean = MixedLogicalBoolean(
-                                logicalBoolean,
-                                rule == null
-                                    ? null
-                                    : CodeDataBase.findLogicalBooleanTranslateByRule(
-                                        rule,
-                                      ),
-                              );
-                              logicBooleanDataSource.allList.add(
-                                mixedLogicalBoolean,
-                              );
-                            }
-                            return SearchMultipleSelectionDialog(
-                              onSelected: (list) {
-                                StringBuffer append = StringBuffer();
-                                append.write(_textEditingController.text);
-                                for (var element in list) {
-                                  if (element is! MixedLogicalBoolean) {
-                                    continue;
+                      onPressed: widget.readOnly
+                          ? null
+                          : () {
+                              showModalBottomSheet(
+                                showDragHandle: true,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) {
+                                  final LogicBooleanDataSource
+                                  logicBooleanDataSource =
+                                      LogicBooleanDataSource(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.addFunction,
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.searchFunction,
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.addFunctionTip,
+                                      );
+                                  var logicalBooleanList =
+                                      CodeDataBase.getLogicalBooleanList();
+                                  for (LogicalBoolean logicalBoolean
+                                      in logicalBooleanList) {
+                                    var rule = logicalBoolean.rule;
+                                    var mixedLogicalBoolean = MixedLogicalBoolean(
+                                      logicalBoolean,
+                                      rule == null
+                                          ? null
+                                          : CodeDataBase.findLogicalBooleanTranslateByRule(
+                                              rule,
+                                            ),
+                                    );
+                                    logicBooleanDataSource.allList.add(
+                                      mixedLogicalBoolean,
+                                    );
                                   }
-                                  var appendString = append.toString();
-                                  if (appendString.isNotEmpty &&
-                                      !appendString.endsWith(" ")) {
-                                    append.write(' ');
-                                  }
-                                  var logicalBoolean = element.logicalBoolean;
-                                  var isFunction = logicalBoolean.isFunction;
-                                  if (isFunction == null ||
-                                      isFunction == false) {
-                                    append.write(logicalBoolean.name);
-                                  } else {
-                                    append.write('${logicalBoolean.name}(');
-                                    var argument = logicalBoolean.argument;
-                                    if (argument != null &&
-                                        argument.isNotEmpty) {
-                                      var necessaryNumber = 0;
-                                      for (var value in argument) {
-                                        var isRequired = value.isRequired;
-                                        if (isRequired != null && isRequired) {
-                                          if (necessaryNumber > 0) {
-                                            append.write(',');
+                                  return SearchMultipleSelectionDialog(
+                                    onSelected: (list) {
+                                      StringBuffer append = StringBuffer();
+                                      append.write(_textEditingController.text);
+                                      for (var element in list) {
+                                        if (element is! MixedLogicalBoolean) {
+                                          continue;
+                                        }
+                                        var appendString = append.toString();
+                                        if (appendString.isNotEmpty &&
+                                            !appendString.endsWith(" ")) {
+                                          append.write(' ');
+                                        }
+                                        var logicalBoolean =
+                                            element.logicalBoolean;
+                                        var isFunction =
+                                            logicalBoolean.isFunction;
+                                        if (isFunction == null ||
+                                            isFunction == false) {
+                                          append.write(logicalBoolean.name);
+                                        } else {
+                                          append.write(
+                                            '${logicalBoolean.name}(',
+                                          );
+                                          var argument =
+                                              logicalBoolean.argument;
+                                          if (argument != null &&
+                                              argument.isNotEmpty) {
+                                            var necessaryNumber = 0;
+                                            for (var value in argument) {
+                                              var isRequired = value.isRequired;
+                                              if (isRequired != null &&
+                                                  isRequired) {
+                                                if (necessaryNumber > 0) {
+                                                  append.write(',');
+                                                }
+                                                append.write(value.name);
+                                                append.write('=');
+                                                append.write('0');
+                                                necessaryNumber++;
+                                              }
+                                            }
                                           }
-                                          append.write(value.name);
-                                          append.write('=');
-                                          append.write('0');
-                                          necessaryNumber++;
+                                          append.write(')');
                                         }
                                       }
-                                    }
-                                    append.write(')');
-                                  }
-                                }
-                                var str = append.toString();
-                                setState(() {
-                                  _textEditingController.text = str;
-                                  _presenterList = _generatePresenterList(str);
-                                });
-                              },
-                              dataSource: logicBooleanDataSource,
-                            );
-                          },
-                        );
-                      },
+                                      var str = append.toString();
+                                      setState(() {
+                                        _textEditingController.text = str;
+                                        _presenterList = _generatePresenterList(
+                                          str,
+                                        );
+                                      });
+                                    },
+                                    dataSource: logicBooleanDataSource,
+                                  );
+                                },
+                              );
+                            },
                       tooltip: AppLocalizations.of(context)!.addFunction,
                       icon: Icon(Icons.functions_outlined),
                     ),
@@ -345,7 +364,7 @@ class _LogicBooleanDataInterpreterState
               ],
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -357,7 +376,7 @@ class _LogicBooleanDataInterpreterState
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

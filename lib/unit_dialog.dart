@@ -8,11 +8,13 @@ class UnitDialog extends StatefulWidget {
   final List<UnitRef> modUnit;
   final String value;
   final bool multiple;
-  final Function(String) onSave;
+  final Function(List<UnitRef>) onSave;
+  final bool displayOnlyBuiltinUnits;
 
   const UnitDialog({
     super.key,
     required this.modUnit,
+    required this.displayOnlyBuiltinUnits,
     required this.value,
     required this.multiple,
     required this.onSave,
@@ -29,6 +31,7 @@ class _UnitDialogStatus extends State<UnitDialog> {
   final List<UnitRef> _allUnit = List.empty(growable: true);
   final List<UnitRef> _filteredUnit = List.empty(growable: true);
   final Set<String> _unitList = {};
+  final Map<String, UnitRef> nameToUnitRef = {};
 
   @override
   void dispose() {
@@ -41,8 +44,30 @@ class _UnitDialogStatus extends State<UnitDialog> {
     super.initState();
     //添加内置单位
     _allUnit.clear();
-    _allUnit.addAll(CodeDataBase.builtInUnit);
-    _allUnit.addAll(widget.modUnit);
+
+    for (var value in CodeDataBase.builtInUnit) {
+      String? name = value.name;
+      if (name != null) {
+        nameToUnitRef[name] = value;
+      }
+      if (widget.displayOnlyBuiltinUnits) {
+        if (value.type == UnitRefType.BUILT_IN) {
+          _allUnit.add(value);
+        }
+      } else {
+        _allUnit.add(value);
+      }
+    }
+
+    if (!widget.displayOnlyBuiltinUnits) {
+      for (var value in widget.modUnit) {
+        String? name = value.name;
+        if (name != null) {
+          nameToUnitRef[name] = value;
+        }
+        _allUnit.add(value);
+      }
+    }
     _allUnit.sort((a, b) {
       final aName = a.name?.toLowerCase() ?? "";
       final bName = b.name?.toLowerCase() ?? "";
@@ -69,7 +94,9 @@ class _UnitDialogStatus extends State<UnitDialog> {
             Row(
               children: [
                 Text(
-                  AppLocalizations.of(context)!.unitSelector,
+                  widget.displayOnlyBuiltinUnits
+                      ? AppLocalizations.of(context)!.originalUnit
+                      : AppLocalizations.of(context)!.unitSelector,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ],
@@ -235,18 +262,26 @@ class _UnitDialogStatus extends State<UnitDialog> {
                   child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 TextButton(
-                  onPressed: () {
-                    final StringBuffer stringBuffer = StringBuffer();
-                    for (String unitName in _unitList) {
-                      if (stringBuffer.length > 0) {
-                        stringBuffer.write(',');
-                      }
-                      stringBuffer.write(unitName);
-                    }
-                    widget.onSave.call(stringBuffer.toString());
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(AppLocalizations.of(context)!.save),
+                  onPressed: _unitList.isEmpty
+                      ? null
+                      : () {
+                          List<UnitRef> unitRefList = List.empty(
+                            growable: true,
+                          );
+                          for (String unitName in _unitList) {
+                            UnitRef? unit = nameToUnitRef[unitName];
+                            if (unit != null) {
+                              unitRefList.add(unit);
+                            }
+                          }
+                          widget.onSave.call(unitRefList);
+                          Navigator.of(context).pop();
+                        },
+                  child: Text(
+                    widget.displayOnlyBuiltinUnits
+                        ? AppLocalizations.of(context)!.open
+                        : AppLocalizations.of(context)!.save,
+                  ),
                 ),
               ],
             ),

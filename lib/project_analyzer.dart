@@ -33,6 +33,7 @@ class ProjectAnalyzer {
     Function? onStart,
     bool Function(int, int, String)? progress,
     Function(VisualAnalyticsResult? result)? onFinish,
+    bool markAllProblemResolved,
   ) async {
     if (_isRunning) {
       return;
@@ -104,23 +105,28 @@ class ProjectAnalyzer {
         });
       }
     }
-    if (first && await fileSystemOperator.exist(problemItemJsonPath)) {
-      //The first analysis requires reading data from the file.
-      //第一次分析，需要从文件内读取数据。
-      String? problemItem = await fileSystemOperator.readAsString(
-        problemItemJsonPath,
-      );
-      if (problemItem != null && problemItem.isNotEmpty) {
-        Map<String, dynamic> dataMap = jsonDecode(problemItem);
-        problemItemListData = dataMap.map((key, value) {
-          List<ProblemItem> tasks = (value as List)
-              .map((item) => ProblemItem.fromJson(item as Map<String, dynamic>))
-              .toList();
-          return MapEntry(key, tasks);
-        });
+    if (await fileSystemOperator.exist(problemItemJsonPath)) {
+      if (markAllProblemResolved) {
+        await fileSystemOperator.delete(problemItemJsonPath);
+        problemItemListData.clear();
+      } else {
+        //The first analysis requires reading data from the file.
+        //第一次分析，需要从文件内读取数据。
+        String? problemItem = await fileSystemOperator.readAsString(
+          problemItemJsonPath,
+        );
+        if (problemItem != null && problemItem.isNotEmpty) {
+          Map<String, dynamic> dataMap = jsonDecode(problemItem);
+          problemItemListData = dataMap.map((key, value) {
+            List<ProblemItem> tasks = (value as List)
+                .map(
+                  (item) => ProblemItem.fromJson(item as Map<String, dynamic>),
+                )
+                .toList();
+            return MapEntry(key, tasks);
+          });
+        }
       }
-    } else {
-      problemItemListData.clear();
     }
     if (pathToUnitRef.isEmpty && await fileSystemOperator.exist(unitRefPath)) {
       String? unitRefData = await fileSystemOperator.readAsString(unitRefPath);
@@ -297,27 +303,29 @@ class ProjectAnalyzer {
         var symbol = lineLowerCase.indexOf(':');
         if (symbol > -1) {
           var keyName = lineLowerCase.substring(0, symbol);
-          if (repeatKeys.contains(keyName)) {
-            //A duplicate key has been found.
-            //发现重复key。
-            ProblemItem problemItem = ProblemItem();
-            problemItem.message = sprintf(appLocalizations.repeatKey, [
-              keyName,
-              fullSection ?? "null",
-            ]);
-            problemItem.type = ProblemType.RepeatKey;
-            problemItem.path = path;
-            problemItem.relativePath = relativePath;
-            result.problems.add(problemItem);
-            if (problemItemListData.containsKey(path)) {
-              problemItemListData[path]?.add(problemItem);
-            } else {
-              List<ProblemItem> list = List.empty(growable: true);
-              list.add(problemItem);
-              problemItemListData[path] = list;
+          if (!keyName.startsWith("#")) {
+            if (repeatKeys.contains(keyName)) {
+              //A duplicate key has been found.
+              //发现重复key。
+              ProblemItem problemItem = ProblemItem();
+              problemItem.message = sprintf(appLocalizations.repeatKey, [
+                keyName,
+                fullSection ?? "null",
+              ]);
+              problemItem.type = ProblemType.RepeatKey;
+              problemItem.path = path;
+              problemItem.relativePath = relativePath;
+              result.problems.add(problemItem);
+              if (problemItemListData.containsKey(path)) {
+                problemItemListData[path]?.add(problemItem);
+              } else {
+                List<ProblemItem> list = List.empty(growable: true);
+                list.add(problemItem);
+                problemItemListData[path] = list;
+              }
             }
+            repeatKeys.add(keyName);
           }
-          repeatKeys.add(keyName);
           if (keyName == "tags") {
             var tagListData = ListData();
             tagListData.title = line;

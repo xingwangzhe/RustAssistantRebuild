@@ -5,4 +5,5 @@ class RuntimeFileInfo {
   String? fileName;
   int fileType = 0;
   bool overRiderValue = false;
+  bool readOnly = false;
 }

@@ -20,6 +20,7 @@ class EnumInterprete extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -129,19 +130,21 @@ class _EnumInterpreterStatus extends State<EnumInterprete> {
                     ),
                   )
                   .toList(),
-              onChanged: (EnumData? newValue) {
-                if (newValue == null) {
-                  return;
-                }
-                widget.keyValue.value = newValue.value;
-                widget.onLineDataChange?.call(
-                  widget,
-                  widget.keyValue.getLineData(),
-                );
-              },
+              onChanged: widget.readOnly
+                  ? null
+                  : (EnumData? newValue) {
+                      if (newValue == null) {
+                        return;
+                      }
+                      widget.keyValue.value = newValue.value;
+                      widget.onLineDataChange?.call(
+                        widget,
+                        widget.keyValue.getLineData(),
+                      );
+                    },
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -153,11 +156,10 @@ class _EnumInterpreterStatus extends State<EnumInterprete> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {
-                // widget.onLineDataChange?.call(widget, '');
                 showDialog<void>(
                   context: context,
                   builder: (BuildContext context) {

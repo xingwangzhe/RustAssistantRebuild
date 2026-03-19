@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:rust_assistant/databeans/resource_ref.dart';
+import 'package:rust_assistant/databeans/unit_ref.dart';
 import 'package:rust_assistant/databeans/unit_template.dart';
 import 'package:rust_assistant/file_operator/file_operator.dart';
 import 'package:rust_assistant/file_type_checker.dart';
@@ -27,6 +28,7 @@ import '../create_file_of_folder_dialog.dart';
 import '../databeans/runtime_file_info.dart';
 import '../databeans/visual_analytics_result.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
 import '../progress_info.dart';
 import '../project_analyzer.dart';
 import 'analytics_dialog.dart';
@@ -54,7 +56,7 @@ enum CloseTagType {
 class _EditUnitsPageState extends State<EditUnitsPage>
     with WidgetsBindingObserver, WindowListener {
   final FocusNode _focusNode = FocusNode();
-  final List<String> _openedFilePath = List.empty(growable: true);
+  final List<OpenFileParameters> _openedFilePath = List.empty(growable: true);
   final List<String> _unsavedFilePath = List.empty(growable: true);
   final List<ResourceRef> _globalResource = List.empty(growable: true);
   String? _currentPath;
@@ -148,14 +150,21 @@ class _EditUnitsPageState extends State<EditUnitsPage>
 
       dynamic jsonData = jsonDecode(jsonContent);
       if (jsonData is List) {
-        for (var value in jsonData.whereType<String>().toList()) {
-          _onRequestOpenFile(value, false);
+        for (var item in jsonData) {
+          if (item is Map<String, dynamic>) {
+            try {
+              OpenFileParameters params = OpenFileParameters.fromJson(item);
+              _onRequestOpenFile(params, false);
+            } catch (e) {
+              debugPrint(e.toString());
+            }
+          }
         }
       }
     }
   }
 
-  void saveOpenedFile() async {
+  void recordAllPath() async {
     if (!_restoreOpenedFile) {
       return;
     }
@@ -176,12 +185,18 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     );
   }
 
-  void _doAnalyze(BuildContext buildContext) {
+  /**
+   * 分析项目
+   * buildContext 上下文环境
+   * markAllProblemResolved 是否标记所有的问题为已解决状态
+   */
+  void _doAnalyze(BuildContext buildContext, bool markAllProblemResolved) {
     _projectAnalyzer.analyze(
       AppLocalizations.of(buildContext)!,
       _onStartAnalyze,
       _progress,
       _onFinishAnalyze,
+      markAllProblemResolved,
     );
   }
 
@@ -194,7 +209,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       _updateIndexStart = AppLocalizations.of(context)!.updateIndexStart;
       _ready = AppLocalizations.of(context)!.ready;
       if (_automaticIndexConstruction) {
-        _doAnalyze(context);
+        _doAnalyze(context, false);
       }
     }
   }
@@ -249,7 +264,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
 
   Future<bool> _performSave() async {
     if (_openedFilePath.isEmpty) return false;
-    final nowOpenedPath = _openedFilePath[_targetTabIndex];
+    final nowOpenedPath = _openedFilePath[_targetTabIndex].path;
     if (!_unsavedFilePath.contains(nowOpenedPath)) {
       return false;
     }
@@ -282,7 +297,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     });
     var finalContext = context;
     if (_automaticIndexConstruction && finalContext.mounted) {
-      _doAnalyze(finalContext);
+      _doAnalyze(finalContext, false);
     }
     //额外的条件，如果保存的是allUnits
     var allUnitsTemplate = p.join(widget.mod.path, Constant.allUnitsTemplate);
@@ -297,8 +312,11 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       return;
     }
     final nowOpenedPath = _openedFilePath[_targetTabIndex];
-    final fileContent = await _fileSystemOperator.readAsString(nowOpenedPath);
-    RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[nowOpenedPath];
+    final fileContent = await _fileSystemOperator.readAsString(
+      nowOpenedPath.path,
+    );
+    RuntimeFileInfo? runtimeFileInfo =
+        _pathToRuntimeFileInfo[nowOpenedPath.path];
     if (runtimeFileInfo == null) {
       return;
     }
@@ -315,7 +333,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              p.basename(nowOpenedPath),
+              p.basename(nowOpenedPath.path),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 16),
@@ -331,17 +349,22 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     );
   }
 
-  void _onRequestOpenFile(String path, bool needUpdateFile) async {
-    var index = _openedFilePath.indexOf(path);
+  void _onRequestOpenFile(
+    OpenFileParameters parameters,
+    bool recordPath,
+  ) async {
+    var index = _openedFilePath.indexOf(parameters);
+    var path = parameters.path;
     var fileName = await _fileSystemOperator.name(path);
     var fileHeader = await FileTypeChecker.readFileHeader(path);
     var fileType = FileTypeChecker.getFileType(path, fileHeader: fileHeader);
     if (index < 0) {
       setState(() {
-        _openedFilePath.add(path);
+        _openedFilePath.add(parameters);
         RuntimeFileInfo fileInfo = RuntimeFileInfo();
         fileInfo.fileName = fileName;
         fileInfo.fileType = fileType;
+        fileInfo.readOnly = parameters.readOnly;
         _pathToRuntimeFileInfo[path] = fileInfo;
         _targetTabIndex = _openedFilePath.length - 1;
       });
@@ -350,8 +373,8 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         _targetTabIndex = index;
       });
     }
-    if (needUpdateFile) {
-      saveOpenedFile();
+    if (recordPath) {
+      recordAllPath();
     }
   }
 
@@ -359,7 +382,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       if (_automaticIndexConstruction) {
-        _doAnalyze(context);
+        _doAnalyze(context, false);
       }
     } else if (state == AppLifecycleState.paused) {
       //仅限安卓和ios
@@ -387,14 +410,15 @@ class _EditUnitsPageState extends State<EditUnitsPage>
     setState(() {
       if (reloadAllOpenedFileAfterAnalyze && _openedFilePath.isNotEmpty) {
         for (var value in _openedFilePath) {
-          if (_unsavedFilePath.contains(value)) {
+          String path = value.path;
+          if (_unsavedFilePath.contains(path)) {
             //Do not corrupt the file that the user is currently editing in the memory.
             //不要破坏内存中用户正编辑的文件。
             continue;
           }
-          RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[value];
+          RuntimeFileInfo? runtimeFileInfo = _pathToRuntimeFileInfo[path];
           if (runtimeFileInfo != null) {
-            onDataChange(value, null, true);
+            onDataChange(path, null, true);
           }
         }
       }
@@ -591,7 +615,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       );
       var finalContext = context;
       if (_automaticIndexConstruction && finalContext.mounted) {
-        _doAnalyze(finalContext);
+        _doAnalyze(finalContext, false);
       }
     }
     onCreate.call(
@@ -609,9 +633,9 @@ class _EditUnitsPageState extends State<EditUnitsPage>
         return BuiltInFileManagerPage(
           rootPath: widget.mod.path,
           currentPath: _currentPath ?? widget.mod.path,
-          onRequestOpenFile: (path) {
+          onRequestOpenFile: (openFileParameters) {
             Scaffold.of(context).closeDrawer();
-            _onRequestOpenFile(path, true);
+            _onRequestOpenFile(openFileParameters, true);
           },
           onCurrentPathChange: (str) {
             setState(() {
@@ -628,16 +652,24 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             var isDir = await _fileSystemOperator.isDir(newPath);
             if (isDir) {
               final affectedPaths = _openedFilePath
-                  .where((p) => p.startsWith(oldPath))
+                  .where((p) => p.path.startsWith(oldPath))
                   .toList();
               for (final oldSubPath in affectedPaths) {
-                final newSubPath = oldSubPath.replaceFirst(oldPath, newPath);
+                final newSubPath = oldSubPath.path.replaceFirst(
+                  oldPath,
+                  newPath,
+                );
                 var fileName = await _fileSystemOperator.name(newSubPath);
                 setState(() {
                   _openedFilePath.remove(oldSubPath);
-                  _openedFilePath.add(newSubPath);
-                  if (_unsavedFilePath.contains(oldSubPath)) {
-                    _unsavedFilePath.remove(oldSubPath);
+                  _openedFilePath.add(
+                    OpenFileParameters(
+                      path: oldSubPath.path,
+                      readOnly: oldSubPath.readOnly,
+                    ),
+                  );
+                  if (_unsavedFilePath.contains(oldSubPath.path)) {
+                    _unsavedFilePath.remove(oldSubPath.path);
                     _unsavedFilePath.add(newSubPath);
                   }
                   final runtimeFileInfo = _pathToRuntimeFileInfo[oldPath];
@@ -647,14 +679,29 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     _pathToRuntimeFileInfo[newSubPath] = runtimeFileInfo;
                   }
                 });
-                saveOpenedFile();
+                recordAllPath();
               }
               return;
             }
             var fileName = await _fileSystemOperator.name(newPath);
             setState(() {
-              _openedFilePath.remove(oldPath);
-              _openedFilePath.add(newPath);
+              OpenFileParameters? oldOpenFileParameters;
+              for (OpenFileParameters openFileParameters in _openedFilePath) {
+                if (openFileParameters.path == oldPath) {
+                  oldOpenFileParameters = openFileParameters;
+                  continue;
+                }
+              }
+              if (oldOpenFileParameters == null) {
+                return;
+              }
+              _openedFilePath.remove(oldOpenFileParameters);
+              _openedFilePath.add(
+                OpenFileParameters(
+                  path: newPath,
+                  readOnly: oldOpenFileParameters.readOnly,
+                ),
+              );
               if (_unsavedFilePath.contains(oldPath)) {
                 _unsavedFilePath.remove(oldPath);
                 _unsavedFilePath.add(newPath);
@@ -666,22 +713,31 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 _pathToRuntimeFileInfo[newPath] = runtimeFileInfo;
               }
             });
-            saveOpenedFile();
+            recordAllPath();
           },
           onDelete: (String path) {
-            _closeTag(path, CloseTagType.CLOSE_SELF);
+            OpenFileParameters? targetOpenFileParameters;
+            for (OpenFileParameters openFileParameters in _openedFilePath) {
+              if (openFileParameters.path == path) {
+                targetOpenFileParameters = openFileParameters;
+                continue;
+              }
+            }
+            if (targetOpenFileParameters != null) {
+              _closeTag(targetOpenFileParameters, CloseTagType.CLOSE_SELF);
+            }
           },
         );
       },
     );
   }
 
-  void _closeTag(String path, CloseTagType type) {
+  void _closeTag(OpenFileParameters openFileParameters, CloseTagType type) {
     setState(() {
       if (type == CloseTagType.CLOSE_SELF) {
         // 关闭指定标签（原有逻辑，保持不变）
-        int removedIndex = _openedFilePath.indexOf(path);
-        _openedFilePath.remove(path);
+        int removedIndex = _openedFilePath.indexOf(openFileParameters);
+        _openedFilePath.remove(openFileParameters);
         // 更新选中索引：如果移除的是当前选中的，选中最后一个；否则保持原索引（需处理越界）
         if (removedIndex == _targetTabIndex) {
           _targetTabIndex = _openedFilePath.isEmpty
@@ -692,42 +748,45 @@ class _EditUnitsPageState extends State<EditUnitsPage>
           _targetTabIndex -= 1;
         }
         // 清理关联数据
-        _unsavedFilePath.remove(path);
-        _pathToRuntimeFileInfo.remove(path);
+        _unsavedFilePath.remove(openFileParameters.path);
+        _pathToRuntimeFileInfo.remove(openFileParameters.path);
       } else if (type == CloseTagType.CLOSE_OTHER) {
         // 关闭除指定标签外的所有标签（原有逻辑，保持不变）
-        if (!_openedFilePath.contains(path)) {
+        if (!_openedFilePath.contains(openFileParameters)) {
           // 指定路径不在已打开列表中，直接返回
           return;
         }
         // 收集要删除的路径
-        List<String> toRemovePaths = _openedFilePath
-            .where((p) => p != path)
+        List<OpenFileParameters> toRemovePaths = _openedFilePath
+            .where((p) => p != openFileParameters)
             .toList();
         // 清理要删除的路径的关联数据
-        for (String p in toRemovePaths) {
-          _unsavedFilePath.remove(p);
-          _pathToRuntimeFileInfo.remove(p);
+        for (OpenFileParameters p in toRemovePaths) {
+          _unsavedFilePath.remove(p.path);
+          _pathToRuntimeFileInfo.remove(p.path);
         }
         // 保留指定路径，重置打开列表
         _openedFilePath.clear();
-        _openedFilePath.add(path);
+        _openedFilePath.add(openFileParameters);
         // 选中唯一的标签
         _targetTabIndex = 0;
       } else if (type == CloseTagType.CLOSE_LEFT) {
         // 关闭当前标签左侧所有标签
         // 1. 校验路径是否存在，避免无效操作
-        int currentIndex = _openedFilePath.indexOf(path);
+        int currentIndex = _openedFilePath.indexOf(openFileParameters);
         if (currentIndex <= 0) {
           // 当前标签是第一个（索引0）或路径不存在，无需操作
           return;
         }
         // 2. 收集左侧所有要删除的路径（0 ~ currentIndex-1）
-        List<String> toRemovePaths = _openedFilePath.sublist(0, currentIndex);
+        List<OpenFileParameters> toRemovePaths = _openedFilePath.sublist(
+          0,
+          currentIndex,
+        );
         // 3. 批量清理关联数据
-        for (String p in toRemovePaths) {
-          _unsavedFilePath.remove(p);
-          _pathToRuntimeFileInfo.remove(p);
+        for (OpenFileParameters p in toRemovePaths) {
+          _unsavedFilePath.remove(p.path);
+          _pathToRuntimeFileInfo.remove(p.path);
         }
         // 4. 移除左侧标签，保留当前及右侧标签
         _openedFilePath.removeWhere((p) => toRemovePaths.contains(p));
@@ -736,18 +795,20 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       } else if (type == CloseTagType.CLOSE_RIGHT) {
         // 关闭当前标签右侧所有标签
         // 1. 校验路径是否存在，避免无效操作
-        int currentIndex = _openedFilePath.indexOf(path);
+        int currentIndex = _openedFilePath.indexOf(openFileParameters);
         int lastIndex = _openedFilePath.length - 1;
         if (currentIndex == -1 || currentIndex >= lastIndex) {
           // 路径不存在 或 当前标签是最后一个，无需操作
           return;
         }
         // 2. 收集右侧所有要删除的路径（currentIndex+1 ~ 末尾）
-        List<String> toRemovePaths = _openedFilePath.sublist(currentIndex + 1);
+        List<OpenFileParameters> toRemovePaths = _openedFilePath.sublist(
+          currentIndex + 1,
+        );
         // 3. 批量清理关联数据
-        for (String p in toRemovePaths) {
-          _unsavedFilePath.remove(p);
-          _pathToRuntimeFileInfo.remove(p);
+        for (OpenFileParameters p in toRemovePaths) {
+          _unsavedFilePath.remove(p.path);
+          _pathToRuntimeFileInfo.remove(p.path);
         }
         // 4. 移除右侧标签，保留当前及左侧标签
         _openedFilePath.removeWhere((p) => toRemovePaths.contains(p));
@@ -765,7 +826,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
       }
     });
     // 保存更新后的打开文件列表
-    saveOpenedFile();
+    recordAllPath();
   }
 
   /**
@@ -843,12 +904,12 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             Scaffold.of(c).openDrawer();
           },
           onRequestShowCreateFileDialog: showCreateFileOrFolderDialog,
-          onRequestOpenFile: (path) {
+          onRequestOpenFile: (openFileParameters) {
             //需要请求刷新侧边栏
             setState(() {
               _currentPath = Constant.currentPathRefresh;
             });
-            _onRequestOpenFile(path, true);
+            _onRequestOpenFile(openFileParameters, true);
           },
           pathToRuntimeFileInfo: _pathToRuntimeFileInfo,
           rootPath: widget.mod.path,
@@ -858,9 +919,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
               _showLeftWidget = !_showLeftWidget;
             });
           },
-          closeTag: (String p1, CloseTagType type) {
-            _closeTag(p1, type);
-          },
+          closeTag: _closeTag,
           modUnit: _projectAnalyzer.unitRefList,
           onDataChange: onDataChange,
         );
@@ -955,12 +1014,14 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                       return AnalyticsDialog(
                         result: _projectAnalyzer.lastResult,
                         progressInfo: progressInfo,
-                        onRequestOpenFile: _onRequestOpenFile,
+                        onRequestOpenFile: (openFileParameters, recordPath) {
+                          _onRequestOpenFile(openFileParameters, recordPath);
+                        },
                         onCancelAnalytics: () {
                           _cancelAnalytics = true;
                         },
                         onRescan: () {
-                          _doAnalyze(context);
+                          _doAnalyze(context, false);
                         },
                       );
                     },
@@ -986,7 +1047,12 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                         isScrollControlled: true,
                         builder: (context) {
                           return ProblemDialog(
-                            onRequestOpenFile: _onRequestOpenFile,
+                            onRequestOpenFile: (path, recordPath) {
+                              _onRequestOpenFile(
+                                OpenFileParameters(path: path, readOnly: false),
+                                recordPath,
+                              );
+                            },
                             problemItemList:
                                 _projectAnalyzer.lastResult!.problems,
                             onRescan: () {
@@ -994,7 +1060,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                                 _projectAnalyzer.lastResult!.problems.clear();
                               });
                               reloadAllOpenedFileAfterAnalyze = true;
-                              _doAnalyze(context);
+                              _doAnalyze(context, true);
                             },
                           );
                         },
@@ -1017,7 +1083,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                   context: context,
                   barrierDismissible: false,
                   builder: (context) {
-                    final nowOpened = _openedFilePath[_targetTabIndex];
+                    final nowOpened = _openedFilePath[_targetTabIndex].path;
                     return SaveAsTemplateDialog(path: nowOpened);
                   },
                 );
@@ -1031,7 +1097,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                   ),
                 );
               } else if (value == 'reloadDataFromFile') {
-                final nowOpenedPath = _openedFilePath[_targetTabIndex];
+                final nowOpenedPath = _openedFilePath[_targetTabIndex].path;
                 if (_unsavedFilePath.contains(nowOpenedPath)) {
                   showDialog(
                     context: context,
@@ -1082,7 +1148,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                   );
                 }
               } else if (value == 'shareFile') {
-                final nowOpenedPath = _openedFilePath[_targetTabIndex];
+                final nowOpenedPath = _openedFilePath[_targetTabIndex].path;
                 if (_unsavedFilePath.contains(nowOpenedPath)) {
                   showDialog(
                     context: context,
@@ -1129,10 +1195,22 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                   showDragHandle: true,
                   builder: (buildContext) {
                     return UnitDialog(
+                      displayOnlyBuiltinUnits: true,
                       modUnit: _projectAnalyzer.unitRefList,
                       value: "",
-                      multiple: false,
-                      onSave: (data) {},
+                      multiple: true,
+                      onSave: (data) {
+                        for (UnitRef value in data) {
+                          String? path = value.path;
+                          if (path == null) {
+                            continue;
+                          }
+                          _onRequestOpenFile(
+                            OpenFileParameters(path: path, readOnly: true),
+                            true,
+                          );
+                        }
+                      },
                     );
                   },
                 );
@@ -1141,7 +1219,7 @@ class _EditUnitsPageState extends State<EditUnitsPage>
             itemBuilder: (context) {
               int fileType = FileTypeChecker.FileTypeUnknown;
               if (_openedFilePath.isNotEmpty) {
-                final nowOpened = _openedFilePath[_targetTabIndex];
+                final nowOpened = _openedFilePath[_targetTabIndex].path;
                 fileType = FileTypeChecker.getFileType(nowOpened);
               }
               return [

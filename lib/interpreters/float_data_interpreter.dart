@@ -18,6 +18,7 @@ class FloatDataInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -77,6 +78,7 @@ class _FloatDataInterpreterStatus extends State<FloatDataInterpreter> {
             ),
           Expanded(
             child: TextField(
+              enabled: !widget.readOnly,
               onChanged: (s) {
                 widget.keyValue.value = s;
                 widget.onLineDataChange?.call(
@@ -116,7 +118,7 @@ class _FloatDataInterpreterStatus extends State<FloatDataInterpreter> {
               ),
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -128,7 +130,7 @@ class _FloatDataInterpreterStatus extends State<FloatDataInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

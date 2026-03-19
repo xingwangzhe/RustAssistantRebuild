@@ -13,11 +13,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constant.dart';
 import '../global_depend.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
+import 'edit_units_page.dart';
 
 class BuiltInFileManagerPage extends StatefulWidget {
   final String rootPath;
   final String currentPath;
-  final Function(String)? onRequestOpenFile;
+  final Function(OpenFileParameters) onRequestOpenFile;
   final Function(String) onCurrentPathChange;
   final Future<bool> Function(
     Function(String, String, bool, String, bool) onCreate, {
@@ -35,7 +37,7 @@ class BuiltInFileManagerPage extends StatefulWidget {
   const BuiltInFileManagerPage({
     super.key,
     this.onClickAddFile,
-    this.onRequestOpenFile,
+    required this.onRequestOpenFile,
     required this.checkBoxMode,
     required this.rootPath,
     required this.currentPath,
@@ -268,7 +270,9 @@ class _BuiltInFileManagerPageStaus extends State<BuiltInFileManagerPage>
                       }
                       return;
                     }
-                    widget.onRequestOpenFile?.call(filePath);
+                    widget.onRequestOpenFile.call(
+                      OpenFileParameters(path: filePath, readOnly: false),
+                    );
                   },
                   leading: GlobalDepend.getFileIcon(
                     fileSystemEntity.isDirectory,
@@ -466,7 +470,9 @@ class _BuiltInFileManagerPageStaus extends State<BuiltInFileManagerPage>
       widget.onCurrentPathChange.call(path);
     } else {
       getFiles(folder);
-      widget.onRequestOpenFile?.call(path);
+      widget.onRequestOpenFile.call(
+        OpenFileParameters(path: path, readOnly: false),
+      );
     }
   }
 }

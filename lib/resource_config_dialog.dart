@@ -6,12 +6,15 @@ import 'package:rust_assistant/highlight_text.dart';
 import 'package:rust_assistant/l10n/app_localizations.dart';
 import 'package:rust_assistant/text_field_with_value.dart';
 
+import 'open_file_parameters.dart';
+
 class ResourceConfigDialog extends StatefulWidget {
   final List<ResourceRef> globalResource;
-  final Function(String) onRequestOpenFile;
+  final Function(OpenFileParameters) onRequestOpenFile;
   final List<ResourceRef> Function() getLocalResource;
 
   final String value;
+
   const ResourceConfigDialog({
     super.key,
     required this.getLocalResource,
@@ -34,6 +37,7 @@ class _ResourceConfigDialoglState extends State<ResourceConfigDialog> {
   final TextEditingController _searchController = TextEditingController();
   final List<ResourceRef> _allResource = [];
   final List<ResourceRef> _nonredundantResource = [];
+
   @override
   void initState() {
     super.initState();
@@ -279,7 +283,8 @@ class _ResourceConfigDialoglState extends State<ResourceConfigDialog> {
                                                 )!.none,
                                             searchKeyword:
                                                 _searchController.text,
-                                            softWrap: true, // 允许换行
+                                            softWrap: true,
+                                            // 允许换行
                                             overflow: TextOverflow.visible,
                                             style: Theme.of(
                                               context,
@@ -338,7 +343,12 @@ class _ResourceConfigDialoglState extends State<ResourceConfigDialog> {
                                           if (path == null) {
                                             return;
                                           }
-                                          widget.onRequestOpenFile.call(path);
+                                          widget.onRequestOpenFile.call(
+                                            OpenFileParameters(
+                                              path: path,
+                                              readOnly: false,
+                                            ),
+                                          );
                                           Navigator.of(context).pop();
                                         },
                                       ),

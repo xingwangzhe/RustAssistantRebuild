@@ -66,13 +66,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noContent => 'No content';
 
   @override
-  String get notSupportSteam => 'This platform does not support the display of modules from the Steam Workshop.';
+  String get notSupportSteam =>
+      'This platform does not support the display of modules from the Steam Workshop.';
 
   @override
   String get invalidFolder => 'Invalid folder';
 
   @override
-  String get folderDoesNotExist => 'This directory does not exist or does not have access rights.';
+  String get folderDoesNotExist =>
+      'This directory does not exist or does not have access rights.';
 
   @override
   String get none => 'none';
@@ -93,10 +95,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fileNotExist => 'The file does not exist.';
 
   @override
-  String get dataCannotLoadedFromFolder => 'Data cannot be loaded from the folder.';
+  String get dataCannotLoadedFromFolder =>
+      'Data cannot be loaded from the folder.';
 
   @override
-  String get allAvailableResources => 'All available resources have been added.';
+  String get allAvailableResources =>
+      'All available resources have been added.';
 
   @override
   String get addResources => 'Add resources';
@@ -108,7 +112,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enableSecondsAsTheUnit => 'Enable seconds as the unit.';
 
   @override
-  String get disableTheUseOfSecondsAsTheUnit => 'Disable the use of seconds as the unit.';
+  String get disableTheUseOfSecondsAsTheUnit =>
+      'Disable the use of seconds as the unit.';
 
   @override
   String get addCodeTitle => 'Add code';
@@ -117,7 +122,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTitleOrDescription => 'Search for the title or description.';
 
   @override
-  String get allAvailableCodesHaveBeenAdded => 'All available codes have been added.';
+  String get allAvailableCodesHaveBeenAdded =>
+      'All available codes have been added.';
 
   @override
   String get addCodeTip => 'Add %d lines of code';
@@ -147,7 +153,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get displayEscapeCharacters => 'Display escape characters';
 
   @override
-  String get escapeCharacterGuide => 'Escape character guide: \\n represents a newline, \\r represents a carriage return, and \\t represents a tab character.';
+  String get escapeCharacterGuide =>
+      'Escape character guide: \\n represents a newline, \\r represents a carriage return, and \\t represents a tab character.';
 
   @override
   String get editingSequence => 'Editing sequence';
@@ -159,10 +166,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get doYouWantDeleteThisComment => 'Do you want to delete the comment \"%s\"?';
+  String get doYouWantDeleteThisComment =>
+      'Do you want to delete the comment \"%s\"?';
 
   @override
-  String get doYouWantDeleteThisCode => 'Do you want to delete the code \"%s\"?';
+  String get doYouWantDeleteThisCode =>
+      'Do you want to delete the code \"%s\"?';
 
   @override
   String get doYouWantDelete => 'Do you want to delete \"%s\"?';
@@ -213,7 +222,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get followSystem => 'Follow system';
 
   @override
-  String get visitTheSteamWorkshopHomepage => 'Visit the Steam Workshop homepage';
+  String get visitTheSteamWorkshopHomepage =>
+      'Visit the Steam Workshop homepage';
 
   @override
   String get seconds => 'Seconds';
@@ -264,7 +274,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fileRepeatedlyPrompts => 'File %s already exists.';
 
   @override
-  String get titleContainsIllegalCharacter => 'Contains illegal characters: \\ / : *? \"<';
+  String get titleContainsIllegalCharacter =>
+      'Contains illegal characters: \\ / : *? \"<';
 
   @override
   String get titleCannotBeEmpty => 'Title cannot be empty';
@@ -276,7 +287,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modCreatedSuccessfullyTitle => 'Mod created successfully';
 
   @override
-  String get whetherOpenWorkspaceImmediately => 'Whether open workspace immediately?';
+  String get whetherOpenWorkspaceImmediately =>
+      'Whether open workspace immediately?';
 
   @override
   String get rememberMyChoice => 'Remember my choice';
@@ -342,7 +354,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseTryUsingOtherKeywords => 'Please try using other keywords';
 
   @override
-  String get navigateToTheDirectoryWhereTheFileIsLocated => 'Navigate to the directory where the file is located';
+  String get navigateToTheDirectoryWhereTheFileIsLocated =>
+      'Navigate to the directory where the file is located';
 
   @override
   String get general => 'General';
@@ -423,37 +436,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageAccessFramework => 'Storage Access Framework';
 
   @override
-  String get storageAccessFrameworkDefault => 'Storage Access Framework(Default)';
+  String get storageAccessFrameworkDefault =>
+      'Storage Access Framework(Default)';
 
   @override
-  String get storageAccessFrameworkOpenDescription => 'Accesses only the folder you choose. More secure, but slower when handling large numbers of files.';
+  String get storageAccessFrameworkOpenDescription =>
+      'Accesses only the folder you choose. More secure, but slower when handling large numbers of files.';
 
   @override
-  String get storageAccessFrameworkCloseDescription => 'Directly accesses storage for faster speed, but requires the \"Manage all files\" permission.';
+  String get storageAccessFrameworkCloseDescription =>
+      'Directly accesses storage for faster speed, but requires the \"Manage all files\" permission.';
 
   @override
   String get permission => 'permission';
 
   @override
-  String get revokeGrantedAccessPermissionSAFDirectory => 'Revoke Directory Access Permission';
+  String get revokeGrantedAccessPermissionSAFDirectory =>
+      'Revoke Directory Access Permission';
 
   @override
-  String get revokeGrantedAccessPermissionSAFDirectoryDescription => 'Revoke the directory access permissions granted to the app, no further access allowed.';
+  String get revokeGrantedAccessPermissionSAFDirectoryDescription =>
+      'Revoke the directory access permissions granted to the app, no further access allowed.';
 
   @override
-  String get noSAFDirectoryPermissions => 'No directory access permissions available to revoke.';
+  String get noSAFDirectoryPermissions =>
+      'No directory access permissions available to revoke.';
 
   @override
   String get revoke => 'Revoke %d Permissions';
 
   @override
-  String get revocationSuccessful => 'Permission revoked. Restart app to clear cache.';
+  String get revocationSuccessful =>
+      'Permission revoked. Restart app to clear cache.';
 
   @override
   String get selectAll => 'selectAll';
 
   @override
-  String get suggestionsForCloseTheSAF => 'Granting the \"Manage All Files\" permission can significantly improve file read and write speeds.';
+  String get suggestionsForCloseTheSAF =>
+      'Granting the \"Manage All Files\" permission can significantly improve file read and write speeds.';
 
   @override
   String get closeSAF => 'Switch Mode';
@@ -471,13 +492,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currentMode2 => 'Current mode: Access all files';
 
   @override
-  String get currentMode3 => 'Current mode: Access all files (effective after authorization)';
+  String get currentMode3 =>
+      'Current mode: Access all files (effective after authorization)';
 
   @override
   String get authorization => 'Authorization';
 
   @override
-  String get allFileAccessPermissionSettings => 'All file access permission Settings';
+  String get allFileAccessPermissionSettings =>
+      'All file access permission Settings';
 
   @override
   String get selectTheFolder => 'Select the folder';
@@ -486,7 +509,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectObjet => 'Select %s';
 
   @override
-  String get pathIsUnavailable => 'The path section you configured has expired. The folder may have been deleted or the folder access permission may have been revoked.';
+  String get pathIsUnavailable =>
+      'The path section you configured has expired. The folder may have been deleted or the folder access permission may have been revoked.';
 
   @override
   String get configuration => 'Configuration';
@@ -501,7 +525,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get automaticIndexConstruction => 'Automatic Index Construction';
 
   @override
-  String get automaticIndexConstructionTip => 'When the file is saved or you return from other applications, retrieve the project changes for automatic prompts and global search.';
+  String get automaticIndexConstructionTip =>
+      'When the file is saved or you return from other applications, retrieve the project changes for automatic prompts and global search.';
 
   @override
   String get addSectionTitle => 'Add Section';
@@ -510,7 +535,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addSectionTip => 'Add %d section';
 
   @override
-  String get fileNotSupportedOpening => 'This file is not supported for opening for the time being.';
+  String get fileNotSupportedOpening =>
+      'This file is not supported for opening for the time being.';
 
   @override
   String get displayOperationOptions => 'Display operation options';
@@ -531,7 +557,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noFilesFolders => 'There are no files or folders.';
 
   @override
-  String get noMatchingFileFolderWasFound => 'No matching file or folder was found.';
+  String get noMatchingFileFolderWasFound =>
+      'No matching file or folder was found.';
 
   @override
   String get selectNumberFiles => 'Select %d files';
@@ -549,7 +576,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoSave => 'autoSave';
 
   @override
-  String get autoSaveTip => 'The currently edited file is automatically saved when you switch applications.';
+  String get autoSaveTip =>
+      'The currently edited file is automatically saved when you switch applications.';
 
   @override
   String get selectColor => 'selectColor';
@@ -579,25 +607,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get targetGameVersion => 'Target game version';
 
   @override
-  String get targetGameVersionMessage => 'After selecting the target game version, the application only displays the data available for the target game version. For example, if 1.14 is selected, only the data of versions 1.13 and 1.14 will be displayed. 1.15 is not included.';
+  String get targetGameVersionMessage =>
+      'After selecting the target game version, the application only displays the data available for the target game version. For example, if 1.14 is selected, only the data of versions 1.13 and 1.14 will be displayed. 1.15 is not included.';
 
   @override
   String get clear => 'clear';
 
   @override
-  String get wantToClearThisFileReference => 'Are you sure you want to clear this file reference?';
+  String get wantToClearThisFileReference =>
+      'Are you sure you want to clear this file reference?';
 
   @override
   String get auto => 'auto';
 
   @override
-  String get wantToSetThisFileReferenceToAuto => 'Are you sure you want to set this file reference to automatic?';
+  String get wantToSetThisFileReferenceToAuto =>
+      'Are you sure you want to set this file reference to automatic?';
 
   @override
   String get autoAnimated => 'Auto Animated';
 
   @override
-  String get wantToSetThisFileReferenceToAutoAnimated => 'Are you sure you want to set this file reference to automatic animated?';
+  String get wantToSetThisFileReferenceToAutoAnimated =>
+      'Are you sure you want to set this file reference to automatic animated?';
 
   @override
   String get repeatedDefinition => 'Repeated definition';
@@ -615,10 +647,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dragTheFileHere => 'Drag the file here';
 
   @override
-  String get modNotBeenResolvedFromSelectedPath => 'The module has not been resolved from the directory you selected.';
+  String get modNotBeenResolvedFromSelectedPath =>
+      'The module has not been resolved from the directory you selected.';
 
   @override
-  String get analysisInProgress => 'Analysis in progress. Please wait for a moment...';
+  String get analysisInProgress =>
+      'Analysis in progress. Please wait for a moment...';
 
   @override
   String get modAlreadyExists => 'The module already exists.';
@@ -627,7 +661,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readInfoArchiveFile => 'Load archive file information';
 
   @override
-  String get readInfoArchiveFileSub => 'Load icons, titles, and other information from zip or rwmod format files. Displayed in the mod list.';
+  String get readInfoArchiveFileSub =>
+      'Load icons, titles, and other information from zip or rwmod format files. Displayed in the mod list.';
 
   @override
   String get readInfoArchiveFile0Mb => 'Do not load';
@@ -663,7 +698,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get download => 'Download';
 
   @override
-  String get failedToObtainDownloadLink => 'Failed to obtain the download link.';
+  String get failedToObtainDownloadLink =>
+      'Failed to obtain the download link.';
 
   @override
   String get checkForUpdate => 'Check for update';
@@ -687,16 +723,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agreementsAndPolicies => 'Agreements and Policies';
 
   @override
-  String get descriptionOfPermissionGranting => 'We need you to grant storage permission in order to access the mod files on your device.';
+  String get descriptionOfPermissionGranting =>
+      'We need you to grant storage permission in order to access the mod files on your device.';
 
   @override
   String get decompress => 'Decompress';
 
   @override
-  String get deleteOriginalFile => 'Delete the original file after decompression is completed.';
+  String get deleteOriginalFile =>
+      'Delete the original file after decompression is completed.';
 
   @override
-  String get doYouLikeDecompressTheSourceFile => 'This file can only be edited after being decompressed. Do you want to start decompressing \"%s\"?';
+  String get doYouLikeDecompressTheSourceFile =>
+      'This file can only be edited after being decompressed. Do you want to start decompressing \"%s\"?';
 
   @override
   String get folderAlreadyExists => 'The decompressed folder already exists.';
@@ -717,7 +756,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openWorkSpaceNever => 'Never';
 
   @override
-  String get openWorkspaceAfterCreatingTheFile => 'After creating the mod, open the workspace';
+  String get openWorkspaceAfterCreatingTheFile =>
+      'After creating the mod, open the workspace';
 
   @override
   String get recycleBin => 'recycleBin';
@@ -726,16 +766,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restore => 'restore';
 
   @override
-  String get restoreToOriginalPosition => 'Do you want to restore \"%s\" to its original position \"%s\"?';
+  String get restoreToOriginalPosition =>
+      'Do you want to restore \"%s\" to its original position \"%s\"?';
 
   @override
-  String get fileAlreadyExistsAtTheOriginalLocation => 'The file already exists at the original location.';
+  String get fileAlreadyExistsAtTheOriginalLocation =>
+      'The file already exists at the original location.';
 
   @override
-  String get decompressionHasBeenCancelled => 'Decompression has been cancelled.';
+  String get decompressionHasBeenCancelled =>
+      'Decompression has been cancelled.';
 
   @override
-  String get restorationHasBeenCancelled => 'The restoration has been cancelled.';
+  String get restorationHasBeenCancelled =>
+      'The restoration has been cancelled.';
 
   @override
   String get restoredSuccessfully => 'Restored successfully.';
@@ -744,7 +788,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get foreverDelete => 'foreverDelete';
 
   @override
-  String get wantToForeverDelete => 'Are you sure you want to permanently delete \"%s\"? Once deleted, it cannot be restored.';
+  String get wantToForeverDelete =>
+      'Are you sure you want to permanently delete \"%s\"? Once deleted, it cannot be restored.';
 
   @override
   String get importFile => 'Import file';
@@ -771,10 +816,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearRecycleBin => 'Empty the Recycle Bin';
 
   @override
-  String get wantToClearRecycleBin => 'Are you sure you want to empty the Recycle Bin?';
+  String get wantToClearRecycleBin =>
+      'Are you sure you want to empty the Recycle Bin?';
 
   @override
-  String get clearRecycleBinSuccess => 'The Recycle Bin has been emptied successfully';
+  String get clearRecycleBinSuccess =>
+      'The Recycle Bin has been emptied successfully';
 
   @override
   String get clearRecycleBinFailed => 'Failed to empty the Recycle Bin';
@@ -795,19 +842,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get decompressionFailed => 'decompression Failed';
 
   @override
-  String get pleaseSwitchToAnotherDecompression => 'Please switch to another decompression tool. File decompression error: %s';
+  String get pleaseSwitchToAnotherDecompression =>
+      'Please switch to another decompression tool. File decompression error: %s';
 
   @override
   String get global => 'global';
 
   @override
-  String get customResourceHaveNotBeenUsedYet => 'Custom resources have not been used yet';
+  String get customResourceHaveNotBeenUsedYet =>
+      'Custom resources have not been used yet';
 
   @override
   String get viewAllResources => 'View all resources';
 
   @override
-  String get thereAreNoAvailableCustomResources => 'If there are no available custom resources.';
+  String get thereAreNoAvailableCustomResources =>
+      'If there are no available custom resources.';
 
   @override
   String get customResourcesCannotBeFound => 'Custom resources cannot be found';
@@ -825,7 +875,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bilibiliSub => 'Follow us on bilibili!';
 
   @override
-  String get removeAllCodeWithInSection => 'This will remove all the code within the section. Do you still want to delete it?';
+  String get removeAllCodeWithInSection =>
+      'This will remove all the code within the section. Do you still want to delete it?';
 
   @override
   String get citationUnit => 'Citation unit';
@@ -849,13 +900,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreOpenedFile => 'Restore the opened files';
 
   @override
-  String get restoreOpenedFileTip => 'Restore the last opened file upon startup';
+  String get restoreOpenedFileTip =>
+      'Restore the last opened file upon startup';
 
   @override
   String get readMagicNumberOfFiles => 'Read the magic number of files';
 
   @override
-  String get readMagicNumberOfFilesTip => 'Infer the file type by reading the first 16 bytes of the file\'s data, rather than determining it based on the file format. For example, if a.png is named a, the software infers the file type based on the first 16 bytes of data, even if the file suffix is not png.';
+  String get readMagicNumberOfFilesTip =>
+      'Infer the file type by reading the first 16 bytes of the file\'s data, rather than determining it based on the file format. For example, if a.png is named a, the software infers the file type based on the first 16 bytes of data, even if the file suffix is not png.';
 
   @override
   String get builtIn => 'builtIn';
@@ -897,7 +950,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get problem => 'problem';
 
   @override
-  String get repeatKey => 'A duplicate definition of %s was found in the %s section.';
+  String get repeatKey =>
+      'A duplicate definition of %s was found in the %s section.';
 
   @override
   String get handle => 'handle';
@@ -912,7 +966,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadDataFromFile => 'Reload data from the file';
 
   @override
-  String get notSavedYet => 'There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?';
+  String get notSavedYet =>
+      'There are unsaved contents. If we proceed with loading data from the file, some of the content will be lost. Do you still want to continue?';
 
   @override
   String get loadingCompleted => 'Loading completed.';
@@ -921,7 +976,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get synchronizeVisualEditor => 'Synchronize to the visual editor';
 
   @override
-  String get notSynchronizedYet => 'There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?';
+  String get notSynchronizedYet =>
+      'There are some data that have not been synchronized. If you switch to the visual editor, this data will be lost. Do you still want to proceed?';
 
   @override
   String get codeTable => 'codeTable';
@@ -951,7 +1007,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyCopied => 'The text \"%s\" has been copied.';
 
   @override
-  String get shareOutdatedContent => 'Because your content has not been saved yet, the shared file might not be the latest version. Do you still want to proceed?';
+  String get shareOutdatedContent =>
+      'Because your content has not been saved yet, the shared file might not be the latest version. Do you still want to proceed?';
 
   @override
   String get shareOldVersion => 'Share the old version';
@@ -960,7 +1017,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get originalUnit => 'Original unit';
 
   @override
-  String get openUnitCode => 'Open %d source files';
+  String get open => 'open';
+
+  @override
+  String get readOnlyModeHint => 'The current file is opened in read-only mode';
 
   @override
   String get dexBuiltIn => 'Built-in in Dex';

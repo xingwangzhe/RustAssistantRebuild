@@ -317,5 +317,6 @@
   "shareOutdatedContent": "因为你有内容尚未保存，分享的文件可能不是最新的。仍要继续吗？",
   "shareOldVersion": "分享旧版本",
   "originalUnit": "原版单位",
-  "openUnitCode": "打开%d个源文件"
+  "open": "打开",
+  "readOnlyModeHint": "当前文件以只读模式打开"
 }

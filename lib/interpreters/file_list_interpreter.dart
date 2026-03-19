@@ -7,11 +7,12 @@ import '../constant.dart';
 import '../global_depend.dart';
 import '../highlight_link_text.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
 import '../pages/built_in_file_selector_page.dart';
 import 'data_interpreter.dart';
 
 class FileListInterpreter extends DataInterpreter {
-  final Function(String) onRequestOpenFile;
+  final Function(OpenFileParameters) onRequestOpenFile;
   final String modPath;
   final String sourceFilePath;
   final int selectFileType;
@@ -30,6 +31,7 @@ class FileListInterpreter extends DataInterpreter {
     required super.displayLineNumber,
     required super.displayOperationOptions,
     required super.overRiderValue,
+    required super.readOnly,
   });
 
   @override
@@ -146,43 +148,47 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
                   children: [
                     IconButton(
                       tooltip: AppLocalizations.of(context)!.attachedFiles,
-                      onPressed: () async {
-                        List<String>? selectList = await showModalBottomSheet(
-                          showDragHandle: true,
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return BuiltInFileSelectorPage(
-                              rootPath: widget.modPath,
-                              selectFile: true,
-                              checkBoxMode: Constant.checkBoxModeFile,
-                              maxSelectCount: Constant.maxSelectCountUnlimited,
-                              selectFileType: widget.selectFileType,
-                            );
-                          },
-                        );
-                        if (selectList == null) {
-                          return;
-                        }
-                        for (String select in selectList) {
-                          FileReference? fileReference =
-                              await FileReference.fromData(
-                                widget.sourceFilePath,
-                                widget.modPath,
-                                GlobalDepend.switchToRelativePath(
-                                  widget.modPath,
-                                  widget.sourceFilePath,
-                                  select,
-                                ),
-                                null,
-                              );
-                          if (fileReference == null) {
-                            continue;
-                          }
-                          _fileReferenceList.add(fileReference);
-                          _onLineChange();
-                        }
-                      },
+                      onPressed: widget.readOnly
+                          ? null
+                          : () async {
+                              List<String>? selectList =
+                                  await showModalBottomSheet(
+                                    showDragHandle: true,
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return BuiltInFileSelectorPage(
+                                        rootPath: widget.modPath,
+                                        selectFile: true,
+                                        checkBoxMode: Constant.checkBoxModeFile,
+                                        maxSelectCount:
+                                            Constant.maxSelectCountUnlimited,
+                                        selectFileType: widget.selectFileType,
+                                      );
+                                    },
+                                  );
+                              if (selectList == null) {
+                                return;
+                              }
+                              for (String select in selectList) {
+                                FileReference? fileReference =
+                                    await FileReference.fromData(
+                                      widget.sourceFilePath,
+                                      widget.modPath,
+                                      GlobalDepend.switchToRelativePath(
+                                        widget.modPath,
+                                        widget.sourceFilePath,
+                                        select,
+                                      ),
+                                      null,
+                                    );
+                                if (fileReference == null) {
+                                  continue;
+                                }
+                                _fileReferenceList.add(fileReference);
+                                _onLineChange();
+                              }
+                            },
                       icon: Icon(Icons.file_present_outlined),
                     ),
                   ],
@@ -210,20 +216,29 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _fileReferenceList.remove(item);
-                            });
-                            _onLineChange();
-                          },
+                          onPressed: widget.readOnly
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _fileReferenceList.remove(item);
+                                  });
+                                  _onLineChange();
+                                },
                           tooltip: AppLocalizations.of(context)!.remove,
                           icon: Icon(Icons.remove),
                         ),
                         if (item.exist)
                           IconButton(
-                            onPressed: () {
-                              widget.onRequestOpenFile(item.path);
-                            },
+                            onPressed: widget.readOnly
+                                ? null
+                                : () {
+                                    widget.onRequestOpenFile(
+                                      OpenFileParameters(
+                                        path: item.path,
+                                        readOnly: false,
+                                      ),
+                                    );
+                                  },
                             tooltip: AppLocalizations.of(
                               context,
                             )!.openAnExistingFile,
@@ -231,38 +246,42 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
                           ),
                         if (!item.exist)
                           IconButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.invalidCitation,
-                                    ),
-                                    content: Text(
-                                      sprintf(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.pointedNotExist,
-                                        [item.path],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          AppLocalizations.of(context)!.confirm,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
+                            onPressed: widget.readOnly
+                                ? null
+                                : () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.invalidCitation,
+                                          ),
+                                          content: Text(
+                                            sprintf(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.pointedNotExist,
+                                              [item.path],
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.confirm,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
                             tooltip: AppLocalizations.of(
                               context,
                             )!.invalidCitation,
@@ -278,7 +297,7 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
               ],
             ),
           ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               onPressed: () {
                 widget.keyValue.isNote = true;
@@ -290,7 +309,7 @@ class _FileListDataInterpreterStatus extends State<FileListInterpreter> {
               tooltip: AppLocalizations.of(context)!.convertToAnnotations,
               icon: Icon(Icons.sync_alt),
             ),
-          if (widget.displayOperationOptions)
+          if (!widget.readOnly && widget.displayOperationOptions)
             IconButton(
               tooltip: AppLocalizations.of(context)!.delete,
               onPressed: () {

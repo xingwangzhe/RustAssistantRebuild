@@ -1,0 +1,7 @@
+# l10n.yaml 完整配置（直接复制覆盖）
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+untranslated-messages-file: untranslated_l10n.txt
+use-deferred-loading: false

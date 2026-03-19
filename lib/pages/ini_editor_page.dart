@@ -36,13 +36,15 @@ import '../interpreters/note_data_interpreter.dart';
 import '../interpreters/section_interpreter.dart';
 import '../interpreters/string_data_interpreter.dart';
 import '../l10n/app_localizations.dart';
+import '../open_file_parameters.dart';
 import 'code_table_page.dart';
+import 'edit_units_page.dart';
 
 class IniEditorPage extends StatefulWidget {
   final bool displayLineNumber;
   final bool displayOperationOptions;
   final bool overRiderValue;
-  final Function(String) onRequestOpenFile;
+  final Function(OpenFileParameters) onRequestOpenFile;
   final Function onRequestChangeLeftWidget;
   final List<String> tagList;
   final List<UnitRef> modUnit;
@@ -66,6 +68,7 @@ class IniEditorPage extends StatefulWidget {
     required this.onRequestOpenFile,
     required this.modPath,
     required this.tagList,
+    required this.readOnly,
   });
 
   final List<ResourceRef> globalResource;
@@ -74,6 +77,7 @@ class IniEditorPage extends StatefulWidget {
 
   //文件内容
   final String? fileData;
+  final bool readOnly;
 
   final Function(int)? onMaxLineNumberChange;
   final Function onRequestOpenDrawer;
@@ -211,6 +215,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
         overRiderValue: widget.overRiderValue,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "color") {
       return ColorInterpreter(
@@ -222,6 +227,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
         overRiderValue: widget.overRiderValue,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "int") {
       return IntDataInterpreter(
@@ -233,6 +239,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
         overRiderValue: widget.overRiderValue,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "float") {
       return FloatDataInterpreter(
@@ -244,6 +251,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         displayOperationOptions: widget.displayOperationOptions,
         overRiderValue: widget.overRiderValue,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "intOrPrice") {
       return IntORPriceDataInterpreter(
@@ -258,6 +266,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onRequestOpenFile: widget.onRequestOpenFile,
         overRiderValue: widget.overRiderValue,
         getLocalResource: getLocalResource,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "floatORTime") {
       return FloatORTimeDataInterpreter(
@@ -270,6 +279,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "time") {
       return FloatORTimeDataInterpreter(
@@ -282,6 +292,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "enum") {
       return EnumInterprete(
@@ -294,6 +305,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "tagsWithoutAddDialog") {
       return TagInterpreter(
@@ -306,6 +318,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
+        readOnly: widget.readOnly,
         enableAddDialog: false,
       );
     } else if (interpreter == "tags") {
@@ -319,6 +332,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
+        readOnly: widget.readOnly,
         enableAddDialog: true,
       );
     } else if (interpreter == "bool") {
@@ -330,6 +344,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
+        readOnly: widget.readOnly,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "logicBoolean") {
@@ -341,6 +356,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         onLineDataChange: onLineDataChange,
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
+        readOnly: widget.readOnly,
         displayOperationOptions: widget.displayOperationOptions,
       );
     } else if (interpreter == "multilingual") {
@@ -350,6 +366,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         codeData: codeData,
         codeInfo: codeInfo,
         onLineDataChange: onLineDataChange,
+        readOnly: widget.readOnly,
         displayLineNumber: widget.displayLineNumber,
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
@@ -366,6 +383,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         displayOperationOptions: widget.displayOperationOptions,
         onRequestOpenFile: widget.onRequestOpenFile,
         sourceFilePath: widget.sourceFilePath,
+        readOnly: widget.readOnly,
         selectFileType: _argumentsToFileType(arguments),
         modPath: widget.modPath,
       );
@@ -383,6 +401,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         modPath: widget.modPath,
         selectFileType: _argumentsToFileType(arguments),
         supportAuto: true,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "file") {
       return FileDataInterpreter(
@@ -398,6 +417,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         modPath: widget.modPath,
         supportAuto: false,
         selectFileType: _argumentsToFileType(arguments),
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "unit") {
       return UnitInterpreter(
@@ -411,6 +431,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         multiple: false,
+        readOnly: widget.readOnly,
       );
     } else if (interpreter == "unitList") {
       return UnitInterpreter(
@@ -424,6 +445,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         overRiderValue: widget.overRiderValue,
         displayOperationOptions: widget.displayOperationOptions,
         multiple: true,
+        readOnly: widget.readOnly,
       );
     }
     return getDefaultView(lineNumber, keyValue, codeData, codeInfo);
@@ -630,7 +652,6 @@ class _IniEditorPageStatus extends State<IniEditorPage>
   }
 
   Widget _buildCoreWidget(BuildContext context) {
-    debugPrint("iniEditorPage buildCoreWidget");
     var allSection = _iniReader!.getAllSection();
     _dataInterpreters.clear();
     var lineNumber = 0;
@@ -668,6 +689,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
         },
         displayOperationOptions: widget.displayOperationOptions,
         deleteSectionCallBack: deleteSectionCallBack,
+        readOnly: widget.readOnly,
       );
       addDataInterpreter(sectionInterpreter, fullSection);
       sections.add(sectionInterpreter);
@@ -695,6 +717,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
               displayLineNumber: widget.displayLineNumber,
               overRiderValue: widget.overRiderValue,
               displayOperationOptions: widget.displayOperationOptions,
+              readOnly: widget.readOnly,
             ),
             value,
           );
@@ -724,7 +747,18 @@ class _IniEditorPageStatus extends State<IniEditorPage>
       _maxLineNumber = lineNumber;
       widget.onMaxLineNumberChange?.call(lineNumber);
     }
-    return Column(children: [Expanded(child: _getVisualWidget(sections))]);
+    return Column(
+      children: [
+        if (widget.readOnly)
+          Text(
+            AppLocalizations.of(context)!.readOnlyModeHint,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        Expanded(child: _getVisualWidget(sections)),
+      ],
+    );
   }
 
   Widget _getVisualWidget(List<Widget> sections) {
@@ -780,41 +814,41 @@ class _IniEditorPageStatus extends State<IniEditorPage>
                   icon: Icon(Icons.menu_open),
                 ),
 
-                IconButton(
-                  tooltip: AppLocalizations.of(context)!.addSection,
-                  onPressed: () {
-                    addSection();
-                  },
-                  icon: Icon(Icons.add),
-                ),
-                IconButton(
-                  tooltip: AppLocalizations.of(context)!.editor,
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isDismissible: false,
-                      showDragHandle: true,
-                      isScrollControlled: true,
-                      builder: (buildContext) {
-                        return CodeEditor(
-                          text: widget.fileData,
-                          onSubmit: (text) {
-                            widget.onDataChange.call(text, true);
-                          },
-                        );
-                      },
-                    );
-                  },
-                  icon: Icon(Icons.edit_outlined),
-                ),
+                if (!widget.readOnly)
+                  IconButton(
+                    tooltip: AppLocalizations.of(context)!.addSection,
+                    onPressed: () {
+                      addSection();
+                    },
+                    icon: Icon(Icons.add),
+                  ),
+                if (!widget.readOnly)
+                  IconButton(
+                    tooltip: AppLocalizations.of(context)!.editor,
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isDismissible: false,
+                        showDragHandle: true,
+                        isScrollControlled: true,
+                        builder: (buildContext) {
+                          return CodeEditor(
+                            text: widget.fileData,
+                            onSubmit: (text) {
+                              widget.onDataChange.call(text, true);
+                            },
+                          );
+                        },
+                      );
+                    },
+                    icon: Icon(Icons.edit_outlined),
+                  ),
                 IconButton(
                   tooltip: AppLocalizations.of(context)!.codeTable,
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => CodeTablePage(),
-                      ),
+                      MaterialPageRoute(builder: (context) => CodeTablePage()),
                     );
                   },
                   icon: Icon(Icons.code),
@@ -1044,6 +1078,7 @@ class _IniEditorPageStatus extends State<IniEditorPage>
       displayLineNumber: widget.displayLineNumber,
       overRiderValue: widget.overRiderValue,
       displayOperationOptions: widget.displayOperationOptions,
+      readOnly: widget.readOnly,
     );
   }
 
