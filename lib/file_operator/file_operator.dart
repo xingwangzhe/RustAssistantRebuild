@@ -71,11 +71,17 @@ abstract class FileSystemOperator {
 class LocalFileOperator extends FileSystemOperator {
   @override
   Future<bool> exist(String uri) async {
+    if (isAssetsFile(uri)) {
+      return true;
+    }
     return await FileSystemEntity.type(uri) != FileSystemEntityType.notFound;
   }
 
   @override
   Future<bool> mkdir(String uri, String name) async {
+    if (isAssetsFile(uri)) {
+      return false;
+    }
     try {
       var dir = Directory(p.join(uri, name));
       if (await dir.exists()) {
@@ -91,6 +97,10 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<String?> readAsString(String uri, {Encoding encoding = utf8}) async {
+    if (isAssetsFile(uri)) {
+      return rootBundle.loadString(uri.substring(Constant.pathPrefixAssets.length));
+    }
+
     var file = File(uri);
     try {
       return await file.readAsString(encoding: encoding);
@@ -122,6 +132,9 @@ class LocalFileOperator extends FileSystemOperator {
     Future<bool> Function(String path) callBack, {
     bool recursive = false,
   }) async {
+    if (isAssetsFile(uri)) {
+      return;
+    }
     if (!await isDir(uri)) {
       return;
     }
@@ -135,6 +148,9 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<void> writeFile(String uri, String name, String? content) async {
+    if (isAssetsFile(uri)) {
+      return;
+    }
     File file = File(p.join(uri, name));
     await file.create(recursive: true);
     if (content != null) {
@@ -172,6 +188,9 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<bool> checkFolderAvailable(String uri) async {
+    if (isAssetsFile(uri)) {
+      return true;
+    }
     return await Directory(uri).exists();
   }
 
@@ -182,11 +201,17 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<String> relative(String path, String from) async {
+    if (isAssetsFile(path)) {
+      return path;
+    }
     return p.relative(path, from: from);
   }
 
   @override
   Future<void> delete(String uri, {bool recursive = false}) {
+    if (isAssetsFile(uri)) {
+      return Future.value();
+    }
     return File(uri).delete(recursive: true);
   }
 
@@ -202,6 +227,9 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<Uint8List?> readAsBytes(String uri, {int? start, int? count}) async {
+    if (isAssetsFile(uri)) {
+      return null;
+    }
     final file = File(uri);
     if (!await file.exists()) return null;
     final raf = await file.open();
@@ -281,6 +309,9 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<int> size(String uri) async {
+    if (isAssetsFile(uri)) {
+      return 0;
+    }
     if (await isDir(uri)) {
       return 0;
     }
@@ -289,6 +320,9 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   void rename(String oldUri, String newUri) {
+    if (isAssetsFile(oldUri)) {
+      return;
+    }
     final src = FileSystemEntity.typeSync(oldUri);
     switch (src) {
       case FileSystemEntityType.file:
@@ -307,6 +341,9 @@ class LocalFileOperator extends FileSystemOperator {
 
   @override
   Future<DateTime?> getModifiedTime(String uri) async {
+    if (isAssetsFile(uri)) {
+      return null;
+    }
     try {
       // 获取文件/目录的状态信息
       final FileStat stat = await File(uri).stat();
@@ -326,6 +363,10 @@ class LocalFileOperator extends FileSystemOperator {
       debugPrint("Unknown error getting modified time for $uri: $e\n$st");
       return null;
     }
+  }
+
+  bool isAssetsFile(String path) {
+    return path.toLowerCase().startsWith(Constant.pathPrefixAssets);
   }
 }
 

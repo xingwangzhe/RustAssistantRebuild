@@ -285,6 +285,7 @@ class _AnalyticsDialogState extends State<AnalyticsDialog>
               ),
             ),
           ],
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
         ],
       ),
     );

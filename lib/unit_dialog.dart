@@ -285,6 +285,7 @@ class _UnitDialogStatus extends State<UnitDialog> {
                 ),
               ],
             ),
+            SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
           ],
         ),
       ),

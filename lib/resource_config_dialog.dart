@@ -463,6 +463,7 @@ class _ResourceConfigDialoglState extends State<ResourceConfigDialog> {
                 ),
               ],
             ),
+            SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
           ],
         ),
       ),

@@ -133,29 +133,41 @@ class _FileDataInterpreterStatus extends State<FileDataInterpreter>
     if (_fileReference!.fileType == FileTypeChecker.FileTypeUnknown) {
       return Text(_fileReference!.path);
     }
-    var pathType = CodeDataBase.getAssetsPathType(_fileReference!.data);
     if (_fileReference!.fileType == FileTypeChecker.FileTypeImage) {
       return Tooltip(
         message: widget.keyValue.value.toString(),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: pathType == Constant.assetsPathTypeNone
-              ? Image.file(
-                  File(_fileReference!.path),
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.cover,
-                )
-              : Image.asset(
-                  _fileReference!.path,
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
+          child: getImage(_fileReference!.data, _fileReference!.path),
         ),
       );
     }
     return SizedBox();
+  }
+
+  Widget getImage(String data, String path) {
+    if (path.startsWith(Constant.pathPrefixAssets)) {
+      return Image.asset(
+        path.substring(Constant.pathPrefixAssets.length),
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    }
+    var pathType = CodeDataBase.getAssetsPathType(_fileReference!.data);
+    return pathType == Constant.assetsPathTypeNone
+        ? Image.file(
+            File(_fileReference!.path),
+            width: 150,
+            height: 150,
+            fit: BoxFit.cover,
+          )
+        : Image.asset(
+            _fileReference!.path,
+            width: 150,
+            height: 150,
+            fit: BoxFit.cover,
+          );
   }
 
   @override

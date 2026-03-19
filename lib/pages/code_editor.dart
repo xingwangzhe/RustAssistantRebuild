@@ -75,6 +75,7 @@ class _CodeEditorStatus extends State<CodeEditor> {
               ),
             ],
           ),
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
         ],
       ),
     );

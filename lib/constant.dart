@@ -43,6 +43,8 @@ class Constant {
   static const String pathPrefixRoot = "root:";
   static const String pathPrefixCore = "core:";
   static const String pathPrefixShared = "shared:";
+  //游戏并不支持此类型，本软件使用此类型表示内置资源。
+  static const String pathPrefixAssets = "@assets:";
   static const int segmentIndexShared = 3;
   static const int segmentIndexCore = 2;
   static const int segmentIndexFile = 1;

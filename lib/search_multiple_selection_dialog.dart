@@ -199,6 +199,7 @@ class _SearchMultipleSelectionStatus
                 ),
               ],
             ),
+            SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
           ],
         ),
       ),

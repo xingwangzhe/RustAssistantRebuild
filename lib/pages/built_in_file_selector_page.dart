@@ -307,6 +307,7 @@ class _BuiltInFileSelectorPageStatus extends State<BuiltInFileSelectorPage> {
               ),
             ],
           ),
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
         ],
       ),
     );

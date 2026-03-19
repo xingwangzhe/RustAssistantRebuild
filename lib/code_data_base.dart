@@ -435,7 +435,8 @@ class CodeDataBase {
         dexUnitsSet.remove(name);
       }
       ref.type = UnitRefType.BUILT_IN;
-      ref.path = 'assets/game_res/$_gameDataVersion/units/${ref.path}';
+      ref.path =
+          '${Constant.pathPrefixAssets}assets/game_res/$_gameDataVersion/units/${ref.path}';
       builtInUnit.add(ref);
     }
     for (var value in dexUnitsSet.values) {
