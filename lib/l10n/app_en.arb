@@ -314,5 +314,8 @@
   "collect": "collect",
   "alreadyCopied": "The text \"%s\" has been copied.",
   "shareOutdatedContent": "Because your content has not been saved yet, the shared file might not be the latest version. Do you still want to proceed?",
-  "shareOldVersion": "Share the old version"
+  "shareOldVersion": "Share the old version",
+  "originalUnit": "Original unit",
+  "openUnitCode": "Open %d source files",
+  "dexBuiltIn": "Built-in in Dex"
 }

@@ -9,6 +9,7 @@ class UnitDialog extends StatefulWidget {
   final String value;
   final bool multiple;
   final Function(String) onSave;
+
   const UnitDialog({
     super.key,
     required this.modUnit,
@@ -25,25 +26,23 @@ class UnitDialog extends StatefulWidget {
 
 class _UnitDialogStatus extends State<UnitDialog> {
   final TextEditingController _searchController = TextEditingController();
-  final List<UnitRefData> _allUnit = List.empty(growable: true);
-  final List<UnitRefData> _filteredUnit = List.empty(growable: true);
+  final List<UnitRef> _allUnit = List.empty(growable: true);
+  final List<UnitRef> _filteredUnit = List.empty(growable: true);
   final Set<String> _unitList = {};
+
+  @override
+  void dispose() {
+    super.dispose();
+    _searchController.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
-    var builtInUnit = CodeDataBase.builtInUnit;
     //添加内置单位
-    for (UnitRef unitRef in builtInUnit) {
-      var data = UnitRefData.fromUnitRef(unitRef);
-      data.builtIn = true;
-      _allUnit.add(data);
-    }
-    //添加模组单位
-    for (UnitRef unitRef in widget.modUnit) {
-      var data = UnitRefData.fromUnitRef(unitRef);
-      data.builtIn = false;
-      _allUnit.add(data);
-    }
+    _allUnit.clear();
+    _allUnit.addAll(CodeDataBase.builtInUnit);
+    _allUnit.addAll(widget.modUnit);
     _allUnit.sort((a, b) {
       final aName = a.name?.toLowerCase() ?? "";
       final bName = b.name?.toLowerCase() ?? "";
@@ -80,8 +79,8 @@ class _UnitDialogStatus extends State<UnitDialog> {
               controller: _searchController,
               onChanged: (value) {
                 var lowerCaseValue = value.toLowerCase();
-                List<UnitRefData> newData = List.empty(growable: true);
-                for (UnitRefData unitRef in _allUnit) {
+                List<UnitRef> newData = List.empty(growable: true);
+                for (UnitRef unitRef in _allUnit) {
                   var name = unitRef.name;
                   if (name == null) {
                     continue;
@@ -125,14 +124,18 @@ class _UnitDialogStatus extends State<UnitDialog> {
                   var unitData = _filteredUnit[index];
                   if (widget.multiple) {
                     return CheckboxListTile(
-                      title: unitData.builtIn
+                      title: unitData.type != UnitRefType.MOD
                           ? Wrap(
                               crossAxisAlignment: WrapCrossAlignment.center,
                               spacing: 8,
                               children: [
                                 Chip(
                                   label: Text(
-                                    AppLocalizations.of(context)!.builtIn,
+                                    unitData.type == UnitRefType.BUILT_IN
+                                        ? AppLocalizations.of(context)!.builtIn
+                                        : AppLocalizations.of(
+                                            context,
+                                          )!.dexBuiltIn,
                                   ),
                                 ),
                                 HighlightText(
@@ -175,14 +178,18 @@ class _UnitDialogStatus extends State<UnitDialog> {
                   // 单选模式
                   return RadioListTile<String>(
                     controlAffinity: ListTileControlAffinity.trailing,
-                    title: unitData.builtIn
+                    title: unitData.type != UnitRefType.MOD
                         ? Wrap(
                             crossAxisAlignment: WrapCrossAlignment.center,
                             spacing: 8,
                             children: [
                               Chip(
                                 label: Text(
-                                  AppLocalizations.of(context)!.builtIn,
+                                  unitData.type == UnitRefType.BUILT_IN
+                                      ? AppLocalizations.of(context)!.builtIn
+                                      : AppLocalizations.of(
+                                          context,
+                                        )!.dexBuiltIn,
                                 ),
                               ),
                               HighlightText(
@@ -247,19 +254,5 @@ class _UnitDialogStatus extends State<UnitDialog> {
         ),
       ),
     );
-  }
-}
-
-class UnitRefData extends UnitRef {
-  bool builtIn = false;
-
-  static UnitRefData fromUnitRef(UnitRef unitRef) {
-    var result = UnitRefData();
-    result.builtIn = false;
-    result.description = unitRef.description;
-    result.displayName = unitRef.displayName;
-    result.name = unitRef.name;
-    result.path = unitRef.path;
-    return result;
   }
 }

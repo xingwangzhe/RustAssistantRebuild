@@ -21,6 +21,7 @@ class ProjectAnalyzer {
   Map<String, DateTime> modificationTime = {};
   Map<String, List<ListDataTask>> pathToListData = {};
   Map<String, List<ProblemItem>> problemItemListData = {};
+  Map<String, UnitRef> pathToUnitRef = {};
   bool first = true;
 
   ProjectAnalyzer(this.rootPath, this.fileSystemOperator);
@@ -70,6 +71,7 @@ class ProjectAnalyzer {
       configPath,
       "problemItem.json",
     );
+    String unitRefPath = fileSystemOperator.join(configPath, "unitRefs.json");
     if (progress?.call(-1, 0, appLocalizations.readCache) == true) {
       return;
     }
@@ -120,8 +122,19 @@ class ProjectAnalyzer {
     } else {
       problemItemListData.clear();
     }
+    if (pathToUnitRef.isEmpty && await fileSystemOperator.exist(unitRefPath)) {
+      String? unitRefData = await fileSystemOperator.readAsString(unitRefPath);
+      if (unitRefData != null && unitRefData.isNotEmpty) {
+        Map<String, dynamic> dataMap = jsonDecode(unitRefData);
+        pathToUnitRef = dataMap.map((key, value) {
+          UnitRef unitRef = UnitRef.fromJson(value);
+          return MapEntry(key, unitRef);
+        });
+      }
+    }
+
     first = false;
-    List<UnitRef> temporary = List.empty(growable: true);
+    List<UnitRef> temporaryUnitRef = List.empty(growable: true);
     var fileVisualAnalytics = VisualAnalyticsResultItem();
     var assetsVisualAnalytics = VisualAnalyticsResultItem();
     var memoryVisualAnalytics = VisualAnalyticsResultItem();
@@ -207,6 +220,10 @@ class ProjectAnalyzer {
             for (var value in problemList) {
               result.problems.add(value);
             }
+          }
+          UnitRef? unitRef = pathToUnitRef[path];
+          if (unitRef != null) {
+            temporaryUnitRef.add(unitRef);
           }
           continue;
         }
@@ -331,7 +348,8 @@ class ProjectAnalyzer {
         }
       }
       if (unitRef.name != null) {
-        temporary.add(unitRef);
+        temporaryUnitRef.add(unitRef);
+        pathToUnitRef[path] = unitRef;
         var unitData = ListData();
         unitData.title = unitRef.name;
         unitData.subTitle = relativePath;
@@ -404,13 +422,26 @@ class ProjectAnalyzer {
         problemItemListJsonStr,
       );
     }
+
+    if (pathToUnitRef.isEmpty) {
+      if (await fileSystemOperator.exist(unitRefPath)) {
+        await fileSystemOperator.delete(unitRefPath);
+      }
+    } else {
+      String pathToUnitRefJsonStr = jsonEncode(pathToUnitRef);
+      await fileSystemOperator.writeFile(
+        configPath,
+        "unitRefs.json",
+        pathToUnitRefJsonStr,
+      );
+    }
     result.items.add(fileVisualAnalytics);
     result.items.add(assetsVisualAnalytics);
     result.items.add(memoryVisualAnalytics);
     result.items.add(tagVisualAnalytics);
     result.items.add(unitVisualAnalytics);
     unitRefList.clear();
-    unitRefList.addAll(temporary);
+    unitRefList.addAll(temporaryUnitRef);
     result.tagList = tagSet.toList();
     result.endTime = DateTime.now();
     _lastResult = result;

@@ -955,4 +955,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareOldVersion => 'Share the old version';
+
+  @override
+  String get originalUnit => 'Original unit';
+
+  @override
+  String get openUnitCode => 'Open %d source files';
+
+  @override
+  String get dexBuiltIn => 'Built-in in Dex';
 }

@@ -56,7 +56,7 @@ class CodeTableStatus extends State<CodeTablePage> {
     if (list.isNotEmpty) {
       gameVersionStr = list[0].versionName;
     }
-    Future.delayed(Duration(milliseconds: 150), () {
+    Future.delayed(Duration(milliseconds: 300), () {
       _loadData();
     });
   }

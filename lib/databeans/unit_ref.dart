@@ -1,8 +1,11 @@
+enum UnitRefType { DEX, BUILT_IN, MOD }
+
 class UnitRef {
   String? description;
   String? displayName;
   String? name;
   String? path;
+  UnitRefType type = UnitRefType.MOD;
 
   UnitRef({this.description, this.displayName, this.name, this.path});
 

@@ -17,6 +17,7 @@ import 'package:rust_assistant/pages/problem_dialog.dart';
 import 'package:rust_assistant/pages/save_as_template_dialog.dart';
 import 'package:rust_assistant/pages/work_space_page.dart';
 import 'package:rust_assistant/text_difference.dart';
+import 'package:rust_assistant/unit_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:window_manager/window_manager.dart';
@@ -1121,6 +1122,20 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                 }
                 final params = ShareParams(files: [XFile(nowOpenedPath)]);
                 await SharePlus.instance.share(params);
+              } else if (value == "originalUnit") {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  showDragHandle: true,
+                  builder: (buildContext) {
+                    return UnitDialog(
+                      modUnit: _projectAnalyzer.unitRefList,
+                      value: "",
+                      multiple: false,
+                      onSave: (data) {},
+                    );
+                  },
+                );
               }
             },
             itemBuilder: (context) {
@@ -1197,6 +1212,10 @@ class _EditUnitsPageState extends State<EditUnitsPage>
                     enabled: _openedFilePath.isNotEmpty,
                     child: Text(AppLocalizations.of(context)!.share),
                   ),
+                PopupMenuItem<String>(
+                  value: 'originalUnit',
+                  child: Text(AppLocalizations.of(context)!.originalUnit),
+                ),
               ];
             },
             icon: const Icon(Icons.more_vert),

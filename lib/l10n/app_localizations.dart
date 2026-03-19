@@ -1990,6 +1990,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share the old version'**
   String get shareOldVersion;
+
+  /// No description provided for @originalUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Original unit'**
+  String get originalUnit;
+
+  /// No description provided for @openUnitCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Open %d source files'**
+  String get openUnitCode;
+
+  /// No description provided for @dexBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in in Dex'**
+  String get dexBuiltIn;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

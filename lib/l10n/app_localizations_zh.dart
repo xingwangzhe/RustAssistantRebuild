@@ -955,4 +955,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get shareOldVersion => '分享旧版本';
+
+  @override
+  String get originalUnit => '原版单位';
+
+  @override
+  String get openUnitCode => '打开%d个源文件';
+
+  @override
+  String get dexBuiltIn => 'Dex内置';
 }

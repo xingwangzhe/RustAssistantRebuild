@@ -420,10 +420,14 @@ class CodeDataBase {
     );
     builtInUnit.clear();
     for (var item in dexUnits) {
-      builtInUnit.add(UnitRef.fromJson(item));
+      UnitRef ref = UnitRef.fromJson(item);
+      ref.type = UnitRefType.DEX;
+      builtInUnit.add(ref);
     }
     for (var item in units) {
-      builtInUnit.add(UnitRef.fromJson(item));
+      UnitRef ref = UnitRef.fromJson(item);
+      ref.type = UnitRefType.BUILT_IN;
+      builtInUnit.add(ref);
     }
   }
 
